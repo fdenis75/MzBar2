@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "A58DD929-E362-4783-AD9E-52F0B42348B1"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AC7D0369-9BF8-4554-B54A-8BC9B1B5AB77"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/mosaic-generator-swift.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "404"
+            endingLineNumber = "404"
+            landmarkName = "getVideoFiles(from:width:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4D7843AC-8107-4DD2-B72F-B38A03A206DB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/mosaic-generator-swift.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "451"
+            endingLineNumber = "451"
+            landmarkName = "getVideoFilesFromDirectory(_:width:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A6C9D62A-6EE6-4CD1-8A65-1503078BC4F1"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MZBarApp.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "204"
+            endingLineNumber = "204"
+            landmarkName = "generateMosaic()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "97F28606-0F1A-4771-B409-B447C73DA88E"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MZBarApp.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "146"
+            endingLineNumber = "146"
+            landmarkName = "handleDrop(providers:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E950C273-F676-4965-B9C9-3FAE5C246CF3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MZBarApp.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "192"
+            endingLineNumber = "192"
+            landmarkName = "generateMosaic()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B9E482BB-4D1A-4C66-8E5F-D1BA85A37BD3"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/mosaic-generator-swift.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "213"
+            endingLineNumber = "213"
+            landmarkName = "processFiles(input:width:density:format:overwrite:preview:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3A18D9EA-1F0D-424A-A386-6D96745B3BE7"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/mosaic-generator-swift.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "406"
+            endingLineNumber = "406"
+            landmarkName = "getVideoFiles(from:width:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "3A18D9EA-1F0D-424A-A386-6D96745B3BE7 - d59124304e88f10a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for MZBar.MosaicGenerator.getVideoFiles(from: Swift.String, width: Swift.Int) async throws -&gt; Swift.Array&lt;(Foundation.URL, Foundation.URL)&gt;"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/Dev/Apps/MZBar/MZBar/mosaic-generator-swift.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "406"
+                  endingLineNumber = "406">
+               </Location>
+               <Location
+                  uuid = "3A18D9EA-1F0D-424A-A386-6D96745B3BE7 - 517df1eb62bae14a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for MZBar.MosaicGenerator.getVideoFiles(from: Swift.String, width: Swift.Int) async throws -&gt; Swift.Array&lt;(Foundation.URL, Foundation.URL)&gt;"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/Dev/Apps/MZBar/MZBar/mosaic-generator-swift.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "415"
+                  endingLineNumber = "415">
+               </Location>
+               <Location
+                  uuid = "3A18D9EA-1F0D-424A-A386-6D96745B3BE7 - 517df1eb62bae261"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for MZBar.MosaicGenerator.getVideoFiles(from: Swift.String, width: Swift.Int) async throws -&gt; Swift.Array&lt;(Foundation.URL, Foundation.URL)&gt;"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/Dev/Apps/MZBar/MZBar/mosaic-generator-swift.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "406"
+                  endingLineNumber = "406">
+               </Location>
+               <Location
+                  uuid = "3A18D9EA-1F0D-424A-A386-6D96745B3BE7 - 73364f4f16a0363f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for MZBar.MosaicGenerator.getVideoFiles(from: Swift.String, width: Swift.Int) async throws -&gt; Swift.Array&lt;(Foundation.URL, Foundation.URL)&gt;"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/Dev/Apps/MZBar/MZBar/mosaic-generator-swift.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "415"
+                  endingLineNumber = "415">
+               </Location>
+               <Location
+                  uuid = "3A18D9EA-1F0D-424A-A386-6D96745B3BE7 - 73364f4f16a03514"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for MZBar.MosaicGenerator.getVideoFiles(from: Swift.String, width: Swift.Int) async throws -&gt; Swift.Array&lt;(Foundation.URL, Foundation.URL)&gt;"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/Dev/Apps/MZBar/MZBar/mosaic-generator-swift.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "406"
+                  endingLineNumber = "406">
+               </Location>
+               <Location
+                  uuid = "3A18D9EA-1F0D-424A-A386-6D96745B3BE7 - 75be4d393ae5ac3a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(6) suspend resume partial function for MZBar.MosaicGenerator.getVideoFiles(from: Swift.String, width: Swift.Int) async throws -&gt; Swift.Array&lt;(Foundation.URL, Foundation.URL)&gt;"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/Dev/Apps/MZBar/MZBar/mosaic-generator-swift.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "415"
+                  endingLineNumber = "415">
+               </Location>
+               <Location
+                  uuid = "3A18D9EA-1F0D-424A-A386-6D96745B3BE7 - 75be4d393ae5af11"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(6) suspend resume partial function for MZBar.MosaicGenerator.getVideoFiles(from: Swift.String, width: Swift.Int) async throws -&gt; Swift.Array&lt;(Foundation.URL, Foundation.URL)&gt;"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/Dev/Apps/MZBar/MZBar/mosaic-generator-swift.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "406"
+                  endingLineNumber = "406">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EEDDD02E-81FF-4519-AD61-A8CB06EB7F0E"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/mosaic-generator-swift.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "214"
+            endingLineNumber = "214"
+            landmarkName = "processFiles(input:width:density:format:overwrite:preview:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "EEDDD02E-81FF-4519-AD61-A8CB06EB7F0E - 35f102d96ee985ec"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for MZBar.MosaicGenerator.processFiles(input: Swift.String, width: Swift.Int, density: Swift.String, format: Swift.String, overwrite: Swift.Bool, preview: Swift.Bool) async throws -&gt; Swift.Array&lt;(video: Foundation.URL, preview: Foundation.URL)&gt;"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/Dev/Apps/MZBar/MZBar/mosaic-generator-swift.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "214"
+                  endingLineNumber = "214">
+               </Location>
+               <Location
+                  uuid = "EEDDD02E-81FF-4519-AD61-A8CB06EB7F0E - eb02e417020c16c1"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for MZBar.MosaicGenerator.processFiles(input: Swift.String, width: Swift.Int, density: Swift.String, format: Swift.String, overwrite: Swift.Bool, preview: Swift.Bool) async throws -&gt; Swift.Array&lt;(video: Foundation.URL, preview: Foundation.URL)&gt;"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/Dev/Apps/MZBar/MZBar/mosaic-generator-swift.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "214"
+                  endingLineNumber = "214">
+               </Location>
+               <Location
+                  uuid = "EEDDD02E-81FF-4519-AD61-A8CB06EB7F0E - 8e5e27b8ca02c9ee"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for MZBar.MosaicGenerator.processFiles(input: Swift.String, width: Swift.Int, density: Swift.String, format: Swift.String, overwrite: Swift.Bool, preview: Swift.Bool) async throws -&gt; Swift.Array&lt;(video: Foundation.URL, preview: Foundation.URL)&gt;"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/Dev/Apps/MZBar/MZBar/mosaic-generator-swift.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "214"
+                  endingLineNumber = "214">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BA5AFEB3-C3A3-4636-9384-6A70B6C4F00A"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/mosaic-generator-swift.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "398"
+            endingLineNumber = "398"
+            landmarkName = "getVideoFiles(from:width:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CF33458D-5539-4633-BAA3-E974800007E8"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MZBarApp.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "145"
+            endingLineNumber = "145"
+            landmarkName = "handleDrop(providers:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "CF33458D-5539-4633-BAA3-E974800007E8 - 6771a925183e829f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for MZBar.DropZoneView.handleDrop(providers: Swift.Array&lt;__C.NSItemProvider&gt;) async -&gt; ()"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/Dev/Apps/MZBar/MZBar/MZBarApp.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "145"
+                  endingLineNumber = "145">
+               </Location>
+               <Location
+                  uuid = "CF33458D-5539-4633-BAA3-E974800007E8 - 6771a925183e829f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for MZBar.DropZoneView.handleDrop(providers: Swift.Array&lt;__C.NSItemProvider&gt;) async -&gt; ()"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/Dev/Apps/MZBar/MZBar/MZBarApp.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "145"
+                  endingLineNumber = "145">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
