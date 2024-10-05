@@ -1,35 +1,137 @@
-//
-//  MZBarTests2.swift
-//  MZBarTests2
-//
-//  Created by Francois on 05/10/2024.
-//
-
 import XCTest
+@testable import MZBar
+import AVFoundation
+class MosaicGeneratorPerformanceTests: XCTestCase {
+    var mosaicGenerator: MosaicGenerator!
+    var testVideoURL: URL!
 
-final class MZBarTests2: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    override func setUp() {
+        super.setUp()
+        mosaicGenerator = MosaicGenerator(debug: false, renderingMode: .classic, maxConcurrentOperations: 4)
+        
+        // Set up a test video URL. Replace this with an actual video file path for testing.
+        testVideoURL = URL(fileURLWithPath: "/Volumes/Ext-6TB-2/01-Models/KB/A/b/20240507_08_SZ3117_Kristy_Black_Marta_Villalobos_4K.mp4")
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    override func tearDown() {
+        mosaicGenerator = nil
+        testVideoURL = nil
+        super.tearDown()
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
+    /*func testPerformanceOfProcessIndivFile() {
         measure {
-            // Put the code you want to measure the time of here.
+            let expectation = XCTestExpectation(description: "Process individual file")
+            
+            Task {
+                do {
+                    let outputDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("TestOutput")
+                    _ = try await mosaicGenerator.processIndivFile(
+                        videoFile: testVideoURL,
+                        width: 1920,
+                        density: "m",
+                        format: "jpg",
+                        overwrite: true,
+                        preview: false,
+                        outputDirectory: outputDirectory,
+                        accurate: false
+                    )
+                    expectation.fulfill()
+                } catch {
+                    XCTFail("Error processing file: \(error)")
+                }
+            }
+            
+            wait(for: [expectation], timeout: 60.0)
+        }
+    }*/
+
+    func testPerformanceOfExtractThumbnailsWithTimestamps() {
+        let count = 200
+        let batchSize = 50
+        
+            measure {
+                let expectation = XCTestExpectation(description: "Extract thumbnails")
+                
+                Task {
+                    do {
+                        let asset = AVURLAsset(url: testVideoURL)
+                        _ = try await mosaicGenerator.extractThumbnailsWithTimestamps3(
+                            from: testVideoURL,
+                            count: 250,
+                            asset: asset,
+                            thSize: CGSize(width: 1080, height: 720),
+                            preview: false,
+                            accurate: false,
+                            batchSize: batchSize
+                        )
+                        expectation.fulfill()
+                    } catch {
+                        XCTFail("Error extracting thumbnails: \(error)")
+                    }
+                }
+    
+                wait(for: [expectation], timeout: 30.0)
+            }
+    
+    }
+
+  /*  func testPerformanceOfGenerateOptMosaicImagebatch2() {
+        measure {
+            let expectation = XCTestExpectation(description: "Generate mosaic image")
+            
+            Task {
+                do {
+                    let asset = AVURLAsset(url: testVideoURL)
+                    let metadata = try await mosaicGenerator.processVideo(file: testVideoURL, asset: asset)
+                    let layout = try await mosaicGenerator.mosaicDesign(metadata: metadata, width: 1920, density: "m")
+                    
+                    let thumbnails = try await mosaicGenerator.extractThumbnailsWithTimestamps3(
+                        from: testVideoURL,
+                        count: layout.thumbCount,
+                        asset: asset,
+                        thSize: layout.thumbnailSize,
+                        preview: false,
+                        accurate: false
+                    )
+                    
+                    _ = try mosaicGenerator.generateOptMosaicImagebatch2(
+                        thumbnailsWithTimestamps: thumbnails,
+                        layout: layout,
+                        outputSize: CGSize(width: 1920, height: 1080),
+                        metadata: metadata
+                    )
+                    expectation.fulfill()
+                } catch {
+                    XCTFail("Error generating mosaic image: \(error)")
+                }
+            }
+            
+            wait(for: [expectation], timeout: 30.0)
         }
     }
 
+    func testPerformanceOfCreateSummaryVideo() {
+        measure {
+            let expectation = XCTestExpectation(description: "Create summary video")
+            
+            Task {
+                do {
+                    let returnedFiles = [
+                        (video: testVideoURL, preview: testVideoURL),
+                        (video: testVideoURL, preview: testVideoURL),
+                        (video: testVideoURL, preview: testVideoURL)
+                    ]
+                    let outputFolder = FileManager.default.temporaryDirectory.appendingPathComponent("TestSummaryOutput")
+                    _ = try await mosaicGenerator.createSummaryVideo(from: returnedFiles, outputFolder: outputFolder)
+                    expectation.fulfill()
+                } catch {
+                    XCTFail("Error creating summary video: \(error)")
+                }
+            }
+            
+            wait(for: [expectation], timeout: 60.0)
+        }
+    }*/
 }
+
