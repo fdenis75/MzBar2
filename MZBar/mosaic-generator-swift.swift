@@ -7,8 +7,7 @@ import Accelerate
 import CoreVideo
 import os
 import os.signpost
-import Metal
-import MetalKit
+
 
 /// A class for generating mosaic images from video files.
 public class MosaicGenerator {
@@ -39,6 +38,15 @@ public class MosaicGenerator {
         var padding: Int32 // Add padding to ensure 16-byte alignment
     }
     
+    public struct ProgressInfo {
+            public let progress: Double
+            public let currentFile: String
+            public let processedFiles: Int
+            public let totalFiles: Int
+            public let currentStage: String
+            public let elapsedTime: TimeInterval
+            public let estimatedTimeRemaining: TimeInterval
+        }
     // MARK: - Properties
     
     private let debug: Bool
@@ -54,20 +62,20 @@ public class MosaicGenerator {
     private let batchSize: Int
     private let accurate: Bool
     // Metal device and queue
-    private let metalDevice: MTLDevice
-    private let commandQueue: MTLCommandQueue
-    private var pipelineState: MTLRenderPipelineState?
     private var progressG: Progress
     private var progressT: Progress
     private var progressM: Progress
-    private var progressHandlerG: ((Double) -> Void)?
+    private var progressHandlerG: ((ProgressInfo) -> Void)?
     private var progressHandlerT: ((Double) -> Void)?
     private var progressHandlerM: ((Double) -> Void)?
     private var isCancelled: Bool = false
     private var saveAtRoot: Bool = false
     private var separate: Bool = true
-
-
+    private var summary: Bool = true
+    private var videosFiles: [(URL, URL)]
+    private var totalfiles: Int = 0
+    private var processedFiles: Int = 0
+    private var startTime: CFAbsoluteTime
     
     // MARK: - Initialization
     
@@ -82,7 +90,7 @@ public class MosaicGenerator {
     ///   - smart: Enable smart processing (functionality to be implemented).
     ///   - createPreview: Generate a preview animation.
     ///   - batchsize: Number of videos to process in each batch.
-    public init(debug: Bool = false, renderingMode: RenderingMode = .auto, maxConcurrentOperations: Int? = nil, timeStamps: Bool = false, skip: Bool = true, smart: Bool = false, createPreview: Bool = false, batchsize: Int = 24, accurate: Bool = false, saveAtRoot: Bool = false, separate: Bool = true) {
+    public init(debug: Bool = false, renderingMode: RenderingMode = .auto, maxConcurrentOperations: Int? = nil, timeStamps: Bool = false, skip: Bool = true, smart: Bool = false, createPreview: Bool = false, batchsize: Int = 24, accurate: Bool = false, saveAtRoot: Bool = false, separate: Bool = true, summary: Bool = false) {
         self.debug = debug
         self.renderingMode = renderingMode
         self.time = timeStamps
@@ -96,24 +104,27 @@ public class MosaicGenerator {
         self.batchSize = batchsize
         self.accurate = accurate
         self.separate = separate
-        guard let device = MTLCreateSystemDefaultDevice() else {
-            fatalError("Metal is not supported on this device")
-        }
-        self.metalDevice = device
-        self.commandQueue = device.makeCommandQueue()!
+        self.summary = summary
+        self.videosFiles = []
+        self.startTime = CFAbsoluteTimeGetCurrent()
+        
+    
+
         self.progressG = Progress(totalUnitCount: 1) // Initialize with 1, we'll update this later
+        
         self.progressT = Progress(totalUnitCount: 1) // Initialize with 1, we'll update this later
+        self.progressG.addChild(self.progressT, withPendingUnitCount: 0)
         self.progressM = Progress(totalUnitCount: 1) // Initialize with 1, we'll update this later
         self.saveAtRoot = saveAtRoot
-        setupPipeline()
 
         logger.log(level: .info, "MosaicGenerator initialized with debug: \(debug), maxConcurrentOperations: \(self.maxConcurrentOperations), timeStamps: \(timeStamps), skip: \(skip), smart: \(smart), createPreview: \(createPreview), batchSize: \(batchsize), accurate: \(accurate)")
     }
     
     // MARK: - Public Methods
-    public func setProgressHandlerG(_ handler: @escaping (Double) -> Void) {
-           self.progressHandlerG = handler
-       }
+    public func setProgressHandlerG(_ handler: @escaping (ProgressInfo) -> Void) {
+            self.progressHandlerG = handler
+        }
+    
     public func setProgressHandlerT(_ handler: @escaping (Double) -> Void) {
            self.progressHandlerT = handler
        }
@@ -126,18 +137,45 @@ public class MosaicGenerator {
     public func getProgressSize() -> Double {
         return Double(self.progressG.totalUnitCount)
     }
-    public func processIndivFile(videoFile: URL, width: Int, density: String, format: String, overwrite: Bool, preview: Bool, outputDirectory: URL, accurate: Bool) async throws -> URL {
-        defer {
-            self.progressG.completedUnitCount += 1
-            updateProgressG()
+    private func updateProgressG(currentFile: String, processedFiles: Int, totalFiles: Int, currentStage: String, startTime: CFAbsoluteTime) {
+                let elapsedTime = CFAbsoluteTimeGetCurrent() - startTime
+               let progress = self.progressG.fractionCompleted
+       var estimatedTimeRemaining = TimeInterval(0.0)
+        if totalFiles > 0 {
+             do {
+                try estimatedTimeRemaining = elapsedTime / progress - elapsedTime
+            }
+            catch {
+                estimatedTimeRemaining = 0.0
+            }
         }
+            let progressInfo = ProgressInfo(
+                    progress: progress,
+                currentFile: currentFile,
+                processedFiles: processedFiles,
+                totalFiles: self.totalfiles,
+                currentStage: currentStage,
+                elapsedTime: elapsedTime,
+                estimatedTimeRemaining: estimatedTimeRemaining
+)
+            DispatchQueue.main.async {
+                self.progressHandlerG?(progressInfo)
+            }
+        }
+    
+    
+    
+    public func processIndivFile(videoFile: URL, width: Int, density: String, format: String, overwrite: Bool, preview: Bool, outputDirectory: URL, accurate: Bool) async throws -> URL {
+        
         logger.log(level: .info, "Processing file: \(videoFile.standardizedFileURL)")
         let asset = AVURLAsset(url: videoFile)
-        let startTime = CFAbsoluteTimeGetCurrent()
+       let TstartTime = CFAbsoluteTimeGetCurrent()
         defer {
             let endTime = CFAbsoluteTimeGetCurrent()
-            logger.log(level: .info, "Mosaic generation completed in \(String(format: "%.2f", endTime - startTime)) seconds for \(videoFile.standardizedFileURL)")
-           // self.progress.completedUnitCount += 1
+            logger.log(level: .info, "Mosaic generation completed in \(String(format: "%.2f", endTime - TstartTime)) seconds for \(videoFile.standardizedFileURL)")
+            self.processedFiles += 1
+            updateProgressG(currentFile: videoFile.lastPathComponent, processedFiles: self.processedFiles, totalFiles: self.totalfiles, currentStage: "Processing Files", startTime: self.startTime)
+            self.progressG.completedUnitCount += 1
         }
        
         
@@ -168,11 +206,7 @@ public class MosaicGenerator {
                         logger.log(level: .info, "Mosaic generation without metal completed in \(String(format: "%.2f", endTimeC - startTimeC)) seconds for \(videoFile.standardizedFileURL)")
                         continuation.resume(returning: result)
                     case .metal:
-                        let startTimeC = CFAbsoluteTimeGetCurrent()
-                        let result = self.textureToImage(texture: self.generateOptMosaicImageMetal(thumbnails: thumbnailsWithTimestamps, layout: mosaicLayout, outputSize: outputSize, metadata: metadata))
-                        let endTimeC = CFAbsoluteTimeGetCurrent()
-                        logger.log(level: .info, "Mosaic composition with metal completed in \(String(format: "%.2f", endTimeC - startTimeC)) seconds for \(videoFile.standardizedFileURL)")
-                        continuation.resume(returning: result!)
+                        break
                     }
                 } catch {
                     continuation.resume(throwing: error)
@@ -197,23 +231,179 @@ public class MosaicGenerator {
             format: format,
             overwrite: overwrite,
             width: width,
-            density: density
+            density: density,
+            type: metadata.type
+            
         )
 
         
     }
-    func updateProgressG() {
-               // let currentProgress = Double(progressG.completedUnitCount) / Double(progressG.totalUnitCount)
-                DispatchQueue.main.async {
-                    self.progressHandlerG?(self.progressG.fractionCompleted)
+    
+    public func processQLFile(videoFile: URL, width: Int, density: String, accurate: Bool) -> NSImage {
+        logger.log(level: .info, "Processing file: \(videoFile.standardizedFileURL)")
+        let asset = AVURLAsset(url: videoFile)
+        let startTime = CFAbsoluteTimeGetCurrent()
+        defer {
+            let endTime = CFAbsoluteTimeGetCurrent()
+            logger.log(level: .info, "Mosaic generation completed in \(String(format: "%.2f", endTime - startTime)) seconds for \(videoFile.standardizedFileURL)")
+           // self.progress.completedUnitCount += 1
+        }
+        var imageT: NSImage?
+        Task
+        {
+            
+            let metadata = try await self.processVideo(file: videoFile, asset: asset)
+            
+            let mosaicLayout = try await self.mosaicDesign(metadata: metadata, width: width, density: density)
+            let thumbnailCount = mosaicLayout.thumbCount
+            logger.log(level: .debug, "Extracting thumbnails for \(videoFile.standardizedFileURL)")
+            let thumbnailsWithTimestamps = try await self.extractThumbnailsWithTimestamps2(
+                from: metadata.file,
+                count: thumbnailCount,
+                asset: asset,
+                thSize: mosaicLayout.thumbnailSize,
+                preview: false,
+                accurate: accurate
+            )
+            let outputSize = CGSize(width: Int(mosaicLayout.cols * Int(mosaicLayout.thumbnailSize.width)), height: Int(mosaicLayout.rows * Int(mosaicLayout.thumbnailSize.height)))
+            
+            logger.log(level: .debug, "Generating mosaic for \(videoFile.standardizedFileURL)")
+            let mosaic = try await withCheckedThrowingContinuation { continuation in
+                autoreleasepool {
+                    do {
+                        switch renderingMode {
+                        case .auto, .classic:
+                            let startTimeC = CFAbsoluteTimeGetCurrent()
+                            let result = try self.generateOptMosaicImagebatch(thumbnailsWithTimestamps: thumbnailsWithTimestamps, layout: mosaicLayout, outputSize: outputSize, metadata: metadata)
+                            let endTimeC = CFAbsoluteTimeGetCurrent()
+                            logger.log(level: .info, "Mosaic generation without metal completed in \(String(format: "%.2f", endTimeC - startTimeC)) seconds for \(videoFile.standardizedFileURL)")
+                            continuation.resume(returning: result)
+                        case .metal:
+                            break
+                        }
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
                 }
             }
-    @available(macOS 13, *)
-    public func processFiles(input: String, width: Int, density: String, format: String, overwrite: Bool, preview: Bool) async throws -> [(video: URL, preview: URL)] {
-        isCancelled = false
-        let videoFiles = try await getVideoFiles(from: input, width: width)
-        progressG.totalUnitCount = Int64(videoFiles.count) + 1
+            imageT = NSImage(cgImage: mosaic, size: outputSize)
+        }
+        return imageT!
+    }
+        @available(macOS 13, *)
+    public func getFiles(input: String, width: Int) async throws -> Void {
+        self.videosFiles = try await getVideoFiles(from: input, width: width)
+    }
+    
+    public func RunGen(input: String, width: Int, density: String, format: String, overwrite: Bool, preview: Bool, summary: Bool) async throws -> [(video: URL, preview: URL)] {
+       // self.videosFiles = try await getVideoFiles(from: input, width: width)
+        progressG.totalUnitCount = Int64(self.videosFiles.count)
+        if self.summary {
+            progressG.totalUnitCount = Int64(self.videosFiles.count) + 1
+        }
+        self.totalfiles = Int(progressG.totalUnitCount)
+        var ReturnedFiles: [(URL,URL)] = []
+        let concurrentTaskLimit = self.maxConcurrentOperations
+        var activeTasks = 0
+        let pct = 100 / Double(self.videosFiles.count)
+        var prog = 0.0
+        let startTime = CFAbsoluteTimeGetCurrent()
         
+        logger.log(level: .info, "Starting to process \(self.videosFiles.count) files")
+        
+        switch preview {
+        case false:
+            do {
+                try await withThrowingTaskGroup(of: Void.self) { group in
+                    for (index, (videoFile, outputDirectory)) in self.videosFiles.enumerated() {
+                        if isCancelled {
+                            throw CancellationError()
+                        }
+                        if activeTasks >= concurrentTaskLimit {
+                            self.signposter.emitEvent("waiting for slots to become available for file process")
+                            try await group.next()
+                            
+                            activeTasks -= 1
+                        }
+                        
+                        activeTasks += 1
+                        autoreleasepool {
+                            group.addTask {
+                                do {
+                                    if self.isCancelled {
+                                        throw CancellationError()
+                                    }
+                                    
+                                    self.signposter.emitEvent("starting file process", id: self.signpostID)
+                                    //prog += pct
+                                    let returnfile = try await self.processIndivFile(videoFile: videoFile, width: width, density: density, format: format, overwrite: overwrite, preview: preview, outputDirectory: outputDirectory, accurate: self.accurate)
+                                    
+                                    ReturnedFiles.append((videoFile, returnfile))
+                                    
+                                } catch {
+                                    self.logger.error("Failed to process file: \(videoFile.absoluteString), error: \(error.localizedDescription)")
+                                }
+                            }
+                        }
+                    }
+                    
+                    try await group.waitForAll()
+                   
+                    //updateProgressG(step: "Creating Video Summary")
+                    if self.summary {
+                        let outputFolder = self.videosFiles.first?.1.deletingLastPathComponent() ?? URL(fileURLWithPath: NSTemporaryDirectory())
+                        self.logger.log(level: .info, "startingg video summary creation.")
+                        try await createSummaryVideo(from: ReturnedFiles, outputFolder: outputFolder)
+                    }
+                   // let summaryVideoURL = try await createSummaryVideo(from: ReturnedFiles, outputFolder: outputFolder)
+                    
+                    self.logger.log(level: .info, "All thumbnails processed.")
+                }
+            }
+            catch is CancellationError {
+                logger.log(level: .info, "Processing was cancelled")
+                throw CancellationError()
+            }
+            
+        case true:
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                for (videoFile, outputDirectory) in self.videosFiles {
+                    if activeTasks >= concurrentTaskLimit {
+                        try await group.next()
+                    } else {
+                        activeTasks += 1
+                        autoreleasepool {
+                            group.addTask {
+                                do {
+                                    prog += pct
+                                    let returnfile = try await self.generateAnimatedPreview(for: videoFile, outputDirectory: outputDirectory, density: density)
+                                    ReturnedFiles.append((videoFile, returnfile))
+                                    activeTasks -= 1
+                                } catch {
+                                    self.logger.error("Failed to process file: \(videoFile.absoluteString), error: \(error.localizedDescription)")
+                                }
+                            }
+                        }
+                    }
+                }
+                try await group.waitForAll()
+                self.logger.log(level: .info, "All thumbnails processed.")
+            }
+        }
+        
+        let endTime = CFAbsoluteTimeGetCurrent()
+        logger.log(level: .info, "Mosaic generation totally completed in \(String(format: "%.2f", endTime - startTime)) seconds")
+        return ReturnedFiles
+    }
+    
+    public func processFiles(input: String, width: Int, density: String, format: String, overwrite: Bool, preview: Bool, summary: Bool) async throws -> [(video: URL, preview: URL)] {
+        isCancelled = false
+        //updateProgressG(step: "Analysing video list")
+        let videoFiles = try await getVideoFiles(from: input, width: width)
+        progressG.totalUnitCount = Int64(videoFiles.count)
+        if self.summary {
+            progressG.totalUnitCount = Int64(videoFiles.count) + 1
+        }
         var ReturnedFiles: [(URL,URL)] = []
         let concurrentTaskLimit = self.maxConcurrentOperations
         var activeTasks = 0
@@ -259,9 +449,14 @@ public class MosaicGenerator {
                     }
                     
                     try await group.waitForAll()
-                    let outputFolder = videoFiles.first?.1.deletingLastPathComponent() ?? URL(fileURLWithPath: NSTemporaryDirectory())
-                    self.logger.log(level: .info, "startingg video summary creation.")
-                    let summaryVideoURL = try await createSummaryVideo(from: ReturnedFiles, outputFolder: outputFolder)
+                   
+                    //updateProgressG(step: "Creating Video Summary")
+                    if self.summary {
+                        let outputFolder = videoFiles.first?.1.deletingLastPathComponent() ?? URL(fileURLWithPath: NSTemporaryDirectory())
+                        self.logger.log(level: .info, "startingg video summary creation.")
+                        try await createSummaryVideo(from: ReturnedFiles, outputFolder: outputFolder)
+                    }
+                   // let summaryVideoURL = try await createSummaryVideo(from: ReturnedFiles, outputFolder: outputFolder)
                     
                     self.logger.log(level: .info, "All thumbnails processed.")
                 }
@@ -302,6 +497,38 @@ public class MosaicGenerator {
         return ReturnedFiles
     }
     
+    public func createM3U8Playlist(from directoryPath: String) async throws {
+        // Step 1: Get all video files from the directory using the getVideoFiles function
+        let videoFiles = try await getVideoFiles(from: directoryPath, width: 0)  // Adjust the width as per your needs
+        let path = URL(fileURLWithPath: directoryPath, isDirectory: true)
+        // Step 2: Create the M3U8 playlist content
+        var playlistContent = "#EXTM3U\n"
+        progressG.totalUnitCount = Int64(videoFiles.count)
+        for (videoFile, _) in videoFiles {
+            let fileName = videoFile.lastPathComponent
+            playlistContent += "#EXTINF:-1,\(fileName)\n"
+            playlistContent += "\(videoFile.path)\n"
+            self.progressG.completedUnitCount += 1
+        }
+        
+        // Step 3: Define the path where the M3U8 file will be saved
+        //path.lastPathComponent
+        let playlistFileName = "\(path.lastPathComponent).m3u8"
+        
+        let playlistFilePath = URL(fileURLWithPath: directoryPath, isDirectory: true).appendingPathComponent(playlistFileName)
+        if FileManager.default.fileExists(atPath: playlistFilePath.path) {
+            try FileManager.default.removeItem(at: playlistFilePath)
+            logger.log(level: .info, "Existing PL file removed: \(playlistFilePath.path)")
+        }
+        // Step 4: Write the M3U8 content to a file
+        do {
+            try playlistContent.write(to: playlistFilePath, atomically: true, encoding: .utf8)
+            print("M3U8 playlist created at \(playlistFilePath.path)")
+        } catch {
+            print("Failed to create M3U8 playlist: \(error.localizedDescription)")
+            throw error
+        }
+    }
     public func getVideoFilespair(from input: String, width: Int, density: String) async throws -> [(URL, URL)] {
         let inputURL = URL(fileURLWithPath: input)
         var isDirectory: ObjCBool = false
@@ -321,6 +548,7 @@ public class MosaicGenerator {
                 throw MosaicError.notAVideoFile
             }
             let outputDirectory = inputURL.deletingLastPathComponent().appendingPathComponent("0th").appendingPathComponent("\(width)")
+            try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true, attributes: nil)
             result = [(inputURL, outputDirectory)]
         }
         let finalResult = try result.map { inputURL, outputDirectory in
@@ -335,52 +563,7 @@ public class MosaicGenerator {
     
     // MARK: - Private Methods
 
-    private func setupPipeline() {
-        guard let library = metalDevice.makeDefaultLibrary() else {
-            logger.error("Unable to create default Metal library")
-            fatalError("Unable to create default Metal library")
-        }
-        
-        let vertexFunction = library.makeFunction(name: "vertexShader")
-        let fragmentFunction = library.makeFunction(name: "fragmentShader")
-        
-        let vertexDescriptor = MTLVertexDescriptor()
-        vertexDescriptor.attributes[0].format = .float2
-        vertexDescriptor.attributes[0].offset = 0
-        vertexDescriptor.attributes[0].bufferIndex = 0
-        vertexDescriptor.attributes[1].format = .float2
-        vertexDescriptor.attributes[1].offset = 8
-        vertexDescriptor.attributes[1].bufferIndex = 0
-        vertexDescriptor.layouts[0].stride = 16
-        
-        let pipelineDescriptor = MTLRenderPipelineDescriptor()
-        pipelineDescriptor.vertexFunction = vertexFunction
-        pipelineDescriptor.fragmentFunction = fragmentFunction
-        pipelineDescriptor.vertexDescriptor = vertexDescriptor
-        pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-        
-        do {
-            pipelineState = try metalDevice.makeRenderPipelineState(descriptor: pipelineDescriptor)
-            logger.log(level: .debug, "Metal pipeline state created successfully")
-        } catch {
-            logger.error("Failed to create pipeline state: \(error)")
-            fatalError("Failed to create pipeline state: \(error)")
-        }
-    }
-
-    private func cgImageToTexture(image: CGImage) -> MTLTexture? {
-        let textureLoader = MTKTextureLoader(device: metalDevice)
-        let options: [MTKTextureLoader.Option : Any] = [
-            .SRGB : false,
-            .origin : MTKTextureLoader.Origin.bottomLeft
-        ]
-        
-        guard let texture = try? textureLoader.newTexture(cgImage: image, options: options) else {
-            logger.error("Failed to create texture from CGImage")
-            return nil
-        }
-        return texture
-    }
+ 
 
     private func mosaicDesign(metadata: VideoMetadata, width: Int, density: String) async throws -> (MosaicLayout) {
         let state = signposter.beginInterval("mosaicDesign", id: signpostID)
@@ -396,6 +579,7 @@ public class MosaicGenerator {
     /// Retrieves video files from the input source.
     public func getVideoFiles(from input: String, width: Int) async throws -> [(URL, URL)] {
         let inputURL = URL(fileURLWithPath: input)
+
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: input, isDirectory: &isDirectory) else {
             throw MosaicError.inputNotFound
@@ -403,70 +587,101 @@ public class MosaicGenerator {
         
         if isDirectory.boolValue {
             logger.log(level: .debug, "Input is a directory")
-                        return try await getVideoFilesFromDirectory(inputURL, width: width)
-                    } else if inputURL.pathExtension.lowercased() == "m3u8" {
-                        logger.log(level: .debug, "Input is an m3u8 playlist")
-                        return try await getVideoFilesFromPlaylist(inputURL, width: width)
-                    } else {
-                        logger.log(level: .debug, "Input is a file")
-                        guard isVideoFile(inputURL) else {
-                            throw MosaicError.notAVideoFile
-                        }
-                        let outputDirectory = inputURL.deletingLastPathComponent().appendingPathComponent("0th").appendingPathComponent("\(width)")
-                        return [(inputURL, outputDirectory)]
-                    }
-                }
+            return try await getVideoFilesFromDirectory(inputURL, width: width)
+        }
+        else if inputURL.pathExtension.lowercased() == "m3u8" {
+            logger.log(level: .debug, "Input is an m3u8 playlist")
+            return try await getVideoFilesFromPlaylist(inputURL, width: width)
+        }
+        else {
+           // let newInput = URL(fileURLWithPath: inputURL.path(percentEncoded: false), isDirectory: false)!
+            logger.log(level: .debug, "Input is a file")
+            return try await getSingleFile(inputURL, width: width)
+        }
+    }
+    
+    private func getSingleFile(_ inputURL: URL, width: Int) async throws -> [(URL, URL)] {
+        guard isVideoFile(inputURL) else {
+            throw MosaicError.notAVideoFile
+        }
+        let fileManager = FileManager.default
+        var result = [(URL, URL)]()
+        let folder = URL(fileURLWithPath: inputURL.path(percentEncoded: false), isDirectory: false ).deletingLastPathComponent()
+        let outputDirectory1 = folder.appendingPathComponent("0th", isDirectory: true)
+        let outputDirectory2 = folder.appendingPathComponent("0th", isDirectory: true).appendingPathComponent(String(width), isDirectory: true)
+        do {
+            try fileManager.createDirectory(at: outputDirectory1, withIntermediateDirectories: true)
+            try fileManager.createDirectory(at: outputDirectory2, withIntermediateDirectories: true)
+
+        } catch {
+            self.logger.error("Failed to create directory at file: \(inputURL.absoluteString), error: \(error.localizedDescription)")
+            throw error
+        }
+
+        self.summary = false
+        result.append((inputURL, outputDirectory2))
+        return result
+    }
+
+        /// Retrieves video files from a directory.
+        private func getVideoFilesFromDirectory(_ directory: URL, width: Int) async throws -> [(URL, URL)] {
+            
+            let fileManager = FileManager.default
+            var result = [(URL, URL)]()
+            
+            guard let enumerator = fileManager.enumerator(at: directory, includingPropertiesForKeys: [.isRegularFileKey, .isDirectoryKey], options: [.skipsHiddenFiles]) else {
+                throw NSError(domain: "FileManagerError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to create directory enumerator"])
+            }
+            var index = 0
+        let startTime = CFAbsoluteTimeGetCurrent()
+            while let fileURL = enumerator.nextObject() as? URL {
+                let resourceValues = try fileURL.resourceValues(forKeys: [.isDirectoryKey, .isRegularFileKey])
                 
-                /// Retrieves video files from a directory.
-                private func getVideoFilesFromDirectory(_ directory: URL, width: Int) async throws -> [(URL, URL)] {
-                    let fileManager = FileManager.default
-                    var result = [(URL, URL)]()
-                    
-                    guard let enumerator = fileManager.enumerator(at: directory, includingPropertiesForKeys: [.isRegularFileKey, .isDirectoryKey], options: [.skipsHiddenFiles]) else {
-                        throw NSError(domain: "FileManagerError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to create directory enumerator"])
-                    }
-                    
-                    while let fileURL = enumerator.nextObject() as? URL {
-                        let resourceValues = try fileURL.resourceValues(forKeys: [.isDirectoryKey, .isRegularFileKey])
-                        
-                        if resourceValues.isDirectory == true {
-                            continue
-                        }
-                        var outputDirectory: URL
-                        if resourceValues.isRegularFile == true,
-                           self.isVideoFile(fileURL),
-                           !fileURL.lastPathComponent.lowercased().contains("amprv") {
-                            if saveAtRoot{
-                                outputDirectory = directory.appendingPathComponent("0th").appendingPathComponent("\(width)")
-                            }else
-                            {
-                               outputDirectory = fileURL.deletingLastPathComponent().appendingPathComponent("0th").appendingPathComponent("\(width)")
-                            }
-                           
-                            result.append((fileURL, outputDirectory))
-                        }
-                    }
-                    
-                    logger.log(level: .info, "Found \(result.count) video files in directory: \(directory)")
-                    return result
+                if resourceValues.isDirectory == true {
+                    continue
                 }
+                var outputDirectory: URL
+                if resourceValues.isRegularFile == true,
+                   self.isVideoFile(fileURL),
+                   !fileURL.lastPathComponent.lowercased().contains("amprv") {
+                    if saveAtRoot{
+                        outputDirectory = directory.appendingPathComponent("0th").appendingPathComponent("\(width)")
+                    }else
+                    {
+                       outputDirectory = fileURL.deletingLastPathComponent().appendingPathComponent("0th").appendingPathComponent("\(width)")
+                    }
+                    self.progressT.completedUnitCount += 1
+                    self.updateProgressG(
+                        currentFile: fileURL.lastPathComponent,
+                                    processedFiles: Int(self.progressT.completedUnitCount),
+                                    totalFiles: 0,
+                                    currentStage: "Discovering video",
+                        startTime: self.startTime
+                                )
+                    index += 1
+                    result.append((fileURL, outputDirectory))
+                }
+            }
+            
+            logger.log(level: .info, "Found \(result.count) video files in directory: \(directory)")
+            return result
+        }
                 
                 /// Retrieves video files from an m3u8 playlist.
                 private func getVideoFilesFromPlaylist(_ playlistURL: URL, width: Int) async throws -> [(URL, URL)] {
-                    let videoURLs = try parseM3U8File(at: playlistURL)
+                    let videoURLs = try parseM3U8File(at: playlistURL.path(percentEncoded: false))
                     
                     let playlistName = playlistURL.deletingPathExtension().lastPathComponent
                     let outputFolder = playlistURL.deletingLastPathComponent().appendingPathComponent("Playlist").appendingPathComponent(playlistName)
                     
-                    try FileManager.default.createDirectory(at: outputFolder, withIntermediateDirectories: true, attributes: nil)
                     
                     logger.log(level: .info, "Parsed \(videoURLs.count) video URLs from playlist: \(playlistURL)")
                     return videoURLs.map { ($0, outputFolder) }
                 }
                 
                 /// Parses an m3u8 file and returns the video URLs.
-                private func parseM3U8File(at url: URL) throws -> [URL] {
-                    let contents = try String(contentsOf: url)
+    private func parseM3U8File(at url: String) throws -> [URL] {
+        let contents = try String(contentsOf: URL(string: url, encodingInvalidCharacters: false)!)
                     let lines = contents.components(separatedBy: .newlines)
                     
                     return lines.compactMap { line in
@@ -919,11 +1134,11 @@ public class MosaicGenerator {
                             }
 
                             /// Generates an output file name for the mosaic image.
-                            private func getOutputFileName(for videoFile: URL, in directory: URL, format: String, overwrite: Bool, density: String) throws -> String {
+    private func getOutputFileName(for videoFile: URL, in directory: URL, format: String, overwrite: Bool, density: String, type: String) throws -> String {
                                 let baseName = videoFile.deletingPathExtension().lastPathComponent
                                 let fileExtension = format.lowercased()
                                 var version = 1
-                                var fileName = "\(baseName)-\(density).\(fileExtension)"
+                                var fileName = "\(type)-\(baseName)-\(density).\(fileExtension)"
                                 
                                 while FileManager.default.fileExists(atPath: directory.appendingPathComponent(fileName).path) {
                                     if overwrite {
@@ -931,7 +1146,7 @@ public class MosaicGenerator {
                                         break
                                     }
                                     version += 1
-                                    fileName = "\(baseName)_v\(version).\(fileExtension)"
+                                    fileName = "\(type)-\(baseName)-\(density)_v\(version).\(fileExtension)"
                                 }
                                 return fileName
                             }
@@ -956,7 +1171,7 @@ public class MosaicGenerator {
                             }
                             
                             /// Saves the generated mosaic image to disk.
-                            private func saveMosaic(mosaic: CGImage, for videoFile: URL, in outputDirectory: URL, format: String, overwrite: Bool, width: Int, density: String) async throws -> URL {
+    private func saveMosaic(mosaic: CGImage, for videoFile: URL, in outputDirectory: URL, format: String, overwrite: Bool, width: Int, density: String, type: String) async throws -> URL {
                                 let state = signposter.beginInterval("saveMosaic", id: signpostID)
                                 defer {
                                     signposter.endInterval("saveMosaic", state)
@@ -966,7 +1181,7 @@ public class MosaicGenerator {
                                 try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true, attributes: nil)
                                 
                                 // Get the file name for the output image
-                                let fileName = try getOutputFileName(for: videoFile, in: outputDirectory, format: format, overwrite: overwrite, density: density)
+        let fileName = try getOutputFileName(for: videoFile, in: outputDirectory, format: format, overwrite: overwrite, density: density, type: type)
                                 let outputURL = outputDirectory.appendingPathComponent(fileName)
                                 
                                 // Handle saving the image as HEIC if the format is HEIC
@@ -982,7 +1197,7 @@ public class MosaicGenerator {
                             
                             /// Saves the mosaic image in HEIC format.
                             private func saveMosaicAsHEIC(_ mosaic: CGImage, to outputURL: URL) async throws {
-                                guard let destination = CGImageDestinationCreateWithURL(outputURL as CFURL, AVFileType.heic as CFString, 1, nil) else {
+                                guard let destination = CGImageDestinationCreateWithURL(outputURL as CFURL, AVFileType.heic as CFString, 1,nil) else {
                                     throw NSError(domain: "HEICError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create HEIC destination"])
                                 }
 
@@ -1019,230 +1234,10 @@ public class MosaicGenerator {
                                 try data.write(to: url)
                             }
 
-                            // MARK: - Metal Functions
-                            
-                            private func generateOptMosaicImageMetal(thumbnails: [(image: CGImage, timestamp: String)],
-                                                                     layout: MosaicLayout,
-                                                                     outputSize: CGSize,
-                                                                     metadata: VideoMetadata) -> MTLTexture {
-                                let state = signposter.beginInterval("generateOptMosaicImageMetal", id: signpostID)
-                                        defer { signposter.endInterval("generateOptMosaicImageMetal", state) }
-                                        
-                                        let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .bgra8Unorm,
-                                                                                                  width: Int(outputSize.width),
-                                                                                                  height: Int(outputSize.height),
-                                                                                                  mipmapped: false)
-                                        descriptor.usage = [.renderTarget, .shaderRead]
-                                        
-                                        guard let mosaicTexture = metalDevice.makeTexture(descriptor: descriptor),
-                                              let commandBuffer = commandQueue.makeCommandBuffer(),
-                                              let renderPassDescriptor = self.makeRenderPassDescriptor(texture: mosaicTexture) else {
-                                            logger.error("Failed to create Metal texture or command buffer")
-                                            fatalError("Failed to create Metal texture or command buffer")
-                                        }
-
-                                        let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
-                                        commandEncoder.setRenderPipelineState(pipelineState!)
-                                        
-                                        let vertices: [Float] = [
-                                            -1.0, -1.0, 0.0, 1.0,
-                                             1.0, -1.0, 1.0, 1.0,
-                                            -1.0,  1.0, 0.0, 0.0,
-                                             1.0,  1.0, 1.0, 0.0
-                                        ]
-                                        let vertexBuffer = metalDevice.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Float>.stride, options: [])
-                                        commandEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-                                        
-                                        // Draw background
-                                        var backgroundUniforms = Uniforms(position: SIMD2<Float>(0, 0), size: SIMD2<Float>(1, 1), renderType: 0, padding: 0)
-                                        commandEncoder.setVertexBytes(&backgroundUniforms, length: MemoryLayout<Uniforms>.stride, index: 1)
-                                        commandEncoder.setFragmentBytes(&backgroundUniforms, length: MemoryLayout<Uniforms>.stride, index: 1)
-                                        var backgroundColor = SIMD4<Float>(0.1, 0.1, 0.1, 1.0) // Dark gray background
-                                        commandEncoder.setFragmentBytes(&backgroundColor, length: MemoryLayout<SIMD4<Float>>.stride, index: 2)
-                                        commandEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
-                                        
-                                        // Draw thumbnails
-                                        for (index, thumbnail) in thumbnails.enumerated().reversed() {
-                                            guard index < layout.positions.count else { break }
-                                            let position = layout.positions[index]
-                                            let thumbnailTexture = cgImageToTexture(image: thumbnail.image)!
-                                            
-                                            let x = Float(position.x) * Float(layout.thumbnailSize.width) / Float(outputSize.width) * 2 - 1
-                                            let y = 1 - (Float(position.y + 1) * Float(layout.thumbnailSize.height) / Float(outputSize.height) * 2)
-                                            let width = Float(layout.thumbnailSize.width) / Float(outputSize.width)
-                                            let height = Float(layout.thumbnailSize.height) / Float(outputSize.height)
-                                            
-                                            var uniforms = Uniforms(position: SIMD2<Float>(x, y), size: SIMD2<Float>(width, height), renderType: 1, padding: 0)
-                                            commandEncoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 1)
-                                            commandEncoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 1)
-                                            commandEncoder.setFragmentTexture(thumbnailTexture, index: 0)
-                                            commandEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
-                                            
-                                            if self.time {
-                                                drawTimestamp(commandEncoder: commandEncoder, timestamp: thumbnail.timestamp, x: x, y: y, width: width, height: height)
-                                            }
-                                        }
-                                        
-                                        // Draw metadata
-                                        let metadataHeight = Float(round(Double(outputSize.height) * 0.1))
-                                        let metadataY = 1 - (metadataHeight / Float(outputSize.height)) * 2
-                                        var metadataUniforms = Uniforms(position: SIMD2<Float>(-1, metadataY),
-                                                                        size: SIMD2<Float>(2, (metadataHeight / Float(outputSize.height)) * 2),
-                                                                        renderType: 2,
-                                                                        padding: 0)
-                                        commandEncoder.setVertexBytes(&metadataUniforms, length: MemoryLayout<Uniforms>.stride, index: 1)
-                                        commandEncoder.setFragmentBytes(&metadataUniforms, length: MemoryLayout<Uniforms>.stride, index: 1)
-                                        
-                                        if let metadataTexture = createMetadataTexture(metadata: metadata, width: Int(outputSize.width), height: Int(metadataHeight)) {
-                                            commandEncoder.setFragmentTexture(metadataTexture, index: 0)
-                                            commandEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
-                                        } else {
-                                            logger.warning("Failed to create metadata texture, skipping metadata rendering")
-                                        }
-
-                                        commandEncoder.endEncoding()
-                                        commandBuffer.commit()
-                                        commandBuffer.waitUntilCompleted()
-
-                                        return mosaicTexture
-                                    }
-
-                                    private func drawTimestamp(commandEncoder: MTLRenderCommandEncoder, timestamp: String, x: Float, y: Float, width: Float, height: Float) {
-                                        // Implementation for drawing timestamp using Metal
-                                        // This might involve creating a texture from the timestamp text and rendering it
-                                        // For simplicity, we'll skip the actual implementation here
-                                        logger.log(level: .debug, "Drawing timestamp: \(timestamp) at position: (\(x), \(y))")
-                                    }
-
-                                    private func createMetadataTexture(metadata: VideoMetadata, width: Int, height: Int) -> MTLTexture? {
-                                        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue)
-                                        let bytesPerPixel = 4
-                                        let bytesPerRow = width * bytesPerPixel
-                                        
-                                        guard let context = CGContext(data: nil,
-                                                                      width: width,
-                                                                      height: height,
-                                                                      bitsPerComponent: 8,
-                                                                      bytesPerRow: bytesPerRow,
-                                                                      space: CGColorSpaceCreateDeviceRGB(),
-                                                                      bitmapInfo: bitmapInfo.rawValue) else {
-                                            logger.error("Failed to create CGContext for metadata texture")
-                                            return createFallbackTexture(width: width, height: height)
-                                        }
-                                        
-                                        // Fill background
-                                        context.setFillColor(CGColor(red: 0, green: 0, blue: 1, alpha: 0.2))
-                                        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
-                                        
-                                        // Prepare text attributes
-                                        let font = NSFont.systemFont(ofSize: CGFloat(height) / 6 / 1.618)
-                                        let paragraphStyle = NSMutableParagraphStyle()
-                                        paragraphStyle.alignment = .left
-                                        let attributes: [NSAttributedString.Key: Any] = [
-                                            .font: font,
-                                            .foregroundColor: NSColor.black,
-                                            .paragraphStyle: paragraphStyle
-                                        ]
-                                        
-                                        // Format metadata text
-                                        let duree = formatTimestamp(seconds: metadata.duration)
-                                        let metadataText = """
-                                        File: \(metadata.file.standardizedFileURL.lastPathComponent)
-                                        Codec: \(metadata.codec)
-                                        Resolution: \(Int(metadata.resolution.width))x\(Int(metadata.resolution.height))
-                                        Duration: \(duree)
-                                        """
-                                        
-                                        // Draw text
-                                        let textRect = CGRect(x: 10, y: 10, width: width - 20, height: height - 20)
-                                        metadataText.draw(in: textRect, withAttributes: attributes)
-                                        
-                                        // Get the raw bitmap data
-                                        guard let bitmapData = context.data else {
-                                            logger.error("Failed to get bitmap data for metadata texture")
-                                            return createFallbackTexture(width: width, height: height)
-                                        }
-                                        
-                                        // Create the texture descriptor
-                                        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
-                                            pixelFormat: .bgra8Unorm,
-                                            width: width,
-                                            height: height,
-                                            mipmapped: false
-                                        )
-                                        textureDescriptor.usage = [.shaderRead]
-                                        
-                                        // Create the texture
-                                        guard let texture = metalDevice.makeTexture(descriptor: textureDescriptor) else {
-                                            logger.error("Failed to create metadata texture")
-                                            return createFallbackTexture(width: width, height: height)
-                                        }
-                                        
-                                        // Copy the bitmap data to the texture
-                                        let region = MTLRegionMake2D(0, 0, width, height)
-                                        texture.replace(region: region, mipmapLevel: 0, withBytes: bitmapData, bytesPerRow: bytesPerRow)
-                                        
-                                        logger.log(level: .debug, "Metadata texture created successfully")
-                                        return texture
-                                    }
-
-                                    private func createFallbackTexture(width: Int, height: Int) -> MTLTexture? {
-                                        let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .bgra8Unorm,
-                                                                                                  width: width,
-                                                                                                  height: height,
-                                                                                                  mipmapped: false)
-                                        descriptor.usage = [.shaderRead, .renderTarget]
-                                        
-                                        guard let texture = metalDevice.makeTexture(descriptor: descriptor) else {
-                                            logger.error("Failed to create fallback texture")
-                                            return nil
-                                        }
-                                        
-                                        let region = MTLRegionMake2D(0, 0, width, height)
-                                        let color: [UInt8] = [0, 0, 255, 51] // BGRA: semi-transparent blue
-                                        let rowBytes = 4 * width
-                                        
-                                        texture.replace(region: region, mipmapLevel: 0, withBytes: color, bytesPerRow: rowBytes)
-                                        
-                                        logger.log(level: .debug, "Fallback texture created successfully")
-                                        return texture
-                                    }
-
-                                    private func makeRenderPassDescriptor(texture: MTLTexture) -> MTLRenderPassDescriptor? {
-                                        let renderPassDescriptor = MTLRenderPassDescriptor()
-                                        renderPassDescriptor.colorAttachments[0].texture = texture
-                                        renderPassDescriptor.colorAttachments[0].loadAction = .clear
-                                        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1)
-                                        renderPassDescriptor.colorAttachments[0].storeAction = .store
-                                        return renderPassDescriptor
-                                    }
-
-                                    func textureToImage(texture: MTLTexture) -> CGImage? {
-                                        let width = texture.width
-                                        let height = texture.height
-                                        let rowBytes = width * 4
-                                        
-                                        var imageBytes = [UInt8](repeating: 0, count: rowBytes * height)
-                                        let region = MTLRegionMake2D(0, 0, width, height)
-                                        
-                                        texture.getBytes(&imageBytes, bytesPerRow: rowBytes, from: region, mipmapLevel: 0)
-                                        
-                                        let provider = CGDataProvider(data: NSData(bytes: &imageBytes, length: imageBytes.count))
-                                        let bitmapInfo = CGBitmapInfo.byteOrder32Little.union(CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedFirst.rawValue))
-                                        let colorSpace = CGColorSpaceCreateDeviceRGB()
-                                        
-                                        guard let cgImage = CGImage(width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: rowBytes, space: colorSpace, bitmapInfo: bitmapInfo, provider: provider!, decode: nil, shouldInterpolate: false, intent: .defaultIntent) else {
-                                            logger.error("Failed to convert texture to CGImage")
-                                            return nil
-                                        }
-                                        
-                                        logger.log(level: .debug, "Texture successfully converted to CGImage")
-                                        return cgImage
-                                    }
+                           
     public func createSummaryVideo(from returnedFiles: [(video: URL, preview: URL)], outputFolder: URL) async throws -> URL {
         defer {
             self.progressG.completedUnitCount += 1
-            updateProgressG()
         }
         let startTime = CFAbsoluteTimeGetCurrent()
         defer {
