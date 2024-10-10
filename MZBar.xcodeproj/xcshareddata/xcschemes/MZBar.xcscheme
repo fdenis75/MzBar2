@@ -30,7 +30,11 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:MZBar/TestPlan.xctestplan">
+            reference = "container:MZBar/TestPlan.xctestplan"
+            default = "YES">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:MZBarTests2/TestPlanIndiv.xctestplan">
          </TestPlanReference>
       </TestPlans>
       <Testables>

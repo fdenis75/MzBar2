@@ -19,7 +19,7 @@ class MosaicGeneratorPerformanceTests: XCTestCase {
         super.tearDown()
     }
 
-    /*func testPerformanceOfProcessIndivFile() {
+    func testPerformanceOfProcessIndivFile() {
         measure {
             let expectation = XCTestExpectation(description: "Process individual file")
             
@@ -28,8 +28,8 @@ class MosaicGeneratorPerformanceTests: XCTestCase {
                     let outputDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("TestOutput")
                     _ = try await mosaicGenerator.processIndivFile(
                         videoFile: testVideoURL,
-                        width: 1920,
-                        density: "m",
+                        width: 5000,
+                        density: "S",
                         format: "jpg",
                         overwrite: true,
                         preview: false,
@@ -44,9 +44,57 @@ class MosaicGeneratorPerformanceTests: XCTestCase {
             
             wait(for: [expectation], timeout: 60.0)
         }
-    }*/
-
-    func testPerformanceOfExtractThumbnailsWithTimestamps() {
+    }
+    func testGetFilesToday() {
+        let expectation = XCTestExpectation(description: "Get files today")
+        Task {
+            do {
+                let files = try await mosaicGenerator.getVideoFilesCreatedTodayWithPlaylistLocation()
+                XCTAssertGreaterThan(files.count, 0)
+                expectation.fulfill()
+            } catch {
+                XCTFail("Error getting files: \(error)")
+            }
+        }
+    }
+    
+    func testcalculateOptimalMosaicLayoutConfiguration() {
+        let expectation = XCTestExpectation(description: "Create layout configuration")
+        let AR: CGFloat = 16.0 / 9.0
+        let estimatedThumbnailCount = 100
+        let mosaicWidth = 5000
+        let density = "XS"
+ 
+        _ = mosaicGenerator.calculateOptimalMosaicLayoutC(originalAspectRatio: AR, estimatedThumbnailCount: 100, mosaicWidth: 5120, density: "XS")
+                expectation.fulfill()
+            
+    }
+    
+    func testCreationOfMosaic() {
+        let expectation = XCTestExpectation(description: "Create mosaic")
+        Task {
+            do{
+                let outputDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("TestOutput")
+                _ = try await mosaicGenerator.processIndivFile(
+                    videoFile: testVideoURL,
+                    width: 5000,
+                    density: "M",
+                    format: "jpg",
+                    overwrite: true,
+                    preview: false,
+                    outputDirectory: outputDirectory,
+                    accurate: false
+                )
+                expectation.fulfill()
+               
+            } catch {
+                XCTFail("Error processing file: \(error)")
+            }
+        }
+    }
+        
+    
+ /*   func testPerformanceOfExtractThumbnailsWithTimestamps() {
         let count = 200
         let batchSize = 50
         
@@ -76,7 +124,7 @@ class MosaicGeneratorPerformanceTests: XCTestCase {
     
     }
 
-  /*  func testPerformanceOfGenerateOptMosaicImagebatch2() {
+  func testPerformanceOfGenerateOptMosaicImagebatch2() {
         measure {
             let expectation = XCTestExpectation(description: "Generate mosaic image")
             

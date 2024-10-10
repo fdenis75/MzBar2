@@ -7,13 +7,6 @@
 	objects = {
 
 /* Begin PBXContainerItemProxy section */
-		0F7DC51F2CB129B6005F928A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0F4BF6442CA602C200AD34C7 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 0F4BF64B2CA602C200AD34C7;
-			remoteInfo = MZBar;
-		};
 		0F7DC52E2CB12BD0005F928A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0F4BF6442CA602C200AD34C7 /* Project object */;
@@ -38,7 +31,6 @@
 
 /* Begin PBXFileReference section */
 		0F4BF64C2CA602C200AD34C7 /* MZBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MZBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		0F7DC51B2CB129B6005F928A /* MZBarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MZBarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0F7DC52A2CB12BD0005F928A /* MZBarTests2.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MZBarTests2.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -76,13 +68,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		0F7DC5182CB129B6005F928A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		0F7DC5272CB12BD0005F928A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -106,7 +91,6 @@
 			isa = PBXGroup;
 			children = (
 				0F4BF64C2CA602C200AD34C7 /* MZBar.app */,
-				0F7DC51B2CB129B6005F928A /* MZBarTests.xctest */,
 				0F7DC52A2CB12BD0005F928A /* MZBarTests2.xctest */,
 			);
 			name = Products;
@@ -137,26 +121,6 @@
 			productName = MZBar;
 			productReference = 0F4BF64C2CA602C200AD34C7 /* MZBar.app */;
 			productType = "com.apple.product-type.application";
-		};
-		0F7DC51A2CB129B6005F928A /* MZBarTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 0F7DC5212CB129B6005F928A /* Build configuration list for PBXNativeTarget "MZBarTests" */;
-			buildPhases = (
-				0F7DC5172CB129B6005F928A /* Sources */,
-				0F7DC5182CB129B6005F928A /* Frameworks */,
-				0F7DC5192CB129B6005F928A /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				0F7DC5202CB129B6005F928A /* PBXTargetDependency */,
-			);
-			name = MZBarTests;
-			packageProductDependencies = (
-			);
-			productName = MZBarTests;
-			productReference = 0F7DC51B2CB129B6005F928A /* MZBarTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		0F7DC5292CB12BD0005F928A /* MZBarTests2 */ = {
 			isa = PBXNativeTarget;
@@ -194,10 +158,6 @@
 					0F4BF64B2CA602C200AD34C7 = {
 						CreatedOnToolsVersion = 16.0;
 					};
-					0F7DC51A2CB129B6005F928A = {
-						CreatedOnToolsVersion = 16.0;
-						TestTargetID = 0F4BF64B2CA602C200AD34C7;
-					};
 					0F7DC5292CB12BD0005F928A = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = 0F4BF64B2CA602C200AD34C7;
@@ -214,7 +174,6 @@
 			mainGroup = 0F4BF6432CA602C200AD34C7;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				0F6E3E3B2CB00B87002070F1 /* XCLocalSwiftPackageReference "../../exterbal/CSProgress" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0F4BF64D2CA602C200AD34C7 /* Products */;
@@ -222,7 +181,6 @@
 			projectRoot = "";
 			targets = (
 				0F4BF64B2CA602C200AD34C7 /* MZBar */,
-				0F7DC51A2CB129B6005F928A /* MZBarTests */,
 				0F7DC5292CB12BD0005F928A /* MZBarTests2 */,
 			);
 		};
@@ -230,13 +188,6 @@
 
 /* Begin PBXResourcesBuildPhase section */
 		0F4BF64A2CA602C200AD34C7 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		0F7DC5192CB129B6005F928A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -260,13 +211,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		0F7DC5172CB129B6005F928A /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		0F7DC5262CB12BD0005F928A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -277,11 +221,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		0F7DC5202CB129B6005F928A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 0F4BF64B2CA602C200AD34C7 /* MZBar */;
-			targetProxy = 0F7DC51F2CB129B6005F928A /* PBXContainerItemProxy */;
-		};
 		0F7DC52F2CB12BD0005F928A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 0F4BF64B2CA602C200AD34C7 /* MZBar */;
@@ -468,40 +407,6 @@
 			};
 			name = Release;
 		};
-		0F7DC5222CB129B6005F928A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 99D83P27R3;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fd.MZBarTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MZBar.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MZBar";
-			};
-			name = Debug;
-		};
-		0F7DC5232CB129B6005F928A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 99D83P27R3;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fd.MZBarTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MZBar.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MZBar";
-			};
-			name = Release;
-		};
 		0F7DC5312CB12BD0005F928A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -557,15 +462,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0F7DC5212CB129B6005F928A /* Build configuration list for PBXNativeTarget "MZBarTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				0F7DC5222CB129B6005F928A /* Debug */,
-				0F7DC5232CB129B6005F928A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		0F7DC5302CB12BD0005F928A /* Build configuration list for PBXNativeTarget "MZBarTests2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -576,13 +472,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		0F6E3E3B2CB00B87002070F1 /* XCLocalSwiftPackageReference "../../exterbal/CSProgress" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../exterbal/CSProgress;
-		};
-/* End XCLocalSwiftPackageReference section */
 	};
 	rootObject = 0F4BF6442CA602C200AD34C7 /* Project object */;
 }

@@ -30,8 +30,18 @@ public class MosaicGenerator {
         let thumbnailSize: CGSize
         let positions: [(x: Int, y: Int)]
         let thumbCount: Int
+        let thumbnailSizes: [CGSize]
+        let mosaicSize: CGSize
     }
+    
 
+    struct TimeStamp {
+        let ts: String
+        let x: Int
+        let y: Int
+        let w: Int
+        let h: Int
+    }
     /// Represents the uniforms for rendering the mosaic.
     struct Uniforms {
         var position: SIMD2<Float>
@@ -78,7 +88,8 @@ public class MosaicGenerator {
     private var totalfiles: Int = 0
     private var processedFiles: Int = 0
     private var startTime: CFAbsoluteTime
-
+    private var layoutCache: [String: MosaicLayout] = [:]
+    private var custom: Bool = false
     // MARK: - Initialization
 
     /// Initializes the MosaicGenerator with the specified parameters.
@@ -92,11 +103,11 @@ public class MosaicGenerator {
     ///   - smart: Enable smart processing.
     public init(
         debug: Bool = false, renderingMode: RenderingMode = .auto,
-        maxConcurrentOperations: Int? = nil, timeStamps: Bool = false, skip: Bool = true,
+        maxConcurrentOperations: Int? = nil, timeStamps: Bool = true, skip: Bool = true,
         smart: Bool = false, createPreview: Bool = false, batchsize: Int = 24,
         accurate: Bool = false, saveAtRoot: Bool = false, separate: Bool = true,
-        summary: Bool = false
-    ) {
+        summary: Bool = false, custom: Bool = false)
+     {
         self.debug = debug
         self.renderingMode = renderingMode
         self.time = timeStamps
@@ -113,6 +124,7 @@ public class MosaicGenerator {
         self.summary = summary
         self.videosFiles = []
         self.startTime = CFAbsoluteTimeGetCurrent()
+         self.custom = custom
 
         self.progressG = Progress(totalUnitCount: 1)  // Initialize with 1, we'll update this later
 
@@ -263,34 +275,24 @@ public class MosaicGenerator {
         
         // Log the start of thumbnail extraction
         logger.log(level: .debug, "Extracting thumbnails for \(videoFile.standardizedFileURL)")
-        try await self.extractThumbnailsWithTimestamps4( from: metadata.file,
-                                                         count: thumbnailCount,
-                                                         asset: asset,
-                                                         thSize: mosaicLayout.thumbnailSize,
-                                                         preview: false,
-                                                         accurate: accurate
-                                                     )
+        
         // Extract thumbnails with their timestamps
         let thumbnailsWithTimestamps = try await self.extractThumbnailsWithTimestamps3(
             from: metadata.file,
-            count: thumbnailCount,
+            layout: mosaicLayout,
             asset: asset,
-            thSize: mosaicLayout.thumbnailSize,
             preview: preview,
             accurate: accurate
         )
         
         // Calculate the output size of the mosaic
-        let outputSize = CGSize(
-            width: Int(mosaicLayout.cols * Int(mosaicLayout.thumbnailSize.width)),
-            height: Int(mosaicLayout.rows * Int(mosaicLayout.thumbnailSize.height)))
+        let outputSize = mosaicLayout.mosaicSize
 
         // Log the start of mosaic generation
         logger.log(level: .debug, "Generating mosaic for \(videoFile.standardizedFileURL)")
         
         // Generate the mosaic image
         let mosaic = try await withCheckedThrowingContinuation { continuation in
-            autoreleasepool {
                 do {
                     switch renderingMode {
                     case .auto, .classic:
@@ -316,7 +318,7 @@ public class MosaicGenerator {
                 } catch {
                     continuation.resume(throwing: error)
                 }
-            }
+            
         }
         
         // Determine the final output directory
@@ -344,110 +346,7 @@ public class MosaicGenerator {
         )
     }
 
-    // Function to process a QuickLook file and generate a mosaic image
-    public func processQLFile(videoFile: URL, width: Int, density: String, accurate: Bool)
-        -> NSImage
-    {
-        // Log the start of processing for the given video file
-        logger.log(level: .info, "Processing file: \(videoFile.standardizedFileURL)")
-        
-        // Create an AVURLAsset from the video file
-        let asset = AVURLAsset(url: videoFile)
-        
-        // Record the start time for performance measurement
-        let startTime = CFAbsoluteTimeGetCurrent()
-        
-        // Use defer to ensure logging of completion time, regardless of how the function exits
-        defer {
-            let endTime = CFAbsoluteTimeGetCurrent()
-            logger.log(
-                level: .info,
-                "Mosaic generation completed in \(String(format: "%.2f", endTime - startTime)) seconds for \(videoFile.standardizedFileURL)"
-            )
-            // Uncomment the following line if progress tracking is needed
-            // self.progress.completedUnitCount += 1
-        }
-        
-        // Initialize a variable to hold the generated image
-        var imageT: NSImage?
-        
-        // Start an asynchronous task to generate the mosaic
-        Task {
-            // Process the video to extract metadata
-            let metadata = try await self.processVideo(file: videoFile, asset: asset)
-
-            // Design the mosaic layout based on metadata, width, and density
-            let mosaicLayout = try await self.mosaicDesign(
-                metadata: metadata, width: width, density: density)
-            
-            // Get the number of thumbnails needed for the mosaic
-            let thumbnailCount = mosaicLayout.thumbCount
-            
-            // Log the start of thumbnail extraction
-            logger.log(level: .debug, "Extracting thumbnails for \(videoFile.standardizedFileURL)")
-            
-            // Extract thumbnails with timestamps from the video
-            let thumbnailsWithTimestamps = try await self.extractThumbnailsWithTimestamps2(
-                from: metadata.file,
-                count: thumbnailCount,
-                asset: asset,
-                thSize: mosaicLayout.thumbnailSize,
-                preview: false,
-                accurate: accurate
-            )
-            try await self.extractThumbnailsWithTimestamps4( from: metadata.file,
-                                                             count: thumbnailCount,
-                                                             asset: asset,
-                                                             thSize: mosaicLayout.thumbnailSize,
-                                                             preview: false,
-                                                             accurate: accurate
-                                                         )
-            // Calculate the output size of the mosaic
-            let outputSize = CGSize(
-                width: Int(mosaicLayout.cols * Int(mosaicLayout.thumbnailSize.width)),
-                height: Int(mosaicLayout.rows * Int(mosaicLayout.thumbnailSize.height)))
-
-            // Log the start of mosaic generation
-            logger.log(level: .debug, "Generating mosaic for \(videoFile.standardizedFileURL)")
-            
-            // Generate the mosaic image
-            let mosaic = try await withCheckedThrowingContinuation { continuation in
-                autoreleasepool {
-                    do {
-                        switch renderingMode {
-                        case .auto, .classic:
-                            // Record start time for classic rendering
-                            let startTimeC = CFAbsoluteTimeGetCurrent()
-                            
-                            // Generate the mosaic using the classic method
-                            let result = try self.generateOptMosaicImagebatch(
-                                thumbnailsWithTimestamps: thumbnailsWithTimestamps,
-                                layout: mosaicLayout, outputSize: outputSize, metadata: metadata)
-                            
-                            // Record end time and log the duration for classic rendering
-                            let endTimeC = CFAbsoluteTimeGetCurrent()
-                            logger.log(
-                                level: .info,
-                                "Mosaic generation without metal completed in \(String(format: "%.2f", endTimeC - startTimeC)) seconds for \(videoFile.standardizedFileURL)"
-                            )
-                            continuation.resume(returning: result)
-                        case .metal:
-                            // Metal rendering not implemented in this block
-                            break
-                        }
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                }
-            }
-            
-            // Convert the CGImage mosaic to NSImage
-            imageT = NSImage(cgImage: mosaic, size: outputSize)
-        }
-        
-        // Return the generated mosaic image
-        return imageT!
-    }
+   
 
     @available(macOS 13, *)
     /// Retrieves video files from a specified input directory.
@@ -459,7 +358,9 @@ public class MosaicGenerator {
     public func getFiles(input: String, width: Int) async throws {
         self.videosFiles = try await getVideoFiles(from: input, width: width)
     }
-   
+    public func getFilestoday() async throws {
+        self.videosFiles =  await getVideoFilesCreatedTodayWithPlaylistLocation()
+    }
     /// Runs the mosaic generation process for multiple video files.
     /// - Parameters:
     ///   - input: The input directory containing video files.
@@ -872,9 +773,17 @@ public class MosaicGenerator {
             duration: metadata.duration, width: width, density: density)
 
         let thumbnailAspectRatio = metadata.resolution.width / metadata.resolution.height
-        return calculateOptimalMosaicLayout(
-            originalAspectRatio: thumbnailAspectRatio, estimatedThumbnailCount: thumbnailCount,
-            mosaicWidth: width)
+        switch self.custom {
+        case true:
+            return calculateOptimalMosaicLayoutC(
+                originalAspectRatio: thumbnailAspectRatio, estimatedThumbnailCount: thumbnailCount,
+                mosaicWidth: width, density: density)
+        default:
+            return calculateOptimalMosaicLayoutClassic(
+                originalAspectRatio: thumbnailAspectRatio, estimatedThumbnailCount: thumbnailCount,
+                mosaicWidth: width)
+        }
+        
     }
 
     /// Retrieves video files from the input source.
@@ -1023,6 +932,79 @@ public class MosaicGenerator {
         }
     }
 
+    func getVideoFilesCreatedTodayWithPlaylistLocation() async  -> [(URL, URL)] {
+        let nf = NotificationCenter.default
+        //let query = NSMetadataQuery()
+        var query: NSMetadataQuery? {
+            willSet {
+              if let q = query {
+                q.stop()
+              }
+            }
+          }
+        // Set up the search criteria
+        let today = Calendar.current.startOfDay(for: Date())
+        let tomorrow = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400))
+        //let predicate = NSPredicate(format: "kMDItemContentTypeTree == %@ && kMDItemDateAdded >= %@",
+        // "public.movie" as NSString,
+        //today as NSDate)
+        
+            let predicate = NSPredicate(format: "(kMDItemContentType = 'public.video'")
+       
+
+        
+            
+        
+        nf.addObserver(forName: .NSMetadataQueryDidStartGathering, object: nil, queue: .main, using: {_ in
+
+              print("Query did start gathering")
+            })
+
+            nf.addObserver(forName: .NSMetadataQueryDidUpdate, object: nil, queue: .main, using: {_ in
+
+              print("QUery results updated \(query?.resultCount)")
+            })
+            nf.addObserver(forName: .NSMetadataQueryDidFinishGathering, object: nil, queue: .main, using: {_ in
+              print("Got results \(query?.results)")
+            })
+        DispatchQueue.main.async {
+                query?.start()
+              }
+        
+        // Specify the attributes we want to retrieve
+        query?.searchScopes = [NSMetadataQueryLocalComputerScope]
+        query?.valueListAttributes = ["kMDItemPath"]
+        query?.predicate = predicate
+        DispatchQueue.main.async {
+                query?.start()
+              }
+            let results = query?.results as! [NSMetadataItem]
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            let currentDate = dateFormatter.string(from: Date())
+            
+            let urlPairs = results.compactMap { item -> (URL, URL)? in
+                guard let path = item.value(forAttribute: "kMDItemPath") as? String else {
+                    return nil
+                }
+                let fileURL = URL(fileURLWithPath: path)
+                print ("fileURL: \(fileURL)")
+                let playlistURL = URL(fileURLWithPath: "/Volumes/Ext-6/playlist/\(currentDate)")
+                return (fileURL, playlistURL)
+            }
+            
+            query?.stop()
+            NotificationCenter.default.removeObserver(self,
+                                                      name: .NSMetadataQueryDidFinishGathering,
+                                                      object: query)
+            
+            
+            
+         
+            return urlPairs
+        }
+    
+    
     /// Checks if the given URL is a video file.
     private func isVideoFile(_ url: URL) -> Bool {
         let videoExtensions = ["mp4", "mov", "avi", "mkv", "m4v", "webm", "ts"]
@@ -1081,7 +1063,7 @@ public class MosaicGenerator {
         switch density.lowercased() {
         case "xxs": densityFactor = 0.25
         case "xs": densityFactor = 0.5
-        case "s": densityFactor = 1.0
+        case "s", "c" : densityFactor = 1.0
         case "m": densityFactor = 1.5
         case "l": densityFactor = 2.0
         case "xl": densityFactor = 4.0
@@ -1264,82 +1246,271 @@ public class MosaicGenerator {
             "Finished export in \(String(format: "%.2f", endTime - startTime)) seconds")
     }
 
+    func generateRowConfigs(largeCols: Int, largeRows: Int, smallCols: Int, smallRows: Int) -> [(Int, Int)] {
+        var rowConfigs: [(Int, Int)] = []
+        
+        // Calculate total rows
+        let totalRows = largeRows * 2  + smallRows
+        
+        for _ in 0..<(smallRows/2) {
+            rowConfigs.append((smallCols, 0))
+        }
+        for _ in 0..<largeRows {
+            rowConfigs.append((0, largeCols))
+        }
+        for _ in 0..<(smallRows/2) {
+            rowConfigs.append((smallCols, 0))
+        }
+        return rowConfigs
+    }
     /// Calculates the optimal layout for the mosaic based on the original aspect ratio and estimated thumbnail count.
     /// - Parameters:
     ///   - originalAspectRatio: The aspect ratio of the original video.
     ///   - estimatedThumbnailCount: The estimated number of thumbnails.
     ///   - mosaicWidth: The width of the mosaic.
     /// - Returns: The optimal mosaic layout.
-    func calculateOptimalMosaicLayout(
-        originalAspectRatio: CGFloat,
-        estimatedThumbnailCount: Int,
-        mosaicWidth: Int
-    ) -> MosaicLayout {
-        var count = estimatedThumbnailCount
-        let state = signposter.beginInterval("calculateOptimalMosaicLayout", id: signpostID)
-        defer {
-            signposter.endInterval("calculateOptimalMosaicLayout", state)
-        }
-        let mosaicAspectRatio: CGFloat = 16.0 / 9.0
-        let mosaicHeight = Int(CGFloat(mosaicWidth) / mosaicAspectRatio)
-
-        func calculateLayout(rows: Int) -> MosaicLayout {
-            let cols = Int(ceil(Double(count) / Double(rows)))
-
-            let thumbnailWidth = CGFloat(mosaicWidth) / CGFloat(cols)
-            let thumbnailHeight = thumbnailWidth / originalAspectRatio
-
-            let adjustedRows = min(rows, Int(ceil(CGFloat(mosaicHeight) / thumbnailHeight)))
-
-            var positions: [(x: Int, y: Int)] = []
-            for row in 0..<adjustedRows {
-                for col in 0..<cols {
-                    if positions.count < count {
-                        positions.append((x: col, y: row))
+    func calculateOptimalMosaicLayoutC(
+            originalAspectRatio: CGFloat,
+            estimatedThumbnailCount: Int,
+            mosaicWidth: Int,
+            density: String
+        ) -> MosaicLayout {
+           // let cacheKey = "\(originalAspectRatio)-\(estimatedThumbnailCount)-\(mosaicWidth)-\(density)"
+            //if let cachedLayout = layoutCache[cacheKey] {
+             //   return cachedLayout
+            //}
+            //let cacheKey = "\(originalAspectRatio)-\(estimatedThumbnailCount)-\(mosaicWidth)-\(density)"
+           // if let cachedLayout = layoutCache[cacheKey] {
+              //  return cachedLayout
+            //}
+            
+            let mosaicAspectRatio: CGFloat = 16.0 / 9.0
+            let mosaicHeight = Int(CGFloat(mosaicWidth) / mosaicAspectRatio)
+            
+            func calculateDynamicLayout() -> MosaicLayout {
+                var rowConfigs: [(smallCount: Int, largeCount: Int)] = []
+                var smallThumbWidth:CGFloat = 0.0
+                var largeThumbWidth:CGFloat = 0.0
+                var smallThumbHeight:CGFloat = 0.0
+                var largeThumbHeight:CGFloat = 0.0
+                var largeCols = 0
+                var smallCols = 0
+                var largeRows = 0
+                var smallRows = 0
+                var totalRows = 0
+                var TotalCols = 0
+                switch density {
+                case "XXL":
+                    rowConfigs = [(4, 0), (0, 2), (4, 0)]
+                    largeCols = 2
+                    largeRows = 1
+                    smallCols = 4
+                    smallRows = 2
+                    totalRows = largeRows * 2 + smallRows
+                    TotalCols = smallCols
+                case "XL":
+                    rowConfigs = [(6, 0), (0, 3), (6, 0)]
+                    largeCols = 3
+                    largeRows = 1
+                    smallCols = 6
+                    smallRows = 2
+                    totalRows = largeRows * 2 + smallRows
+                    TotalCols = smallCols
+                case "L":
+                    rowConfigs = [(6, 0), (6, 0), (0, 3), (0, 3), (6, 0), (6, 0)]
+                    largeCols = 3
+                    largeRows = 2
+                    smallCols = 6
+                    smallRows = 4
+                    totalRows = largeRows * 2 + smallRows
+                    TotalCols = smallCols
+                case "M":
+                    rowConfigs = [(8, 0), (8, 0), (0, 4), (0, 4), (8, 0), (8, 0)]
+                    largeCols = 4
+                    largeRows = 2
+                    smallCols = 8
+                    smallRows = 4
+                    totalRows = largeRows * 2 + smallRows
+                    TotalCols = smallCols
+                case "S":
+                    rowConfigs = [(12, 0), (12, 0), (0, 6), (0, 6), (12, 0), (12, 0)]
+                    largeCols = 6
+                    largeRows = 2
+                    smallCols = 12
+                    smallRows = 4
+                    totalRows = largeRows * 2 + smallRows
+                    TotalCols = smallCols
+                case "XS":
+                    rowConfigs = [(16, 0), (16, 0), (0, 8), (0, 8), (16, 0), (16, 0)]
+                    largeCols = 8
+                    largeRows = 2
+                    smallCols = 16
+                    smallRows = 4
+                    totalRows = largeRows * 2 + smallRows
+                    TotalCols = smallCols
+                case "XXS":
+                    rowConfigs = [(18, 0), (18, 0), (18, 0), (18, 0), (0, 9), (0, 9), (0, 9), (0, 9),(18, 0), (18, 0), (18, 0), (18, 0)]
+                    largeCols = 9
+                    largeRows = 4
+                    smallCols = 18
+                    smallRows = 8
+                    totalRows = largeRows * 2 + smallRows
+                    TotalCols = smallCols
+                default:
+                    rowConfigs = [(8, 0), (8, 0), (0, 4), (0, 4), (8, 0), (8, 0)]
+                    largeCols = 4
+                    largeRows = 2
+                    smallCols = 8
+                    smallRows = 4
+                    totalRows = largeRows * 2 + smallRows
+                    TotalCols = smallCols
+                }
+                
+                smallThumbWidth = CGFloat(CGFloat(mosaicWidth) / Double(TotalCols))
+                smallThumbHeight = smallThumbWidth / originalAspectRatio
+                var tmpTotalRows = Int(mosaicHeight / Int(smallThumbHeight))
+                while (!tmpTotalRows.isMultiple(of: 3) && tmpTotalRows > 0) {
+                    tmpTotalRows -= 1
+                }
+                smallRows = tmpTotalRows / 2
+                largeRows = tmpTotalRows / 4
+                
+                rowConfigs = generateRowConfigs(largeCols: largeCols, largeRows: largeRows, smallCols: smallCols, smallRows: smallRows)
+                
+                let totalSmallThumbs = smallCols * smallRows
+                let totalLargeThumbs = largeCols * largeRows
+              // let totalRows = rowConfigs.count
+                
+                smallThumbWidth = CGFloat(CGFloat(mosaicWidth) / Double(smallCols))
+                largeThumbWidth = smallThumbWidth * 2
+                smallThumbHeight = smallThumbWidth / originalAspectRatio
+                largeThumbHeight = largeThumbWidth / originalAspectRatio
+                totalRows = smallRows + 2 * largeRows
+                TotalCols = smallCols
+                let count = totalLargeThumbs + totalSmallThumbs
+                
+                var positions: [(x: Int, y: Int)] = []
+                var thumbnailSizes: [CGSize] = []
+                var rowHeight:CGFloat = 0
+                var y:CGFloat = 0
+                for (smallCount, largeCount) in rowConfigs {
+                    var x:CGFloat = 0
+                    if smallCount > 0 {
+                        for _ in 0..<smallCount {
+                            print("small : \(smallCount) x: \(x) y: \(y) smallThumbWidth: \(smallThumbWidth) smallThumbHeight: \(smallThumbHeight)")
+                            positions.append((x: Int(x), y: Int(y)))
+                            thumbnailSizes.append(CGSize(width: smallThumbWidth, height: smallThumbHeight))
+                            x += smallThumbWidth
+                            rowHeight = smallThumbHeight
+                        }
                     } else {
-                        break
+                        for _ in 0..<largeCount {
+                            print("large : \(largeCount) x: \(x) y: \(y) largeThumbWidth: \(largeThumbWidth) largeThHubHeight: \(largeThumbHeight)")
+
+                            positions.append((x: Int(x), y: Int(y)))
+                            thumbnailSizes.append(CGSize(width: largeThumbWidth, height: largeThumbHeight))
+                            x += largeThumbWidth
+                            rowHeight = largeThumbHeight
+                        }
+                    }
+                    y += rowHeight
+                }
+                
+                return MosaicLayout(
+                    rows: totalRows,
+                    cols: TotalCols,
+                    thumbnailSize: CGSize(width: smallThumbWidth, height: smallThumbHeight),
+                    positions: positions,
+                    thumbCount: count,
+                    thumbnailSizes: thumbnailSizes,
+                    mosaicSize: CGSize(width: mosaicWidth, height: totalRows*Int(smallThumbHeight))
+                )
+            }
+            
+            let layout = calculateDynamicLayout()
+          //  layoutCache[cacheKey] = layout
+            return layout
+        }
+    
+    
+    func calculateOptimalMosaicLayoutClassic(
+            originalAspectRatio: CGFloat,
+            estimatedThumbnailCount: Int,
+            mosaicWidth: Int
+        ) -> MosaicLayout {
+            
+            var count = estimatedThumbnailCount
+            let state = signposter.beginInterval("calculateOptimalMosaicLayout", id: signpostID)
+            defer {
+                signposter.endInterval("calculateOptimalMosaicLayout", state)
+            }
+            let cacheKey = "\(originalAspectRatio)-\(estimatedThumbnailCount)-\(mosaicWidth)"
+                if let cachedLayout = layoutCache[cacheKey] {
+                    return cachedLayout
+                }
+            let mosaicAspectRatio: CGFloat = 16.0 / 9.0
+            let mosaicHeight = Int(CGFloat(mosaicWidth) / mosaicAspectRatio)
+            var thumbnailSizes: [CGSize] = []
+        
+            func calculateLayout(rows: Int) -> MosaicLayout {
+                let cols = Int(ceil(Double(count) / Double(rows)))
+
+                let thumbnailWidth = CGFloat(mosaicWidth) / CGFloat(cols)
+                let thumbnailHeight = thumbnailWidth / originalAspectRatio
+
+                let adjustedRows = min(rows, Int(ceil(CGFloat(mosaicHeight) / thumbnailHeight)))
+
+                var positions: [(x: Int, y: Int)] = []
+                for row in 0..<adjustedRows {
+                    for col in 0..<cols {
+                        if positions.count < count {
+                            positions.append((x: col, y: row))
+                            thumbnailSizes.append(CGSize(width: thumbnailWidth, height: thumbnailHeight))
+                        } else {
+                            break
+                        }
                     }
                 }
+                return MosaicLayout(
+                    rows: adjustedRows,
+                    cols: cols,
+                    thumbnailSize: CGSize(width: thumbnailWidth, height: thumbnailHeight),
+                    positions: positions,
+                    thumbCount: count,
+                    thumbnailSizes: thumbnailSizes,
+                    mosaicSize: CGSize(width: thumbnailWidth*CGFloat(cols), height: thumbnailHeight*CGFloat(adjustedRows))                )
             }
-            return MosaicLayout(
-                rows: adjustedRows,
-                cols: cols,
-                thumbnailSize: CGSize(width: thumbnailWidth, height: thumbnailHeight),
-                positions: positions,
-                thumbCount: count
+
+            var bestLayout = calculateLayout(rows: Int(sqrt(Double(estimatedThumbnailCount))))
+            var bestScore = Double.infinity
+
+            for rows in 1...estimatedThumbnailCount {
+                let layout = calculateLayout(rows: rows)
+
+                let fillRatio =
+                    (CGFloat(layout.rows) * layout.thumbnailSize.height) / CGFloat(mosaicHeight)
+                let thumbnailCount = layout.positions.count
+                let countDifference = abs(thumbnailCount - estimatedThumbnailCount)
+
+                let score = (1 - fillRatio) + Double(countDifference) / Double(estimatedThumbnailCount)
+
+                if score < bestScore {
+                    bestScore = score
+                    bestLayout = layout
+                }
+
+                if CGFloat(layout.rows) * layout.thumbnailSize.height > CGFloat(mosaicHeight) {
+                    break
+                }
+            }
+            count = bestLayout.rows * bestLayout.cols
+
+            logger.log(
+                level: .debug,
+                "Optimal mosaic layout calculated: rows=\(bestLayout.rows), cols=\(bestLayout.cols), totalThumbnails=\(count)"
             )
+            return calculateLayout(rows: bestLayout.rows)
         }
-
-        var bestLayout = calculateLayout(rows: Int(sqrt(Double(estimatedThumbnailCount))))
-        var bestScore = Double.infinity
-
-        for rows in 1...estimatedThumbnailCount {
-            let layout = calculateLayout(rows: rows)
-
-            let fillRatio =
-                (CGFloat(layout.rows) * layout.thumbnailSize.height) / CGFloat(mosaicHeight)
-            let thumbnailCount = layout.positions.count
-            let countDifference = abs(thumbnailCount - estimatedThumbnailCount)
-
-            let score = (1 - fillRatio) + Double(countDifference) / Double(estimatedThumbnailCount)
-
-            if score < bestScore {
-                bestScore = score
-                bestLayout = layout
-            }
-
-            if CGFloat(layout.rows) * layout.thumbnailSize.height > CGFloat(mosaicHeight) {
-                break
-            }
-        }
-        count = bestLayout.rows * bestLayout.cols
-
-        logger.log(
-            level: .debug,
-            "Optimal mosaic layout calculated: rows=\(bestLayout.rows), cols=\(bestLayout.cols), totalThumbnails=\(count)"
-        )
-        return calculateLayout(rows: bestLayout.rows)
-    }
 
     @available(macOS 13, *)
     /// Extracts thumbnails from a video file with timestamps.
@@ -1352,77 +1523,91 @@ public class MosaicGenerator {
     ///   - accurate: Whether to extract thumbnails with accurate timestamps.
     /// - Returns: An array of tuples containing the thumbnail image and its timestamp.
     func extractThumbnailsWithTimestamps3(
-        from file: URL, count: Int, asset: AVAsset, thSize: CGSize, preview: Bool, accurate: Bool, batchSize: Int = 20
+        from file: URL, layout: MosaicLayout, asset: AVAsset, preview: Bool, accurate: Bool, batchSize: Int = 20
     ) async throws -> [(image: CGImage, timestamp: String)] {
-        let state = signposter.beginInterval("extractThumbnailsWithTimestamps3", id: signpostID)
-        defer { signposter.endInterval("extractThumbnailsWithTimestamps3", state) }
-
+        let state = signposter.beginInterval("extractThumbnailsWithTimestamps2", id: signpostID)
+        defer {
+            signposter.endInterval("extractThumbnailsWithTimestamps2", state)
+        }
+        let  count = layout.thumbCount
         logger.log(level: .debug, "Starting thumbnail extraction for \(file.lastPathComponent): count=\(count), preview=\(preview), accurate=\(accurate)")
-
+        
         let startTime = CFAbsoluteTimeGetCurrent()
         let duration = try await asset.load(.duration).seconds
         let generator = AVAssetImageGenerator(asset: asset)
         generator.appliesPreferredTrackTransform = true
-        generator.requestedTimeToleranceBefore = accurate ? .zero : CMTime(seconds: 2, preferredTimescale: 600)
-        generator.requestedTimeToleranceAfter = accurate ? .zero : CMTime(seconds: 2, preferredTimescale: 600)
-        if !preview { generator.maximumSize = thSize }
-
-        let step = duration / Double(count)
-        let times = stride(from: 0, to: duration, by: step).map { CMTime(seconds: $0, preferredTimescale: 600) }
-        var thumbnailsWithTimestamps: [(Int, CGImage, String)] = []
-        batchSize = count
-       
-            self.signposter.emitEvent("start new batch size")
-            let batches = times.chunked(into: batchSize)
-            self.signposter.emitEvent("start extracted")
+        if (accurate) {
+            generator.requestedTimeToleranceBefore = CMTime(seconds: 0, preferredTimescale: 600)
+            generator.requestedTimeToleranceAfter = CMTime(seconds: 0, preferredTimescale: 600)
+        } else {
+            generator.requestedTimeToleranceBefore = CMTime(seconds: 2, preferredTimescale: 600)
+            generator.requestedTimeToleranceAfter = CMTime(seconds: 2, preferredTimescale: 600)
+        }
+        
+        if !preview {
+            generator.maximumSize = CGSize(width: layout.thumbnailSize.width * 2, height: layout.thumbnailSize.width * 2 )
+        }
+        let startPoint = duration * 0.05
+            let endPoint = duration * 0.95
+            let effectiveDuration = endPoint - startPoint
             
+            let firstThirdCount = Int(Double(count) * 0.2)
+            let middleCount = Int(Double(count) * 0.6)
+            let lastThirdCount = count - firstThirdCount - middleCount
+            
+            let firstThirdEnd = startPoint + effectiveDuration * 0.33
+            let lastThirdStart = startPoint + effectiveDuration * 0.67
+            
+            let firstThirdStep = (firstThirdEnd - startPoint) / Double(firstThirdCount)
+            let middleStep = (lastThirdStart - firstThirdEnd) / Double(middleCount)
+            let lastThirdStep = (endPoint - lastThirdStart) / Double(lastThirdCount)
+            
+        // Break down the complex expression into separate parts
+           let firstThirdTimes = (0..<firstThirdCount).map { index in
+               CMTime(seconds: startPoint + Double(index) * firstThirdStep, preferredTimescale: 600)
+           }
+           
+           let middleTimes = (0..<middleCount).map { index in
+               CMTime(seconds: firstThirdEnd + Double(index) * middleStep, preferredTimescale: 600)
+           }
+           
+           let lastThirdTimes = (0..<lastThirdCount).map { index in
+               CMTime(seconds: lastThirdStart + Double(index) * lastThirdStep, preferredTimescale: 600)
+           }
+           
+           // Combine the separate arrays
+           let times = firstThirdTimes + middleTimes + lastThirdTimes
+
+            var thumbnailsWithTimestamps: [(Int, CGImage, String)] = []
+            var index = 0
             var failedCount = 0
+        
+        for await result in generator.images(for: times) {
+            switch result {
+            case .success(requestedTime: _, image: let image, actualTime: let actual):
+                signposter.emitEvent("Image extracted")
+                thumbnailsWithTimestamps.append((index, image, self.formatTimestamp(seconds: actual.seconds)))
+                index += 1
+            case .failure(requestedTime: _, error: let error):
+                self.logger.error("Thumbnail extraction failed for \(file.lastPathComponent): \(error.localizedDescription)")
+                failedCount += 1
+            }
+        }
             
-
-            await withTaskGroup(of: [(Int, CGImage, String)].self) { group in
-                for (batchIndex, batch) in batches.enumerated() {
-                    group.addTask {
-                        var batchResults: [(Int, CGImage, String)] = []
-                        self.signposter.emitEvent("start batch")
-                        for await result in generator.images(for: batch) {
-                            switch result {
-                            case .success(requestedTime: _, let image, actualTime: let actual):
-                                self.signposter.emitEvent("Image extracted")
-                                let index = batchIndex * batchSize + batchResults.count
-                                batchResults.append((index, image, self.formatTimestamp(seconds: actual.seconds)))
-                            case .failure(requestedTime: _, let error):
-                                self.logger.error("Thumbnail extraction failed: \(error.localizedDescription)")
-                            }
-                        }
-                        return batchResults
-                    }
-                }
-
-                for await batchResult in group {
-                    thumbnailsWithTimestamps.append(contentsOf: batchResult)
-                }
+        if failedCount > 0 {
+            self.logger.warning("Partial failure in thumbnail extraction: \(thumbnailsWithTimestamps.count) successful, \(failedCount) failed")
+            if thumbnailsWithTimestamps.isEmpty {
+                throw ThumbnailExtractionError.partialFailure(successfulCount: thumbnailsWithTimestamps.count, failedCount: failedCount)
             }
+        }
 
-            failedCount = count - thumbnailsWithTimestamps.count
-
-            if failedCount > 0 {
-                self.logger.warning("Partial failure in thumbnail extraction: \(thumbnailsWithTimestamps.count) successful, \(failedCount) failed")
-                if thumbnailsWithTimestamps.isEmpty {
-                    throw ThumbnailExtractionError.partialFailure(successfulCount: thumbnailsWithTimestamps.count, failedCount: failedCount)
-                }
-            }
-
-            let endTime = CFAbsoluteTimeGetCurrent()
-            let elapsedTime = endTime - startTime
-            let fps = Double(count) / elapsedTime
-            logger.log(level: .debug, "Thumbnail extraction with batchsise \(batchSize) completed for \(file.lastPathComponent): extracted=\(thumbnailsWithTimestamps.count), failed=\(failedCount), time=\(elapsedTime) seconds,fps : \(fps)")
-            if batchSize != count{
-               thumbnailsWithTimestamps = []
-            }
+        let endTime = CFAbsoluteTimeGetCurrent()
+        let elapsedTime = endTime - startTime
+        logger.log(level: .debug, "Thumbnail extraction completed for \(file.lastPathComponent): extracted=\(thumbnailsWithTimestamps.count), failed=\(failedCount), time=\(elapsedTime) seconds")
         
         return thumbnailsWithTimestamps
-            .sorted { $0.0 < $1.0 }
-            .map { ($0.1, $0.2) }
+                .sorted { $0.0 < $1.0 }
+                .map { ($0.1, $0.2) }
     }
     /// Formats a timestamp in seconds to a string representation.
     private func formatTimestamp(seconds: Double) -> String {
@@ -1432,121 +1617,68 @@ public class MosaicGenerator {
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
                             
-                            /// Generates the mosaic image from the extracted thumbnails.
-                            private func generateOptMosaicImagebatch(thumbnailsWithTimestamps: [(image: CGImage, timestamp: String)],
-                                                                     layout: MosaicLayout,
-                                                                     outputSize: CGSize,
-                                                                     metadata: VideoMetadata) throws -> CGImage {
-                                let state = signposter.beginInterval("generateOptMosaicImagebatch", id: signpostID)
-                                defer {
-                                    signposter.endInterval("generateOptMosaicImagebatch", state)
-                                }
-                                
-                                let width = Int(outputSize.width)
-                                let height = Int(outputSize.height)
-                                let thumbnailWidth = Int(layout.thumbnailSize.width)
-                                let thumbnailHeight = Int(layout.thumbnailSize.height)
-                                
-                                guard let context = CGContext(data: nil,
-                                                              width: width,
-                                                              height: height,
-                                                              bitsPerComponent: 8,
-                                                              bytesPerRow: 0,
-                                                              space: CGColorSpaceCreateDeviceRGB(),
-                                                              bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
-                                    logger.error("Unable to create CGContext for mosaic generation")
-                                    throw MosaicError.unableToCreateContext
-                                }
-                                
-                                // Fill background
-                                context.setFillColor(CGColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0))
-                                context.fill(CGRect(x: 0, y: 0, width: width, height: height))
-                                
-                                // Draw thumbnails
-                                for (index, (thumbnail, timestamp)) in thumbnailsWithTimestamps.enumerated() {
-                                    guard index < layout.positions.count else { break }
-                                    
-                                    let position = layout.positions[index]
-                                    let x = Int(CGFloat(position.x) * layout.thumbnailSize.width)
-                                    let y = height - Int(CGFloat(position.y + 1) * layout.thumbnailSize.height)
-                                    context.draw(thumbnail, in: CGRect(x: x, y: y, width: thumbnailWidth, height: thumbnailHeight))
-                                    
-                                    if self.time {
-                                        drawTimestamp(context: context, timestamp: timestamp, x: x, y: y, width: thumbnailWidth, height: thumbnailHeight)
-                                    }
-                                }
-                                
-                                // Draw metadata
-                                drawMetadata(context: context, metadata: metadata, width: width, height: height)
-                                
-                                guard let outputImage = context.makeImage() else {
-                                    logger.error("Unable to generate mosaic image")
-                                    throw MosaicError.unableToGenerateMosaic
-                                }
-                                
-                                logger.log(level: .debug, "Mosaic image generated successfully")
-                                return outputImage
-                            }
 
-                            /// Draws a timestamp on a thumbnail.
-                            private func drawTimestamp(context: CGContext, timestamp: String, x: Int, y: Int, width: Int, height: Int) {
-                                let fontSize = CGFloat(height) / 6 / 1.618
-                                let font = CTFontCreateWithName("Helvetica" as CFString, fontSize, nil)
-                                
-                                let attributes: [NSAttributedString.Key: Any] = [
-                                    .font: font,
-                                    .foregroundColor: NSColor.white.cgColor
-                                ]
-                                
-                                let attributedTimestamp = CFAttributedStringCreate(nil, timestamp as CFString, attributes as CFDictionary)
-                                let line = CTLineCreateWithAttributedString(attributedTimestamp!)
-                                
-                                context.saveGState()
-                                context.setFillColor(CGColor(red: 0, green: 0, blue: 0, alpha: 0.5))
-                                let textRect = CGRect(x: x, y: y, width: width, height: Int(CGFloat(height) / 6))
-                                context.fill(textRect)
-                                
-                                let textWidth = CTLineGetTypographicBounds(line, nil, nil, nil)
-                                let textPosition = CGPoint(x: x + width - Int(textWidth) - 5, y: y + 5)
-                                
-                                context.textPosition = textPosition
-                                CTLineDraw(line, context)
-                                context.restoreGState()
-                            }
 
-                            /// Draws metadata on the mosaic image.
-                            private func drawMetadata(context: CGContext, metadata: VideoMetadata, width: Int, height: Int) {
-                                let metadataHeight = Int(round(Double(height) * 0.1))
-                                let lineHeight = metadataHeight / 4
-                                let fontSize = round(Double(lineHeight) / 1.618)
-                                let duree = formatTimestamp(seconds: metadata.duration)
-                                context.setFillColor(CGColor(red: 0, green: 0, blue: 1, alpha: 0.2))
-                                context.fill(CGRect(x: 0, y: height - metadataHeight, width: width, height: metadataHeight))
-                                
-                                let metadataText = """
-                                File: \(metadata.file.standardizedFileURL.standardizedFileURL)
-                                Codec: \(metadata.codec)
-                                Resolution: \(Int(metadata.resolution.width))x\(Int(metadata.resolution.height))
-                                Duration: \(duree)
-                                """
-                                let attributes: [NSAttributedString.Key: Any] = [
-                                    .font: CTFontCreateWithName("Helvetica" as CFString, fontSize, nil),
-                                    .foregroundColor: NSColor.white.cgColor
-                                ]
-                                
-                                let attributedString = NSAttributedString(string: metadataText, attributes: attributes)
-                                let framesetter = CTFramesetterCreateWithAttributedString(attributedString)
-                                
-                                let rect = CGRect(x: 10, y: height - metadataHeight + 10, width: width - 20, height: metadataHeight - 20)
-                                let path = CGPath(rect: rect, transform: nil)
-                                
-                                let frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, 0), path, nil)
-                                
-                                context.saveGState()
-                                CTFrameDraw(frame, context)
-                                context.restoreGState()
-                            }
-    
+    /// Draws a timestamp on a thumbnail.
+    private func drawTimestamp(context: CGContext, timestamp: String, x: Int, y: Int, width: Int, height: Int) {
+        let fontSize = CGFloat(height) / 6 / 1.618
+        let font = CTFontCreateWithName("Helvetica" as CFString, fontSize, nil)
+        
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: NSColor.white.cgColor
+        ]
+        let attributedTimestamp = NSAttributedString(string: timestamp, attributes: attributes)
+       // let attributedTimestamp = CFAttributedStringCreate(nil, timestamp as CFString, attributes as CFDictionary)
+       // let line = CTLineCreateWithAttributedString(attributedTimestamp!)
+        let framesetter = CTFramesetterCreateWithAttributedString(attributedTimestamp)
+        
+        context.saveGState()
+        context.setFillColor(CGColor(red: 0, green: 0, blue: 1, alpha: 0.2))
+        let textRect = CGRect(x: x, y: y, width: width, height: Int(CGFloat(height) / 6))
+        //context.fill(textRect)
+        let path = CGPath(rect: textRect, transform: nil)
+
+        let frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, 0), path, nil)
+
+        context.saveGState()
+        CTFrameDraw(frame, context)
+        context.restoreGState()
+    }
+
+    /// Draws metadata on the mosaic image.
+    private func drawMetadata(context: CGContext, metadata: VideoMetadata, width: Int, height: Int) {
+        let metadataHeight = Int(round(Double(height) * 0.1))
+        let lineHeight = metadataHeight / 4
+        let fontSize = round(Double(lineHeight) / 1.618)
+        let duree = formatTimestamp(seconds: metadata.duration)
+        context.setFillColor(CGColor(red: 0, green: 0, blue: 1, alpha: 0.2))
+        context.fill(CGRect(x: 0, y: height - metadataHeight, width: width, height: metadataHeight))
+        
+        let metadataText = """
+        File: \(metadata.file.standardizedFileURL.standardizedFileURL)
+        Codec: \(metadata.codec)
+        Resolution: \(Int(metadata.resolution.width))x\(Int(metadata.resolution.height))
+        Duration: \(duree)
+        """
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: CTFontCreateWithName("Helvetica" as CFString, fontSize, nil),
+            .foregroundColor: NSColor.white.cgColor
+        ]
+        
+        let attributedString = NSAttributedString(string: metadataText, attributes: attributes)
+        let framesetter = CTFramesetterCreateWithAttributedString(attributedString)
+        
+        let rect = CGRect(x: 10, y: height - metadataHeight + 10, width: width - 20, height: metadataHeight - 20)
+        let path = CGPath(rect: rect, transform: nil)
+        
+        let frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, 0), path, nil)
+        
+        context.saveGState()
+        CTFrameDraw(frame, context)
+        context.restoreGState()
+    }
+ 
     /// New code
     /// /// Generates the mosaic image from the extracted thumbnails.
     /// - Parameters:
@@ -1556,7 +1688,7 @@ public class MosaicGenerator {
     ///   - metadata: The metadata of the video.
     /// - Returns: The generated mosaic image.
     /// - Throws: An error if the mosaic image cannot be generated.
-    private func generateOptMosaicImagebatch2(
+    private func generateOptMosaicImagebatch2old(
         thumbnailsWithTimestamps: [(image: CGImage, timestamp: String)],
         layout: MosaicLayout,
         outputSize: CGSize,
@@ -1571,7 +1703,7 @@ public class MosaicGenerator {
         let height = Int(outputSize.height)
         let thumbnailWidth = Int(layout.thumbnailSize.width)
         let thumbnailHeight = Int(layout.thumbnailSize.height)
-
+        print("width: \(width), height: \(height), thumbnailWidth: \(thumbnailWidth), thumbnailHeight: \(thumbnailHeight)")
         // 1. Use autoreleasepool to manage memory more efficiently
         return try autoreleasepool {
             guard
@@ -1597,33 +1729,27 @@ public class MosaicGenerator {
                 .font: CTFontCreateWithName("Helvetica" as CFString, CGFloat(thumbnailHeight) / 6 / 1.618, nil),
                 .foregroundColor: NSColor.white.cgColor,
             ]
-
+            var lisTS: [TimeStamp] = []
             // 4. Use DispatchQueue for concurrent drawing of thumbnails
             DispatchQueue.concurrentPerform(iterations: min(thumbnailsWithTimestamps.count, layout.positions.count)) { index in
                 let (thumbnail, timestamp) = thumbnailsWithTimestamps[index]
                 let position = layout.positions[index]
                 let x = Int(CGFloat(position.x) * layout.thumbnailSize.width)
                 let y = height - Int(CGFloat(position.y + 1) * layout.thumbnailSize.height)
-                
                 context.draw(
                     thumbnail, in: CGRect(x: x, y: y, width: thumbnailWidth, height: thumbnailHeight))
-
                 if self.time {
-                    drawTimestamp(
-                        context: context,
-                        timestamp: timestamp,
-                        x: x,
-                        y: y,
-                        width: thumbnailWidth,
-                        height: thumbnailHeight,
-                        attributes: timestampAttributes
-                    )
+                    lisTS.append(TimeStamp(ts: timestamp, x: x, y: y, w: thumbnailWidth, h: thumbnailHeight))
+                    //drawTimestamp2(context: context, timestamp: timestamp, x: x, y: y, width: thumbnailWidth, height: thumbnailHeight)
+                    }
                 }
+                
+            if self.time {
+                drawTimestamp3(context: context, timestamps: lisTS)
             }
-
             // 5. Draw metadata
             drawMetadata(context: context, metadata: metadata, width: width, height: height)
-
+            
             guard let outputImage = context.makeImage() else {
                 logger.error("Unable to generate mosaic image")
                 throw MosaicError.unableToGenerateMosaic
@@ -1633,33 +1759,110 @@ public class MosaicGenerator {
             return outputImage
         }
     }
+    private func generateOptMosaicImagebatch2(
+            thumbnailsWithTimestamps: [(image: CGImage, timestamp: String)],
+            layout: MosaicLayout,
+            outputSize: CGSize,
+            metadata: VideoMetadata
+        ) throws -> CGImage {
+            let state = signposter.beginInterval("generateOptMosaicImagebatch", id: signpostID)
+            defer {
+                signposter.endInterval("generateOptMosaicImagebatch", state)
+            }
 
-    // 6. Optimize drawTimestamp function
-    private func drawTimestamp(
-        context: CGContext,
-        timestamp: String,
-        x: Int,
-        y: Int,
-        width: Int,
-        height: Int,
-        attributes: [NSAttributedString.Key: Any]
-    ) {
-        context.saveGState()
-        context.setFillColor(CGColor(red: 0, green: 0, blue: 0, alpha: 0.5))
-        let textRect = CGRect(x: x, y: y, width: width, height: Int(CGFloat(height) / 6))
-        context.fill(textRect)
+            let width = Int(layout.mosaicSize.width)
+            let height = Int(layout.mosaicSize.height)
+         //   let thumbnailWidth = Int(layout.thumbnailSize.width)
+           // let thumbnailHeight = Int(layout.thumbnailSize.height)
+           // print("width: \(width), height: \(height), thumbnailWidth: \(thumbnailWidth), thumbnailHeight: \(thumbnailHeight)")
+            // 1. Use autoreleasepool to manage memory more efficiently
+            return try autoreleasepool {
+                guard
+                    let context = CGContext(
+                        data: nil,
+                        width: width,
+                        height: height,
+                        bitsPerComponent: 8,
+                        bytesPerRow: 0,
+                        space: CGColorSpaceCreateDeviceRGB(),
+                        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+                else {
+                    logger.error("Unable to create CGContext for mosaic generation")
+                    throw MosaicError.unableToCreateContext
+                }
 
-        let attributedTimestamp = NSAttributedString(string: timestamp, attributes: attributes)
-        let line = CTLineCreateWithAttributedString(attributedTimestamp)
-        let textWidth = CTLineGetTypographicBounds(line, nil, nil, nil)
-        let textPosition = CGPoint(x: x + width - Int(textWidth) - 5, y: y + 5)
+                // 2. Fill background more efficiently
+                context.setFillColor(CGColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0))
+                context.fill(CGRect(x: 0, y: 0, width: width, height: height))
 
-        context.textPosition = textPosition
-        CTLineDraw(line, context)
-        context.restoreGState()
+                // 3. Prepare timestamp drawing attributes
+                let timestampAttributes: [NSAttributedString.Key: Any] = [
+                    .font: CTFontCreateWithName("Helvetica" as CFString, CGFloat(layout.thumbnailSize.height) / 6 / 1.618, nil),
+                    .foregroundColor: NSColor.white.cgColor,
+                ]
+               // var lisTS: [TimeStamp] = []
+               var lisTS =  Array(repeating: TimeStamp(ts: "", x: 0, y: 0, w: 0, h: 0),
+                                                     count: min(thumbnailsWithTimestamps.count, layout.positions.count))
+                // 4. Use DispatchQueue for concurrent drawing of thumbnails
+                DispatchQueue.concurrentPerform(iterations: min(thumbnailsWithTimestamps.count, layout.positions.count)) { index in
+                    let (thumbnail, timestamp) = thumbnailsWithTimestamps[index]
+                    let position = layout.positions[index]
+                    let thumbnailSize = layout.thumbnailSizes[index]
+                    let x = position.x
+                    let y = height - Int(thumbnailSize.height) - position.y
+                    print("position: \(position), w: \(thumbnailSize.width), h: \(thumbnailSize.height)")
+                    context.draw(
+                        thumbnail, in: CGRect(x: x, y: y, width: Int(thumbnailSize.width), height: Int(thumbnailSize.height)))
+                    if self.time {
+                        lisTS[index] = (TimeStamp(ts: timestamp, x: x, y: y, w: Int(thumbnailSize.width), h: Int(thumbnailSize.height)))
+                    }
+                }
+
+                    
+                if self.time {
+                    drawTimestamp3(context: context, timestamps: lisTS)
+                }
+                // 5. Draw metadata
+                drawMetadata(context: context, metadata: metadata, width: width, height: height)
+                
+                guard let outputImage = context.makeImage() else {
+                    logger.error("Unable to generate mosaic image")
+                    throw MosaicError.unableToGenerateMosaic
+                }
+
+                logger.log(level: .debug, "Mosaic image generated successfully")
+                return outputImage
+            }
+        }
+    
+    private func drawTimestamp3(context: CGContext,timestamps: [TimeStamp]) {
+        for (ts) in timestamps {
+            let fontSize = CGFloat(ts.h) / 6 / 1.618
+            let font = CTFontCreateWithName("Helvetica" as CFString, fontSize, nil)
+            
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: font,
+                .foregroundColor: NSColor.white.cgColor
+            ]
+            let attributedTimestamp = CFAttributedStringCreate(nil, ts.ts as CFString, attributes as CFDictionary)
+            let line = CTLineCreateWithAttributedString(attributedTimestamp!)
+            
+            context.saveGState()
+            context.setFillColor(CGColor(red: 0, green: 0, blue: 0, alpha: 0.1))
+            let textRect = CGRect(x: ts.x, y: ts.y, width: ts.w, height: Int(CGFloat(ts.h) / 7))
+            context.fill(textRect)
+           // print("x : \(ts.x) y : \(ts.y), width : \(ts.w), height : \(ts.h), timestamp : \(ts.ts)")
+            let textWidth = CTLineGetTypographicBounds(line, nil, nil, nil)
+            let textPosition = CGPoint(x: ts.x + ts.w - Int(textWidth) - 5, y: ts.y + 10)
+            
+            context.textPosition = textPosition
+            CTLineDraw(line, context)
+            context.restoreGState()
+            
+        }
     }
-
-                            /// Generates an output file name for the mosaic image.
+    
+                           /// Generates an output file name for the mosaic image.
     private func getOutputFileName(for videoFile: URL, in directory: URL, format: String, overwrite: Bool, density: String, type: String) throws -> String {
                                 let baseName = videoFile.deletingPathExtension().lastPathComponent
                                 let fileExtension = format.lowercased()

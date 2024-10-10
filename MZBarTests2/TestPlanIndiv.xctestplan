@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "BE2178A1-ADD2-4462-8BE1-265F5016EF7D",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "MosaicGeneratorPerformanceTests\/testCreationOfMosaic()",
+        "MosaicGeneratorPerformanceTests\/testGetFilesToday()",
+        "MosaicGeneratorPerformanceTests\/testPerformanceOfExtractThumbnailsWithTimestamps()",
+        "MosaicGeneratorPerformanceTests\/testPerformanceOfProcessIndivFile()"
+      ],
+      "target" : {
+        "containerPath" : "container:MZBar.xcodeproj",
+        "identifier" : "0F7DC5292CB12BD0005F928A",
+        "name" : "MZBarTests2"
+      }
+    }
+  ],
+  "version" : 1
+}

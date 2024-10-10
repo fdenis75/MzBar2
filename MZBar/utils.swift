@@ -67,27 +67,7 @@ public extension CGImage {
         return context.makeImage()!
     }
 
-    func fastResized(to newSize: CGSize) -> CGImage? {
-        guard let colorSpace = self.colorSpace else { return nil }
 
-        let width = Int(newSize.width)
-        let height = Int(newSize.height)
-
-        guard let context = CGContext(data: nil,
-                                      width: width,
-                                      height: height,
-                                      bitsPerComponent: self.bitsPerComponent,
-                                      bytesPerRow: 0,
-                                      space: colorSpace,
-                                      bitmapInfo: self.bitmapInfo.rawValue) else {
-            return nil
-        }
-
-        context.interpolationQuality = .high
-        context.draw(self, in: CGRect(origin: .zero, size: newSize))
-
-        return context.makeImage()
-    }
     
 }
 extension CGImage {

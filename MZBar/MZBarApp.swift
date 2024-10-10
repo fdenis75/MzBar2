@@ -15,7 +15,6 @@ struct MosaicGenApp: App {
 
 import SwiftUI
 import UniformTypeIdentifiers
-
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var popover: NSPopover?
@@ -33,10 +32,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         popover?.behavior = .transient
         popover?.contentViewController = NSHostingController(rootView: ContentView())
         
-        // Register the service
         NSApp.servicesProvider = MosaicServiceHandler()
+        
+
     }
-    
     @objc func togglePopover() {
         if let button = statusItem?.button {
             if popover?.isShown == true {
@@ -90,6 +89,7 @@ struct ContentView: View {
                 Toggle("SaveAtRoot", isOn: $viewModel.saveAtRoot)
                 Toggle("SeparateFolders", isOn: $viewModel.seperate)
                 Toggle("Create summary", isOn: $viewModel.summary)
+                Toggle("Custom Layout ", isOn: $viewModel.customLayout)
                 
             }
             HStack{
@@ -110,6 +110,11 @@ struct ContentView: View {
                 }
                 .padding()
                 .disabled(viewModel.inputPath.isEmpty)
+                Button("Generate Today") {
+                    viewModel.generateMosaictoday()
+                }
+                .padding()
+                
                 
             }
             ProgressView(value: viewModel.progressG)
@@ -187,6 +192,7 @@ struct ContentView: View {
         @Published var saveAtRoot: Bool = false
         @Published var seperate: Bool = false
         @Published var summary: Bool = false
+        @Published var customLayout: Bool = true
         
         @Published var currentFile: String = ""
         @Published var processedFiles: Int = 0
@@ -194,9 +200,21 @@ struct ContentView: View {
         @Published var currentStage: String = ""
         @Published var elapsedTime: TimeInterval = 0
         @Published var estimatedTimeRemaining: TimeInterval = 0
+        @Published var inputPaths: [String] = []
+           @Published var inputType: InputType = .folder
+        enum InputType {
+               case folder
+               case m3u8
+               case files
+           }
+        
+        
+        var appDelegate: AppDelegate? {
+                return NSApplication.shared.delegate as? AppDelegate
+            }
         
         private var generator: MosaicGenerator?
-        let sizes = [2000, 5120, 10000]
+        let sizes = [2000, 4000, 5120, 8000, 10000]
         let densities = ["XXS", "XS", "S", "M", "L", "XL", "XXL"]
         let formats = ["heic", "jpeg"]
         private func updateStatusMessage() {
@@ -220,8 +238,10 @@ struct ContentView: View {
               Stage: \(currentStage)
               Estimated Time Remaining: \(final.format(2)) s
               """
+
           //  Estimated Time Remaining: \(estimatedTimeRemainingFormatted)
         }
+    
         
         private func formatDuration(_ duration: TimeInterval) -> String {
             let formatter = DateComponentsFormatter()
@@ -245,7 +265,7 @@ struct ContentView: View {
             }
             isProcessing = true
             statusMessage = "Starting mosaic generation..."
-            generator = MosaicGenerator(debug: false, renderingMode: .auto, maxConcurrentOperations: 20, saveAtRoot: saveAtRoot,separate: seperate, summary: summary)
+            generator = MosaicGenerator(debug: false, renderingMode: .auto, maxConcurrentOperations: 20, saveAtRoot: saveAtRoot,separate: seperate, summary: summary, custom: customLayout)
             let startTime = CFAbsoluteTimeGetCurrent()
             var TotalCount:Double = 0.0
             var text:String = ""
@@ -266,7 +286,7 @@ struct ContentView: View {
             Task {
                 do {
                     //statusMessage = "Collecting Files..."
-                    
+
                     try await generator?.getFiles(input: inputPath, width: selectedSize)
                     //statusMessage = "Starting generation"
                     try await generator?.RunGen(
@@ -300,6 +320,74 @@ struct ContentView: View {
                 }
             }
         }
+        
+        func generateMosaictoday() {
+
+            func formatDuration(_ duration: Double) -> String {
+                let duration = Int(duration)
+                let seconds = Double(duration % 60)
+                let minutes = Double((duration / 60) % 60)
+                let hours = Double(duration / 3600)
+                return "\(hours.format(0, minimumIntegerPartLength: 2)):\(minutes.format(0, minimumIntegerPartLength: 2)):\(seconds.format(0, minimumIntegerPartLength: 2))"
+            }
+            isProcessing = true
+            statusMessage = "Starting mosaic generation..."
+            generator = MosaicGenerator(debug: false, renderingMode: .auto, maxConcurrentOperations: 20, saveAtRoot: saveAtRoot,separate: seperate, summary: summary, custom: customLayout)
+            let startTime = CFAbsoluteTimeGetCurrent()
+            var TotalCount:Double = 0.0
+            var text:String = ""
+            generator?.setProgressHandlerG { [weak self] progressInfo in
+                DispatchQueue.main.async {
+                    self?.progressG = progressInfo.progress
+                    self?.currentFile = progressInfo.currentFile
+                    self?.processedFiles = progressInfo.processedFiles
+                    self?.totalFiles = progressInfo.totalFiles
+                    self?.currentStage = progressInfo.currentStage
+                    self?.elapsedTime = progressInfo.elapsedTime
+                    self?.estimatedTimeRemaining = progressInfo.estimatedTimeRemaining
+                    
+                    self?.updateStatusMessage()
+                }
+            }
+            
+            Task {
+                do {
+                    //statusMessage = "Collecting Files..."
+
+                    try await generator?.getFilestoday()
+                    //statusMessage = "Starting generation"
+                    try await generator?.RunGen(
+                        input: inputPath,
+                        width: selectedSize,
+                        density: selectedDensity,
+                        format: selectedFormat,
+                        overwrite: overwrite,
+                        preview: false,
+                        summary: summary
+                    )
+                    DispatchQueue.main.async {
+                        self.statusMessage = "Mosaic generation completed successfully!"
+                        //self.progressG = 0.0
+                        let notification = NSUserNotification()
+                        notification.title = "Mosaic Generation Complete"
+                        NSUserNotificationCenter.default.deliver(notification)
+                        self.isProcessing = false
+                    }
+                }catch is CancellationError {
+                    DispatchQueue.main.async {
+                        self.statusMessage = "Mosaic generation was cancelled."
+                        self.isProcessing = false
+                    }
+                }
+                catch {
+                    DispatchQueue.main.async {
+                        self.statusMessage = "Error generating mosaic: \(error.localizedDescription)"
+                        self.isProcessing = false
+                    }
+                }
+            }
+        }
+
         func cancelGeneration() {
             generator?.cancelProcessing()
             statusMessage = "Cancelling mosaic generation..."
