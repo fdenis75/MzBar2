@@ -14,10 +14,12 @@
   "testTargets" : [
     {
       "skippedTests" : [
+        "MosaicGeneratorPerformanceTests",
         "MosaicGeneratorPerformanceTests\/testCreationOfMosaic()",
         "MosaicGeneratorPerformanceTests\/testGetFilesToday()",
         "MosaicGeneratorPerformanceTests\/testPerformanceOfExtractThumbnailsWithTimestamps()",
-        "MosaicGeneratorPerformanceTests\/testPerformanceOfProcessIndivFile()"
+        "MosaicGeneratorPerformanceTests\/testPerformanceOfProcessIndivFile()",
+        "MosaicGeneratorPerformanceTests\/testcalculateOptimalMosaicLayoutConfiguration()"
       ],
       "target" : {
         "containerPath" : "container:MZBar.xcodeproj",
@@ -26,5 +28,5 @@
       }
     }
   ],
-  "version" : 1
+  "version" : 2
 }

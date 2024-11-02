@@ -7,10 +7,10 @@ class MosaicGeneratorPerformanceTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        mosaicGenerator = MosaicGenerator(debug: false, renderingMode: .classic, maxConcurrentOperations: 4)
+        mosaicGenerator = MosaicGenerator(debug: false, renderingMode: .classic, maxConcurrentOperations: 4, custom: false)
         
         // Set up a test video URL. Replace this with an actual video file path for testing.
-        testVideoURL = URL(fileURLWithPath: "/Volumes/Ext-6TB-2/01-Models/KB/A/b/20240507_08_SZ3117_Kristy_Black_Marta_Villalobos_4K.mp4")
+        testVideoURL = URL(fileURLWithPath: "/Volumes/Ext-6TB-2/01-Models/Chrissy Curves/20231115_11_SZ967_Natalee_Roxy_Black_HD.mp4")
     }
 
     override func tearDown() {
@@ -19,6 +19,8 @@ class MosaicGeneratorPerformanceTests: XCTestCase {
         super.tearDown()
     }
 
+    
+    
     func testPerformanceOfProcessIndivFile() {
         measure {
             let expectation = XCTestExpectation(description: "Process individual file")
@@ -49,7 +51,7 @@ class MosaicGeneratorPerformanceTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Get files today")
         Task {
             do {
-                let files = try await mosaicGenerator.getVideoFilesCreatedTodayWithPlaylistLocation()
+                let files = try await mosaicGenerator.getVideoFilesCreatedTodayWithPlaylistLocation(width: "5000")
                 XCTAssertGreaterThan(files.count, 0)
                 expectation.fulfill()
             } catch {
@@ -92,7 +94,8 @@ class MosaicGeneratorPerformanceTests: XCTestCase {
             }
         }
     }
-        
+    
+    
     
  /*   func testPerformanceOfExtractThumbnailsWithTimestamps() {
         let count = 200

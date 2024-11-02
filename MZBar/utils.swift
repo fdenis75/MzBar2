@@ -43,6 +43,7 @@ public enum MosaicError: Error {
     case unableToCreateCompositionTracks
     case noVideoOrAudioTrack
     case unableToCreateExportSession
+    case tooShort
 }
 
 public extension CGImage {
@@ -55,7 +56,7 @@ public extension CGImage {
         let bitmapRep = NSBitmapImageRep(cgImage: self)
         return bitmapRep.representation(using: .png, properties: [:])
     }
-
+    
     static func create(width: Int, height: Int) -> CGImage {
         let context = CGContext(data: nil,
                                 width: width,
