@@ -231,7 +231,7 @@ extension PlaylistGenerator {
             
             return urls.map { videoURL in
                 let outputDir = videoURL.deletingLastPathComponent()
-                    .appendingPathComponent("mosaic", isDirectory: true)
+                    .appendingPathComponent(ThDir, isDirectory: true)
                 return (videoURL, outputDir)
             }
         } else {
@@ -239,7 +239,7 @@ extension PlaylistGenerator {
             let videos = try await findVideoFiles(in: inputURL)
             return videos.map { videoURL in
                 let outputDir = videoURL.deletingLastPathComponent()
-                    .appendingPathComponent("mosaic", isDirectory: true)
+                    .appendingPathComponent(ThDir, isDirectory: true)
                 return (videoURL, outputDir)
             }
         }

@@ -418,7 +418,7 @@ extension GenerationCoordinator {
         return try await playlistGenerator.findTodayVideos()
             .map { videoURL in
                 let outputDir = videoURL.deletingLastPathComponent()
-                    .appendingPathComponent("mosaic", isDirectory: true)
+                    .appendingPathComponent(ThDir, isDirectory: true).appendingPathComponent(String(width), isDirectory: true)
                 return (videoURL, outputDir)
             }
     }
@@ -442,7 +442,7 @@ extension GenerationCoordinator {
             
             return urls.map { videoURL in
                 let outputDir = videoURL.deletingLastPathComponent()
-                    .appendingPathComponent("mosaic", isDirectory: true)
+                    .appendingPathComponent(ThDir, isDirectory: true).appendingPathComponent(String(width), isDirectory: true)
                 return (videoURL, outputDir)
             }
         } else {
@@ -450,7 +450,7 @@ extension GenerationCoordinator {
             return try await playlistGenerator.findVideoFiles(in: inputURL)
                 .map { videoURL in
                     let outputDir = videoURL.deletingLastPathComponent()
-                        .appendingPathComponent("mosaic", isDirectory: true)
+                        .appendingPathComponent(ThDir, isDirectory: true).appendingPathComponent(String(width), isDirectory: true)
                     return (videoURL, outputDir)
                 }
         }

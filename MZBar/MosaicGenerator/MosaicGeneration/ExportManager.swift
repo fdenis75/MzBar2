@@ -97,7 +97,7 @@ public final class ExportManager {
             return "\(baseName)-\(density)-\(type).\(fileExtension)"
         } else {
             baseName = videoFile.deletingPathExtension().lastPathComponent
-            return "\(type)-\(baseName)-\(density).\(fileExtension)"
+            return "\(baseName)-\(density)-\(type).\(fileExtension)"
         }
     }
     

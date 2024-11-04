@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>top-level-items</key>
+	<array>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>43</string>
+					<key>EndingLineNumber</key>
+					<string>444</string>
+					<key>StartingColumnNumber</key>
+					<string>21</string>
+					<key>StartingLineNumber</key>
+					<string>444</string>
+					<key>Timestamp</key>
+					<string>752446660.211543</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>appendingPathComponent</string>
+				<key>leading</key>
+				<string>            return urls.map { videoURL in
+                let outputDir = videoURL.deletingLastPathComponent()
+                    .</string>
+				<key>trailing</key>
+				<string>(ThDir, isDirectory: true).appendingPathComponent(String(width), isDirectory: true)
+                return (videoURL, outputDir)
+            }
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+	</array>
+</dict>
+</plist>
