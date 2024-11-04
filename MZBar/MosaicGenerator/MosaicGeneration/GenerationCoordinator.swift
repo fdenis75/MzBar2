@@ -14,7 +14,7 @@ import os.log
 public final class GenerationCoordinator {
     private let logger = Logger(subsystem: "com.mosaic.generation", category: "GenerationCoordinator")
     private let config: MosaicGeneratorConfig
-    let generator: MosaicGenerator
+    //let generator: MosaicGenerator
     
     private let mosaicGenerator: MosaicGenerator
     private let previewGenerator: PreviewGenerator
@@ -387,7 +387,7 @@ public struct GenerationOptions {
         /// - Parameter path: Directory path
         func createDurationBasedPlaylists(from path: String) async throws {
             logger.debug("Creating duration-based playlists from: \(path)")
-            try await playlistGenerator.generateDurationBasedPlaylists(from: path, outputDirectory: URL(fileURLWithPath: path))
+            try await playlistGenerator.generateDurationBasedPlaylists(from: URL(fileURLWithPath: path), outputDirectory: URL(fileURLWithPath: path))
         }
         
         /// Gets files for playlist generation
@@ -399,10 +399,10 @@ public struct GenerationOptions {
             if path.lowercased().hasSuffix("m3u8") {
                 // Handle M3U8 files
                 return try await
-                playlistGenerator.getFiles(input: path, width: width)
+                playlistGenerator.getFiles(from: path)
             } else {
                 // Handle directories
-                return try await playlistGenerator.getFiles(input: path, width: width)
+                return try await playlistGenerator.getFiles(from: path)
             }
         }
     }

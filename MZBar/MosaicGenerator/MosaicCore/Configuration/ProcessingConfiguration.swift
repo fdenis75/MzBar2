@@ -93,7 +93,7 @@ public struct ProcessingConfiguration {
         generatorConfig: MosaicGeneratorConfig = .default
     ) {
         self.width = width
-        self.density = DensityConfig.from(rawValue: density)
+        self.density = DensityConfig.from(density)
         self.format = format
         self.duration = duration
         self.previewDuration = previewDuration

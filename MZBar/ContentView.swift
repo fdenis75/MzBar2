@@ -247,7 +247,7 @@ struct ContentView: View {
                     ActionButton(
                         title: "Generate Today",
                         icon: "calendar",
-                        action: { viewModel.preview = true
+                        action: {
                             viewModel.generateMosaictoday() }, viewModel: viewModel
                     )
                     
@@ -256,7 +256,7 @@ struct ContentView: View {
                         title: "Generate Previews",
                         icon: "play.circle.fill",
                         isPrimary: true,
-                        action: { viewModel.preview = true
+                        action: { 
                             viewModel.processInput()
                         }, viewModel: viewModel// Will need to update this to handle previews
                     )

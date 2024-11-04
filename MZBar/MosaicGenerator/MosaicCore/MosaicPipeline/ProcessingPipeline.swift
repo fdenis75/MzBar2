@@ -68,7 +68,7 @@ public final class ProcessingPipeline {
         try await coordinator.generateMosaics(
             for: files,
             width: config.width,
-            density: config.density, // Get the string value
+            density: config.density.rawValue, // Get the string value
             format: config.format,
             options: .init(
                 useCustomLayout: config.customLayout,
@@ -91,7 +91,7 @@ public final class ProcessingPipeline {
         logger.debug("Generating previews for \(files.count) files")
         try await coordinator.generatePreviews(
             for: files,
-            density: config.density,
+            density: config.density.rawValue,
             duration: config.previewDuration
         )
     }
@@ -152,89 +152,3 @@ extension ProcessingPipeline {
         }
     }
 }
-
-
-/* old
-import Foundation
-import os.log
-
-public final class ProcessingPipeline: ProcessingConfigurable, ProgressReporting, FileHandling, MosaicGeneration {
-    // MARK: - Properties
-    public let config: ProcessingConfiguration
-    public var progressHandler: ((ProgressInfo) -> Void)?
-    
-    private let coordinator: GenerationCoordinator
-    private let logger = Logger(subsystem: "com.mosaic.processing", category: "ProcessingPipeline")
-    private var isCancelled = false
-    
-    // MARK: - Initialization
-    public init(config: ProcessingConfiguration) {
-        self.config = config
-        self.coordinator = GenerationCoordinator(config: config.generatorConfig)
-        setupCoordinator()
-    }
-    
-    // MARK: - Public Methods
-    public func cancel() {
-        isCancelled = true
-        coordinator.cancelGeneration()
-    }
-    
-    // MARK: - FileHandling Implementation
-    public func getFiles(from path: String, width: Int) async throws -> [(URL, URL)] {
-        try await coordinator.getFiles(input: path, width: width)
-    }
-    
-    public func getTodayFiles(width: Int) async throws -> [(URL, URL)] {
-        try await coordinator.getTodayFiles(width: width)
-    }
-    
-    public func createPlaylist(from path: String) async throws {
-        try await coordinator.createPlaylist(from: path)
-    }
-    
-    // MARK: - MosaicGeneration Implementation
-    public func generateMosaics(
-        for files: [(video: URL, output: URL)],
-        config: ProcessingConfiguration
-    ) async throws {
-        try await coordinator.generateMosaics(
-            for: files,
-            width: config.width,
-            density: config.density,
-            format: config.format,
-            options: .init(
-                useCustomLayout: config.customLayout,
-                generatePlaylist: config.summary,
-                addFullPath: config.addFullPath,
-                minimumDuration: config.duration,
-                accurateTimestamps: config.generatorConfig.accurateTimestamps
-            )
-        )
-    }
-    
-    public func generatePreviews(
-        for files: [(video: URL, output: URL)],
-        config: ProcessingConfiguration
-    ) async throws {
-        try await coordinator.generatePreviews(
-            for: files,
-            density: config.density,
-            duration: config.previewDuration
-        )
-    }
-    
-    // MARK: - ProgressReporting Implementation
-    public func updateProgress(_ info: ProgressInfo) {
-        progressHandler?(info)
-    }
-    
-    // MARK: - Private Methods
-    private func setupCoordinator() {
-        coordinator.setProgressHandler { [weak self] info in
-            self?.updateProgress(info)
-        }
-    }
-}
-*/
-

@@ -214,3 +214,35 @@ public final class PlaylistGenerator {
         )
     }
 }
+extension PlaylistGenerator {
+    /// Gets files from a specified path
+    /// - Parameters:
+    ///   - path: Input path to process
+    /// - Returns: Array of video files
+    public func getFiles(from path: String) async throws -> [(URL, URL)] {
+        let inputURL = URL(fileURLWithPath: path)
+        
+        if path.lowercased().hasSuffix("m3u8") {
+            // Handle M3U8 playlist files
+            let content = try String(contentsOf: inputURL, encoding: .utf8)
+            let urls = content.components(separatedBy: .newlines)
+                .filter { !$0.hasPrefix("#") && !$0.isEmpty }
+                .map { URL(fileURLWithPath: $0) }
+            
+            return urls.map { videoURL in
+                let outputDir = videoURL.deletingLastPathComponent()
+                    .appendingPathComponent("mosaic", isDirectory: true)
+                return (videoURL, outputDir)
+            }
+        } else {
+            // Handle directories
+            let videos = try await findVideoFiles(in: inputURL)
+            return videos.map { videoURL in
+                let outputDir = videoURL.deletingLastPathComponent()
+                    .appendingPathComponent("mosaic", isDirectory: true)
+                return (videoURL, outputDir)
+            }
+        }
+    }
+}
+

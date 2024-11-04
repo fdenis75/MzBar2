@@ -122,9 +122,18 @@ public final class MosaicGenerator {
             throw MosaicError.tooShort
         }
         
-        let layout = try await layoutProcessor.calculateLayout(
-            for: metadata,
+        // Calculate aspect ratio and thumbnail count
+        let aspectRatio = metadata.resolution.width / metadata.resolution.height
+        let thumbnailCount = layoutProcessor.calculateThumbnailCount(
+            duration: metadata.duration,
             width: config.width,
+            density: config.density
+        )
+        
+        let layout = layoutProcessor.calculateLayout(
+            originalAspectRatio: aspectRatio,
+            thumbnailCount: thumbnailCount,
+            mosaicWidth: config.width,
             density: config.density,
             useCustomLayout: config.customLayout
         )
@@ -137,13 +146,13 @@ public final class MosaicGenerator {
             accurate: config.generatorConfig.accurateTimestamps
         )
         
-        let mosaic = try generateMosaic(
+        let mosaic = try await generateMosaic(
             from: thumbnails,
             layout: layout,
             metadata: metadata
         )
         
-        let outputURL = try await saveMosaic(
+        return try await saveMosaic(
             mosaic,
             for: video,
             in: output,
@@ -152,9 +161,8 @@ public final class MosaicGenerator {
             density: config.density.rawValue,
             addPath: config.addFullPath
         )
-        
-        return (video, outputURL)
     }
+    
     
     private func updateProgress(
         currentFile: String,
@@ -356,6 +364,34 @@ public final class MosaicGenerator {
         let minutes = (Int(seconds) % 3600) / 60
         let seconds = Int(seconds) % 60
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+    }
+}
+
+extension MosaicGenerator {
+    private func saveMosaic(
+        _ mosaic: CGImage,
+        for videoFile: URL,
+        in outputDirectory: URL,
+        format: String,
+        type: String,
+        density: String,
+        addPath: Bool
+    ) async throws -> (URL, URL) {
+        // Create export manager if not exists
+        let exportManager = ExportManager(config: self.config)
+        
+        // Save the mosaic
+        let outputURL = try await exportManager.saveMosaic(
+            mosaic,
+            for: videoFile,
+            in: outputDirectory,
+            format: format,
+            type: type,
+            density: density,
+            addPath: addPath
+        )
+        
+        return (videoFile, outputURL)
     }
 }
 
