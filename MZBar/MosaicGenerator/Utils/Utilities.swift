@@ -25,6 +25,9 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 //
+import CoreGraphics
+import AVFoundation
+import AppKit
 
 #if os(Linux)
     import Glibc
@@ -81,3 +84,41 @@ extension String {
         return String(self[range])
     }
 }
+
+
+
+extension FourCharCode {
+    func toString() -> String {
+        let bytes: [CChar] = [
+            CChar((self >> 24) & 0xff),
+            CChar((self >> 16) & 0xff),
+            CChar((self >> 8) & 0xff),
+            CChar(self & 0xff),
+            0
+        ]
+        let result = String(cString: bytes)
+        let characterSet = CharacterSet.whitespaces
+        return result.trimmingCharacters(in: characterSet)
+    }
+}
+
+extension CGImage {
+    func jpegData(compressionQuality: CGFloat) -> Data? {
+        let bitmapRep = NSBitmapImageRep(cgImage: self)
+        return bitmapRep.representation(using: .jpeg, properties: [.compressionFactor: compressionQuality])
+    }
+
+    func pngData() -> Data? {
+        let bitmapRep = NSBitmapImageRep(cgImage: self)
+        return bitmapRep.representation(using: .png, properties: [:])
+    }
+}
+#if os(Linux)
+    import Glibc
+#else
+    import Darwin.C
+#endif
+
+
+
+

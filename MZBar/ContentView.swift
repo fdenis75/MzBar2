@@ -239,7 +239,7 @@ struct ContentView: View {
                         title: "Generate Mosaic",
                         icon: "square.grid.3x3.fill",
                         isPrimary: true,
-                        action: { viewModel.preview = true
+                        action: {
                             viewModel.processInput() }, viewModel: viewModel
                     )
                     .disabled(viewModel.inputPaths.isEmpty)

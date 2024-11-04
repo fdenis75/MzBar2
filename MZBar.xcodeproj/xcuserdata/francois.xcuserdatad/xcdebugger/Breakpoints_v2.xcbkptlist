@@ -16,8 +16,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "197"
             endingLineNumber = "197"
-            landmarkName = "updateProgressG(currentFile:processedFiles:totalFiles:currentStage:startTime:)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -32,8 +32,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "212"
             endingLineNumber = "212"
-            landmarkName = "updateProgressG(currentFile:processedFiles:totalFiles:currentStage:startTime:)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -48,8 +48,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "198"
             endingLineNumber = "198"
-            landmarkName = "updateProgressG(currentFile:processedFiles:totalFiles:currentStage:startTime:)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -64,8 +64,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1531"
             endingLineNumber = "1531"
-            landmarkName = "exportVid(for:previewURL:)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -80,8 +80,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "140"
             endingLineNumber = "140"
-            landmarkName = "init(debug:renderingMode:maxConcurrentOperations:timeStamps:skip:smart:createPreview:batchsize:accurate:saveAtRoot:separate:summary:custom:)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -96,8 +96,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "213"
             endingLineNumber = "213"
-            landmarkName = "updateProgressG(currentFile:processedFiles:totalFiles:currentStage:startTime:)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -112,8 +112,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1529"
             endingLineNumber = "1529"
-            landmarkName = "exportVid(for:previewURL:)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -128,8 +128,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1564"
             endingLineNumber = "1564"
-            landmarkName = "exportVid(for:previewURL:)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -144,8 +144,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "424"
             endingLineNumber = "424"
-            landmarkName = "RunGen(input:width:density:format:overwrite:preview:summary:duration:addpath:previewDuration:)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -160,8 +160,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1538"
             endingLineNumber = "1538"
-            landmarkName = "exportVid(for:previewURL:)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -174,8 +174,8 @@
             filePath = "MZBar/MZBarApp.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "20"
-            endingLineNumber = "20"
+            startingLineNumber = "16"
+            endingLineNumber = "16"
             landmarkName = "AppDelegate"
             landmarkType = "3">
          </BreakpointContent>
@@ -192,24 +192,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1302"
             endingLineNumber = "1302"
-            landmarkName = "generateAnimatedPreview(for:outputDirectory:density:previewDuration:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "565ADC5F-E722-42E3-8B1F-25D3C3004B3E"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MZBar/MosaicViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "398"
-            endingLineNumber = "398"
-            landmarkName = "processFiles(_:)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

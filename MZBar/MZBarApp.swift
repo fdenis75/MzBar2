@@ -11,11 +11,7 @@ struct MosaicGenApp: App {
         }
     }
 }
-enum ProcessingMode {
-    case mosaic
-    case preview
-    case playlist
-}
+
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
