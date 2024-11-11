@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
+import UserNotifications
 
 class MosaicViewModel: ObservableObject {
     // MARK: - Published Properties
@@ -18,7 +19,7 @@ class MosaicViewModel: ObservableObject {
     @Published var selectedDensity = "M"
     @Published var selectedFormat = "heic"
     @Published var previewDuration: Double = 60.0
-    
+    @Published var concurrentOps = 8
     // Processing Options
     @Published var overwrite = false
     @Published var saveAtRoot = false
@@ -26,6 +27,7 @@ class MosaicViewModel: ObservableObject {
     @Published var summary = false
     @Published var customLayout = true
     @Published var addFullPath = false
+    @Published var layoutName = "Focus"
     
     // State
     @Published var isProcessing = false
@@ -45,19 +47,27 @@ class MosaicViewModel: ObservableObject {
     @Published private(set) var errorFiles: Int = 0
     @Published private(set) var elapsedTime: TimeInterval = 0
     @Published private(set) var estimatedTimeRemaining: TimeInterval = 0
+     @Published private(set) var activeFiles: [FileProgress] = []
+    private let maxConcurrentFiles = 24 // Match with your generator config
+    
+    @Published var config: MosaicGeneratorConfig
     
     // MARK: - Constants
     let sizes = [2000, 4000, 5120, 8000, 10000]
     let densities = ["XXS", "XS", "S", "M", "L", "XL", "XXL"]
     let formats = ["heic", "jpeg"]
     let durations = [0, 10, 30, 60, 120, 300, 600]
+    let layouts = ["Classic", "Focus"]
+    let concurrent = [1,2,4,8,16,24,32]
     
     // MARK: - Private Properties
     private let pipeline: ProcessingPipeline
     
     // MARK: - Initialization
     init() {
-        let config = ProcessingConfiguration(
+        self.config = .default
+        
+        var Pconfig = ProcessingConfiguration(
             width: 5120,
             density: "M",
             format: "heic",
@@ -72,7 +82,7 @@ class MosaicViewModel: ObservableObject {
             generatorConfig: .default
         )
         
-        self.pipeline = ProcessingPipeline(config: config)
+        self.pipeline = ProcessingPipeline(config: Pconfig)
         setupPipeline()
     }
     
@@ -89,8 +99,9 @@ class MosaicViewModel: ObservableObject {
         
         Task {
             do {
-                let files = try await getInputFiles()
                 let config = getCurrentConfig()
+                let files = try await getInputFiles(Pconfig: config)
+                
                 
                 if selectedMode == .preview {
                     try await pipeline.generatePreviews(
@@ -113,6 +124,9 @@ class MosaicViewModel: ObservableObject {
                 }
             }
         }
+    }
+    func updateMaxConcurrentTasks() {
+        pipeline.updateMaxConcurrentTasks(concurrentOps)
     }
     
     func generateMosaictoday() {
@@ -174,7 +188,12 @@ class MosaicViewModel: ObservableObject {
     }
     
     private func getCurrentConfig() -> ProcessingConfiguration {
-        ProcessingConfiguration(
+        if layoutName == "Focus" { customLayout = true }
+        else
+        {
+            customLayout = false
+        }
+        return ProcessingConfiguration(
             width: selectedSize,
             density: selectedDensity,
             format: selectedFormat,
@@ -189,19 +208,55 @@ class MosaicViewModel: ObservableObject {
             generatorConfig: .default
         )
     }
-    
+    /*
     private func updateProgress(with info: ProgressInfo) {
-        progressG = info.progress
-        currentFile = info.currentFile
-        processedFiles = info.processedFiles
-        totalFiles = info.totalFiles
-        skippedFiles = info.skippedFiles
-        errorFiles = info.errorFiles
-        elapsedTime = info.elapsedTime
-        estimatedTimeRemaining = info.estimatedTimeRemaining
-        isProcessing = info.isRunning
-        
-        updateStatusMessages(stage: info.currentStage)
+        if (info.progressType == .global)
+        {
+            progressG = info.progress
+            processedFiles = info.processedFiles
+            totalFiles = info.totalFiles
+            skippedFiles = info.skippedFiles
+            errorFiles = info.errorFiles
+            elapsedTime = info.elapsedTime
+            estimatedTimeRemaining = info.estimatedTimeRemaining
+            updateStatusMessages(stage: info.currentStage)
+        }
+        else
+        {
+            currentFile = info.currentFile
+            updateFileProgress(info.currentFile, progress: info.fileProgress ?? 0.0, stage: info.currentStage)
+            if info.fileProgress == 1.0 {
+                completeFileProgress(info.currentFile)
+            }
+        }
+    isProcessing = info.isRunning
+    
+    
+    }*/
+    private func updateProgress(with info: ProgressInfo) {
+        // Since this might be called from a background thread, ensure we're on main thread
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            if (info.progressType == .global) {
+                self.progressG = info.progress
+                self.processedFiles = info.processedFiles
+                self.totalFiles = info.totalFiles
+                self.skippedFiles = info.skippedFiles
+                self.errorFiles = info.errorFiles
+                self.elapsedTime = info.elapsedTime
+                self.estimatedTimeRemaining = info.estimatedTimeRemaining
+                self.updateStatusMessages(stage: info.currentStage)
+            } else {
+                self.currentFile = info.currentFile
+                self.updateFileProgress(info.currentFile, progress: info.fileProgress ?? 0.0, stage: info.currentStage)
+                if info.fileProgress == 1.0 {
+                    self.completeFileProgress(info.currentFile)
+                }
+            }
+            
+            self.isProcessing = info.isRunning
+        }
     }
     
     private func updateStatusMessages(stage: String) {
@@ -210,21 +265,77 @@ class MosaicViewModel: ObservableObject {
         statusMessage3 = "Stage: \(stage)"
         statusMessage4 = "Estimated Time Remaining: \(estimatedTimeRemaining.format(2)) s"
     }
+    /*
+    private func addFileProgress(_ filename: String) {
+        if activeFiles.count >= maxConcurrentFiles {
+            if let completeIndex = activeFiles.firstIndex(where: { $0.isComplete }) {
+                activeFiles.remove(at: completeIndex)
+            }
+        }
+        
+        if activeFiles.count < maxConcurrentFiles {
+            activeFiles.append(FileProgress(filename: filename))
+        }
+    }
     
+    private func updateFileProgress(_ filename: String, progress: Double, stage: String) {
+        if let index = activeFiles.firstIndex(where: { $0.filename == filename }) {
+            activeFiles[index].progress = progress
+            activeFiles[index].stage = stage
+        } else {
+            addFileProgress(filename)
+        }
+    }
     
-    private func getInputFiles() async throws -> [(URL, URL)] {
+    private func completeFileProgress(_ filename: String) {
+        if let index = activeFiles.firstIndex(where: { $0.filename == filename }) {
+            activeFiles.remove(at: index)
+        }
+    }*/
+    private func updateFileProgress(_ filename: String, progress: Double, stage: String) {
+        // Since we're already on the main thread from updateProgress, we don't need another dispatch
+        if let index = activeFiles.firstIndex(where: { $0.filename == filename }) {
+            activeFiles[index].progress = progress
+            activeFiles[index].stage = stage
+        } else {
+            addFileProgress(filename)
+        }
+    }
+
+    private func addFileProgress(_ filename: String) {
+        // Since we're already on the main thread from updateProgress, we don't need another dispatch
+        if activeFiles.count >= maxConcurrentFiles {
+            if let completeIndex = activeFiles.firstIndex(where: { $0.isComplete }) {
+                activeFiles.remove(at: completeIndex)
+            }
+        }
+        
+        if activeFiles.count < maxConcurrentFiles {
+            activeFiles.append(FileProgress(filename: filename))
+        }
+    }
+
+    private func completeFileProgress(_ filename: String) {
+        // Since we're already on the main thread from updateProgress, we don't need another dispatch
+        if let index = activeFiles.firstIndex(where: { $0.filename == filename }) {
+            activeFiles.remove(at: index)
+        }
+    }
+        
+
+    private func getInputFiles(Pconfig: ProcessingConfiguration) async throws -> [(URL, URL)] {
         switch inputType {
         case .folder:
-            return try await pipeline.getFiles(from: inputPaths[0], width: selectedSize)
+            return try await pipeline.getFiles(from: inputPaths[0], width: selectedSize, config: Pconfig)
         case .m3u8:
-            return try await pipeline.getFiles(from: inputPaths[0], width: selectedSize)
+            return try await pipeline.getFiles(from: inputPaths[0], width: selectedSize, config: Pconfig )
         case .files:
             // Create an array to hold all the results
             var allFiles: [(URL, URL)] = []
             
             // Process each path sequentially
             for path in inputPaths {
-                let files = try await pipeline.getFiles(from: path, width: selectedSize)
+                let files = try await pipeline.getSingleFile(from: path, width: selectedSize)
                 allFiles.append(contentsOf: files)
             }
             
@@ -240,13 +351,22 @@ class MosaicViewModel: ObservableObject {
             statusMessage4 = ""
         }
         
-        let notification = NSUserNotification()
-        notification.title = success ? "Processing Complete" : "Processing Failed"
-        NSUserNotificationCenter.default.deliver(notification)
+        let content = UNMutableNotificationContent()
+        content.title = success ? "Processing Complete" : "Processing Failed"
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
         
         isProcessing = false
     }
-    
+
+    func cancelFile(_ fileId: UUID) {
+    if let index = activeFiles.firstIndex(where: { $0.id == fileId }) {
+        activeFiles[index].isCancelled = true
+        pipeline.cancelFile(activeFiles[index].filename)
+        completeFileProgress(activeFiles[index].filename)
+        }
+    }
+
     private func handleError(_ error: Error) {
         isProcessing = false
         if error is CancellationError {
@@ -254,6 +374,11 @@ class MosaicViewModel: ObservableObject {
         } else {
             statusMessage1 = "Error: \(error.localizedDescription)"
         }
+    }
+
+    func updateConfig() {
+        // Update the config in GenerationCoordinator
+        pipeline.updateConfig(config)
     }
 }
 
@@ -273,6 +398,7 @@ extension MosaicViewModel {
         case .mosaic: return .mosaic
         case .preview: return .preview
         case .playlist: return .playlist
+        case .settings: return .preview
         }
     }
 }

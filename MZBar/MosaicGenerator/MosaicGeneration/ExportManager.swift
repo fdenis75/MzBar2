@@ -69,6 +69,17 @@ public final class ExportManager {
         return outputURL
     }
     
+    public func FileExists(for videoFile: URL,
+                           in directory: URL,
+                           format: String,
+                           type: String,
+                           density: String,
+                           addPath: Bool) async throws -> Bool {
+        let fileName = try generateFileName(for: videoFile, in: directory, format: format, type: type, density: density,addPath: addPath)
+        let URL = directory.appendingPathComponent(fileName)
+        return FileManager.default.fileExists(atPath: URL.path)
+    }
+    
     // MARK: - Private Methods
     
     private func createDirectoryIfNeeded(_ directory: URL) async throws {
@@ -113,7 +124,8 @@ public final class ExportManager {
         
         let options: [String: Any] = [
             kCGImageDestinationLossyCompressionQuality as String: config.compressionQuality,
-            kCGImageDestinationEmbedThumbnail as String: true
+            kCGImageDestinationEmbedThumbnail as String: true,
+            kCGImagePropertyHasAlpha as String: false
         ]
         
         CGImageDestinationAddImage(destination, image, options as CFDictionary?)

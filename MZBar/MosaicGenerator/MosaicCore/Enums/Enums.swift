@@ -27,8 +27,13 @@ public enum ProcessingMode {
     case preview
     /// Generate playlists
     case playlist
+    case settings 
 }
 
+public enum ProgressType {
+    case global
+    case file
+}
 /// Input types for processing
 public enum InputType {
     /// Input is a folder

@@ -12,27 +12,52 @@ import os.log
 
 /// Coordinates the generation of mosaics, previews, and playlists
 public final class GenerationCoordinator {
+    let signposter = OSSignposter(logHandle: .mosaic)
     private let logger = Logger(subsystem: "com.mosaic.generation", category: "GenerationCoordinator")
-    private let config: MosaicGeneratorConfig
+    private var config: MosaicGeneratorConfig
     //let generator: MosaicGenerator
+     struct previewGens {
+    let generator: PreviewGenerator
+    let filename: String
+    }
+    struct mosaicGens {
+        let generator: MosaicGenerator
+   let filename: String
+   }
     
-    private let mosaicGenerator: MosaicGenerator
-    private let previewGenerator: PreviewGenerator
+    private var mosaicGenerator: MosaicGenerator
+    private var previewGenerators: [previewGens]
+    private var mosaicGenerators: [mosaicGens]
+    
     private let playlistGenerator: PlaylistGenerator
     private let exportManager: ExportManager
+    private var maxTasks: Int
     
     private var progressHandler: ((ProgressInfo) -> Void)?
     private var isRunning = false
     private var isCancelled = false
+    private var backgroundActivities: [String: NSObjectProtocol] = [:]
+    private let processQueue = DispatchQueue(label: "com.mosaic.generation", qos: .userInitiated)
+    
+    private var cancelledFiles: Set<String> = []
+    struct ActiveFile {
+        let filename: String
+        var isCancelled: Bool = false
+    }
+    private var activeFiles: [ActiveFile] = []
     
     /// Initialize a new generation coordinator
     /// - Parameter config: Configuration for generation processes
     public init(config: MosaicGeneratorConfig = .default) {
         self.config = config
+        self.maxTasks = config.maxConcurrentOperations
         self.mosaicGenerator = MosaicGenerator(config: config)
-        self.previewGenerator = PreviewGenerator(config: config)
+        self.previewGenerators = []
+        self.mosaicGenerators = []
         self.playlistGenerator = PlaylistGenerator()
         self.exportManager = ExportManager(config: config)
+       
+        ()
     }
     
     /// Set progress handler for generation updates
@@ -40,7 +65,20 @@ public final class GenerationCoordinator {
     public func setProgressHandler(_ handler: @escaping (ProgressInfo) -> Void) {
         self.progressHandler = handler
     }
+    private func setupmosaicGenerator(_ generator: MosaicGenerator ) {
+        generator.setProgressHandler { [weak self] info in
+            self?.progressHandler?(info)
+        }
+    }
+    private func setupPreviewGenerator(_ generator: PreviewGenerator) {
+        generator.setProgressHandler { [weak self] info in
+        self?.progressHandler?(info)
+    }
     
+}
+    public func updateMaxConcurrentTasks(_ maxConcurrentTasks: Int) {
+        self.maxTasks = maxConcurrentTasks
+    }
     /// Cancel ongoing generation processes
     public func cancelGeneration() {
         isCancelled = true
@@ -55,6 +93,7 @@ public final class GenerationCoordinator {
     ///   - format: Output format
     ///   - options: Additional generation options
     /// - Returns: Array of processed files and their outputs
+    /// actif avec UI
     public func generateMosaics(
         for files: [(video: URL, output: URL)],
         width: Int,
@@ -65,57 +104,102 @@ public final class GenerationCoordinator {
         isRunning = true
         isCancelled = false
         var results: [(URL, URL)] = []
+        var activemozTasks = 0
         
         let totalFiles = files.count
         var processedFiles = 0
+        var skippedFiles = 0
+        var errorFiles = 0
         let startTime = CFAbsoluteTimeGetCurrent()
-        
+        //activeFiles = []
+        let mainActivity = startBackgroundActivity(reason: "mosa Generation")
         defer {
+            endBackgroundActivity(mainActivity)
             isRunning = false
+            self.updateProgress(
+                currentFile: "Finished",
+                processedFiles: processedFiles,
+                totalFiles: totalFiles,
+                startTime: startTime,
+                skippedFiles: skippedFiles,
+                errorFiles: errorFiles
+            )
         }
-        
-        for (video, outputDirectory) in files {
-            if isCancelled { throw CancellationError() }
-            
-            do {
-                let result = try await processVideo(
-                    video,
-                    outputDirectory: outputDirectory,
-                    width: width,
-                    density: density,
-                    format: format,
-                    options: options
-                )
-                
-                results.append(result)
-                processedFiles += 1
-                
-                updateProgress(
-                    currentFile: video.lastPathComponent,
-                    processedFiles: processedFiles,
-                    totalFiles: totalFiles,
-                    startTime: startTime
-                )
-            } catch {
-                logger.error("Failed to process video: \(error.localizedDescription)")
-                throw error
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for (video, outputDirectory) in files {
+                if isCancelled { throw CancellationError() }
+                if isFileCancelled(video.lastPathComponent) {
+                    skippedFiles += 1
+                    continue
+                }
+                while activemozTasks >= maxTasks {
+                    try await group.next()
+                }
+                activemozTasks += 1
+                group.addTask {
+                    do {
+                        let fileActivity = self.startBackgroundActivity(
+                            reason: "Processing \(video.lastPathComponent)"
+                        )
+                        print("activemozTasks: \(activemozTasks)")
+                        defer {
+                            // self.activeFiles.removeAll(where: { $0.filename == video.path() })
+                            self.endBackgroundActivity(fileActivity) }
+                        
+                        if self.isFileCancelled(video.lastPathComponent) {
+                            throw CancellationError()
+                        }
+                        let mosaicGenerator = MosaicGenerator(config: self.config)
+                        self.setupmosaicGenerator(mosaicGenerator)
+                        self.mosaicGenerators.append(mosaicGens(generator: mosaicGenerator, filename: video.path()))
+                        
+                        let result = try await mosaicGenerator.processSingleFile(video: video, output: outputDirectory, config: ProcessingConfiguration(width: width, density: density, format: format))
+                        results.append(result)
+                        processedFiles += 1
+                        activemozTasks -= 1
+                    } catch {
+                        errorFiles += 1
+                        processedFiles += 1
+                        activemozTasks -= 1
+                        throw error
+                    }
+                    self.updateProgress(
+                        currentFile: "",
+                        processedFiles: processedFiles,
+                        totalFiles: totalFiles,
+                        startTime: startTime,
+                        skippedFiles: skippedFiles,
+                        errorFiles: errorFiles)
+                    
+                }
             }
+            
+            self.logger.debug("Waiting for all tasks to complete")
+            try await group.waitForAll()
+            /*if options.generatePlaylist {
+                try await generatePlaylists(for: results, outputDirectory: files[0].output)
+            }*/
         }
-        
-        if options.generatePlaylist {
-            try await generatePlaylists(for: results, outputDirectory: files[0].output)
+        for activity in backgroundActivities.values {
+            ProcessInfo.processInfo.endActivity(activity)
         }
-        
+
         return results
     }
-    
+
+    public func updateConfig(_ config: MosaicGeneratorConfig) {
+    self.config = config 
+
+}
+
+
     /// Generate previews for video files
     /// - Parameters:
     ///   - files: Array of video files and their output locations
     ///   - density: Density configuration
     ///   - duration: Target duration for previews
     /// - Returns: Array of processed files and their outputs
-    public func generatePreviews(
+  /*  public func generatePreviews(
         for files: [(video: URL, output: URL)],
         density: String,
         duration: Int
@@ -123,43 +207,258 @@ public final class GenerationCoordinator {
         isRunning = true
         isCancelled = false
         var results: [(URL, URL)] = []
-        
+        var activeTasks = 0
+        var maxTasks = 8
         let totalFiles = files.count
         var processedFiles = 0
+        var skippedFiles = 0
+        var errorFiles = 0
         let startTime = CFAbsoluteTimeGetCurrent()
         
         defer {
             isRunning = false
+            self.updateProgress(
+                currentFile: "Finished",
+                processedFiles: processedFiles,
+                totalFiles: totalFiles,
+                startTime: startTime,
+                skippedFiles: skippedFiles,
+                errorFiles: errorFiles
+            )
         }
-        
-        for (video, outputDirectory) in files {
-            if isCancelled { throw CancellationError() }
+        try await withThrowingTaskGroup(of: Void.self) { group in
             
-            do {
-                let preview = try await previewGenerator.generatePreview(
-                    for: video,
-                    outputDirectory: outputDirectory,
-                    density: DensityConfig.from(density),
-                    previewDuration: duration
-                )
+            for (video, outputDirectory) in files {
+                if isCancelled { throw CancellationError() }
+                if isFileCancelled(video.lastPathComponent) {
+                    skippedFiles += 1
+                    continue
+                }
                 
-                results.append((video, preview))
-                processedFiles += 1
+                if activeTasks >= maxTasks {
+                    self.logger.debug("Waiting for tasks to complete...")
+                    try await group.next()
+                    activeTasks -= 1
+                }
+                activeTasks += 1
                 
-                updateProgress(
-                    currentFile: video.lastPathComponent,
-                    processedFiles: processedFiles,
-                    totalFiles: totalFiles,
-                    startTime: startTime
-                )
-            } catch {
-                logger.error("Failed to generate preview: \(error.localizedDescription)")
-                throw error
+                group.addTask {
+                    do {
+                        if self.isFileCancelled(video.lastPathComponent) {
+                            throw CancellationError ()                          }
+                        let activeFile = ActiveFile(filename: video.path())
+                        self.activeFiles.append(activeFile)
+                        let previewGenerator = PreviewGenerator(config: self.config)
+                        self.setupPreviewGenerator(previewGenerator)
+                        self.previewGenerators.append(previewGens(generator: previewGenerator, filename: video.path()))
+                        let preview = try await previewGenerator.generatePreview(
+                            for: video,
+                            outputDirectory: outputDirectory,
+                            density: DensityConfig.from(density),
+                            previewDuration: duration
+                        )
+                        
+                        results.append((video, preview))
+                        
+                        processedFiles += 1
+                        
+                        
+                    } catch {
+                        self.logger.error("Failed to process video: \(error.localizedDescription)")
+                        errorFiles += 1
+                        processedFiles += 1
+                        throw error
+                    }
+                    
+                    self.updateProgress(
+                        currentFile: "",
+                        processedFiles: processedFiles,
+                        totalFiles: totalFiles,
+                        startTime: startTime,
+                        skippedFiles: skippedFiles,
+                        errorFiles: errorFiles
+                    )
+                }
             }
+        
+        self.logger.debug("Waiting for all tasks to complete")
+        try await group.waitForAll()
+    }
+        return results
+    }*/
+    public func generatePreviews(
+            for files: [(video: URL, output: URL)],
+            density: String,
+            duration: Int
+        ) async throws -> [(video: URL, output: URL)] {
+            
+                isRunning = true
+                isCancelled = false
+                var results: [(URL, URL)] = []
+                var activeTasks = 0
+                //var maxTasks = self.config.maxConcurrentOperations
+                let totalFiles = files.count
+                var processedFiles = 0
+                var skippedFiles = 0
+                var errorFiles = 0
+                let startTime = CFAbsoluteTimeGetCurrent()
+                
+                // Start background activity for the entire preview generation process
+                let mainActivity = startBackgroundActivity(reason: "Preview Generation")
+                defer {
+                    endBackgroundActivity(mainActivity)
+                    isRunning = false
+                    self.updateProgress(
+                        currentFile: "Finished",
+                        processedFiles: processedFiles,
+                        totalFiles: totalFiles,
+                        startTime: startTime,
+                        skippedFiles: skippedFiles,
+                        errorFiles: errorFiles
+                    )
+                }
+                
+                try await withThrowingTaskGroup(of: Void.self) { group in
+                    for (video, outputDirectory) in files {
+                        
+                        if isCancelled { throw CancellationError() }
+                        if isFileCancelled(video.lastPathComponent) {
+                            skippedFiles += 1
+                            continue
+                        }
+                        while activeTasks >= maxTasks {
+                            try await group.next()
+                            
+                        }
+                           
+                            activeTasks += 1
+                            
+                            group.addTask {
+                                do {
+                                    // Start individual file background activity
+                                    let fileActivity = self.startBackgroundActivity(
+                                        reason: "Processing \(video.lastPathComponent)"
+                                    )
+                                    defer {
+                                        // self.activeFiles.removeAll(where: { $0.filename == video.path() })
+                                        self.endBackgroundActivity(fileActivity) }
+                                    
+                                    if self.isFileCancelled(video.lastPathComponent) {
+                                        throw CancellationError()
+                                    }
+                                    
+                                    //let activeFile = ActiveFile(filename: video.path())
+                                    //self.activeFiles.append(activeFile)
+                                    let previewGenerator = PreviewGenerator(config: self.config)
+                                    self.setupPreviewGenerator(previewGenerator)
+                                    self.previewGenerators.append(previewGens(generator: previewGenerator, filename: video.path()))
+                                    
+                                    let preview = try await previewGenerator.generatePreview(
+                                        for: video,
+                                        outputDirectory: outputDirectory,
+                                        density: DensityConfig.from(density),
+                                        previewDuration: duration
+                                    )
+                                    
+                                    results.append((video, preview))
+                                    processedFiles += 1
+                                    activeTasks -= 1
+                                    
+                                } catch {
+                                    self.logger.error("Failed to process video: \(error.localizedDescription)")
+                                    errorFiles += 1
+                                    processedFiles += 1
+                                    activeTasks -= 1
+                                    throw error
+                                }
+                                
+                                self.updateProgress(
+                                    currentFile: "",
+                                    processedFiles: processedFiles,
+                                    totalFiles: totalFiles,
+                                    startTime: startTime,
+                                    skippedFiles: skippedFiles,
+                                    errorFiles: errorFiles
+                                )
+                            }
+                            
+                        }
+                        try await group.waitForAll()
+                        
+                    }
+                    for activity in backgroundActivities.values {
+                        ProcessInfo.processInfo.endActivity(activity)
+                    }
+                
+                    return results
+                
+            
         }
         
-        return results
-    }
+        // Background activity management methods
+    private func startBackgroundActivity(reason: String) -> NSObjectProtocol {
+           // Guard against empty reason
+           guard !reason.isEmpty else {
+               logger.error("Attempted to start background activity with empty reason")
+               return ProcessInfo.processInfo.beginActivity(
+                   options: [.automaticTerminationDisabled, .suddenTerminationDisabled],
+                   reason: "Unknown Activity"
+               )
+           }
+           
+           // Create unique identifier for this activity
+           let activityId = "\(reason)_\(UUID().uuidString)"
+           
+           let activity = ProcessInfo.processInfo.beginActivity(
+               options: [.automaticTerminationDisabled, .suddenTerminationDisabled],
+               reason: reason
+           )
+           
+           // Store using the unique identifier
+           DispatchQueue.main.async { [weak self] in
+               self?.backgroundActivities[activityId] = activity
+           }
+           
+           return activity
+       }
+    
+    private func endBackgroundActivity(_ activity: NSObjectProtocol) {
+         ProcessInfo.processInfo.endActivity(activity)
+         
+         // Remove from dictionary on main thread
+         DispatchQueue.main.async { [weak self] in
+             // Find and remove by value instead of using description
+             self?.backgroundActivities = self?.backgroundActivities.filter { $0.value !== activity } ?? [:]
+         }
+     }
+    
+        
+    public func cancelFile(_ filename: String) {
+          guard !filename.isEmpty else { return }
+          
+          if let index = previewGenerators.firstIndex(where: { $0.filename == filename }) {
+              previewGenerators[index].generator.isCancelled = true
+              previewGenerators[index].generator.cancelCurrentPreview(for: URL(fileURLWithPath: filename))
+              
+              // Find and end activity for this file
+              DispatchQueue.main.async { [weak self] in
+                  let activityKey = self?.backgroundActivities.first(where: { $0.key.starts(with: filename) })?.key
+                  if let key = activityKey, let activity = self?.backgroundActivities[key] {
+                      self?.endBackgroundActivity(activity)
+                  }
+              }
+          }
+      }
+      
+      deinit {
+          // Clean up any remaining background activities
+          let activities = backgroundActivities.values
+          activities.forEach { activity in
+              ProcessInfo.processInfo.endActivity(activity)
+          }
+      }
+        
+    
     
     // MARK: - Private Methods
     
@@ -173,7 +472,10 @@ public final class GenerationCoordinator {
     ) async throws -> (URL, URL) {
         let metadata = try await processMetadata(for: video)
         
-        if options.minimumDuration > 0 && metadata.duration < Double(options.minimumDuration) {
+      //  if !exportManager.FileExists(for: video, in: outputDirectory, format: format, type: metadata.type, density: density, addPath: options.addFullPath)
+        
+        if (options.minimumDuration > 0 && metadata.duration < Double(options.minimumDuration))
+        {
             throw MosaicError.tooShort
         }
         
@@ -223,38 +525,58 @@ public final class GenerationCoordinator {
             outputDirectory: baseDirectory
         )
     }
-    
+    /*
+    public func cancelFile(_ filename: String) {
+        if let index = previewGenerators.firstIndex(where: { $0.filename == filename }) {
+            previewGenerators[index].generator.isCancelled = true
+            previewGenerators[index].generator.cancelCurrentPreview(for: URL(fileURLWithPath: filename)) // Update this method to cancel the specific preview
+    }
+}*/
+
+private func isFileCancelled(_ filename: String) -> Bool {
+    return cancelledFiles.contains(filename)
+}
+
     private func updateProgress(
-            currentFile: String,
-            processedFiles: Int,
-            totalFiles: Int,
-            startTime: CFAbsoluteTime
-        ) {
-            let elapsedTime = CFAbsoluteTimeGetCurrent() - startTime
-            let progress = Double(processedFiles) / Double(totalFiles)
-            var estimatedTimeRemaining = TimeInterval(0.0)
-            
-            if processedFiles > 0 {
-                estimatedTimeRemaining = elapsedTime / progress - elapsedTime
-            }
-            
-            let progressInfo = ProgressInfo(
-                progress: progress,
-                currentFile: currentFile,
-                processedFiles: processedFiles,
-                totalFiles: totalFiles,
-                currentStage: "Processing Files",
-                elapsedTime: elapsedTime,
-                estimatedTimeRemaining: estimatedTimeRemaining,
-                skippedFiles: 0,
-                errorFiles: 0,
-                isRunning: isRunning
-            )
-            
-            DispatchQueue.main.async {
-                self.progressHandler?(progressInfo)
-            }
+        currentFile: String,
+        processedFiles: Int,
+        totalFiles: Int,
+        startTime: CFAbsoluteTime,
+        skippedFiles: Int?,
+        errorFiles: Int?,
+        fileProgress: Double? = nil
+    ) {
+        let elapsedTime = CFAbsoluteTimeGetCurrent() - startTime
+        let progress = Double(processedFiles) / Double(totalFiles)
+        var estimatedTimeRemaining = TimeInterval(0.0)
+        
+        if processedFiles > 0 {
+            estimatedTimeRemaining = elapsedTime / progress - elapsedTime
         }
+        
+        let progressInfo = ProgressInfo(
+            progressType: .global,
+            progress: progress,
+            currentFile: currentFile,
+            processedFiles: processedFiles,
+            totalFiles: totalFiles,
+            currentStage: "Processing Files",
+            elapsedTime: elapsedTime,
+            estimatedTimeRemaining: estimatedTimeRemaining,
+            skippedFiles: skippedFiles ?? 0,
+            errorFiles: errorFiles ?? 0,
+            isRunning: isRunning,
+            fileProgress: fileProgress
+        )
+        
+        // Ensure we're on the main thread when calling the progress handler
+        DispatchQueue.main.async { [weak self] in
+            self?.progressHandler?(progressInfo)
+        }
+    }
+    
+
+    
         
         private func processMetadata(for video: URL) async throws -> VideoMetadata {
             let asset = AVURLAsset(url: video)
@@ -415,10 +737,13 @@ extension GenerationCoordinator {
         // Remove incorrect references
         logger.debug("Getting today's video files")
         let playlistGenerator = PlaylistGenerator()
+       let dateFormatter = DateFormatter()
+       dateFormatter.dateFormat = "yyyyMMdd"
+       let dateFolderName = dateFormatter.string(from: Date())
+       let outputBaseURL = URL(fileURLWithPath: "/Volumes/Ext-6TB-2/Playlist/\(dateFolderName)2/\(width)", isDirectory: true)
         return try await playlistGenerator.findTodayVideos()
             .map { videoURL in
-                let outputDir = videoURL.deletingLastPathComponent()
-                    .appendingPathComponent(ThDir, isDirectory: true).appendingPathComponent(String(width), isDirectory: true)
+                let outputDir = outputBaseURL
                 return (videoURL, outputDir)
             }
     }
@@ -428,20 +753,22 @@ extension GenerationCoordinator {
     ///   - input: Input path
     ///   - width: Width for the mosaic
     /// - Returns: Array of video files and their output locations
-    public func getFiles(input: String, width: Int) async throws -> [(URL, URL)] {
+    public func getFiles(input: String, width: Int, config: ProcessingConfiguration) async throws -> [(URL, URL)] {
         logger.debug("Getting files from input: \(input)")
         let playlistGenerator = PlaylistGenerator()
         let inputURL = URL(fileURLWithPath: input)
-        
+        var outputDir = inputURL.deletingLastPathComponent()
         if input.lowercased().hasSuffix("m3u8") {
             // Handle M3U8 playlist files
             let content = try String(contentsOf: inputURL, encoding: .utf8)
+            
+            
             let urls = content.components(separatedBy: .newlines)
                 .filter { !$0.hasPrefix("#") && !$0.isEmpty }
                 .map { URL(fileURLWithPath: $0) }
             
             return urls.map { videoURL in
-                let outputDir = videoURL.deletingLastPathComponent()
+                 outputDir = inputURL.deletingLastPathComponent()
                     .appendingPathComponent(ThDir, isDirectory: true).appendingPathComponent(String(width), isDirectory: true)
                 return (videoURL, outputDir)
             }
@@ -449,11 +776,22 @@ extension GenerationCoordinator {
             // Handle directories
             return try await playlistGenerator.findVideoFiles(in: inputURL)
                 .map { videoURL in
-                    let outputDir = videoURL.deletingLastPathComponent()
-                        .appendingPathComponent(ThDir, isDirectory: true).appendingPathComponent(String(width), isDirectory: true)
+                    if config.saveAtRoot {
+                         outputDir = inputURL
+                            .appendingPathComponent(ThDir, isDirectory: true).appendingPathComponent(String(width), isDirectory: true)
+                        } else {
+                            outputDir = videoURL.deletingLastPathComponent()
+                                .appendingPathComponent(ThDir, isDirectory: true).appendingPathComponent(String(width), isDirectory: true)
+                    }
                     return (videoURL, outputDir)
                 }
         }
+    }
+    
+    public func getSingleFile(input: String, width: Int) async throws -> [(URL, URL)] {
+        let inputURL = URL(fileURLWithPath: input)
+        let outputDir = inputURL.deletingLastPathComponent().appendingPathComponent(ThDir, isDirectory: true).appendingPathComponent(String(width), isDirectory: true)
+        return [(inputURL, outputDir)]
     }
 
     /// Creates a playlist from a directory

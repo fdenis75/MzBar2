@@ -7,9 +7,29 @@
 
 
 import Foundation
+public struct FileProgress: Identifiable {
+    public let id: UUID
+    let filename: String
+    var progress: Double
+    var stage: String
+    var isComplete: Bool
+    var isCancelled: Bool
+    
+    init(filename: String) {
+        self.id = UUID()
+        self.filename = filename
+        self.progress = 0.0
+        self.stage = "Starting"
+        self.isComplete = false
+        self.isCancelled = false
+    }
+}
+
 
 /// Information about processing progress
 public struct ProgressInfo {
+    public let progressType: ProgressType
+    
     /// Current progress (0.0 - 1.0)
     public let progress: Double
     
@@ -39,9 +59,12 @@ public struct ProgressInfo {
     
     /// Whether processing is currently running
     public let isRunning: Bool
+
+     public let fileProgress: Double?
     
     /// Initialize progress information
     public init(
+        progressType: ProgressType,
         progress: Double,
         currentFile: String,
         processedFiles: Int,
@@ -51,8 +74,10 @@ public struct ProgressInfo {
         estimatedTimeRemaining: TimeInterval,
         skippedFiles: Int,
         errorFiles: Int,
-        isRunning: Bool
+        isRunning: Bool, 
+        fileProgress: Double?
     ) {
+        self.progressType = progressType
         self.progress = progress
         self.currentFile = currentFile
         self.processedFiles = processedFiles
@@ -63,6 +88,7 @@ public struct ProgressInfo {
         self.skippedFiles = skippedFiles
         self.errorFiles = errorFiles
         self.isRunning = isRunning
+        self.fileProgress = fileProgress
     }
 }
 

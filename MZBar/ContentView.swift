@@ -7,11 +7,14 @@
 import SwiftUI
 import Foundation
 import UniformTypeIdentifiers
+import AVFoundation
 
 
 struct ContentView: View {
     @StateObject private var viewModel = MosaicViewModel()
     @State private var isEditing = false
+    @Environment(\.colorScheme) var colorScheme
+    @State private var showActiveFiles = true
     
     var body: some View {
         VStack(spacing: 0) {
@@ -26,13 +29,15 @@ struct ContentView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     // Input Zone (common to all modes)
-                    inputSection
-                    
+                    if viewModel.selectedMode != .settings
+                    {
+                        inputSection
+                    }
                     // Settings Panel (changes based on mode)
                     ZStack {
                         // Mosaic Settings
                         if viewModel.selectedMode == .mosaic {
-                            settingsSection
+                            mosaicSettingsSection
                                 .transition(.asymmetric(
                                     insertion: .move(edge: .trailing).combined(with: .opacity),
                                     removal: .move(edge: .leading).combined(with: .opacity)
@@ -57,21 +62,53 @@ struct ContentView: View {
                                     removal: .move(edge: .leading).combined(with: .opacity)
                                 ))
                         }
+                        if viewModel.selectedMode == .settings {
+                            globalSettingsSection
+                                .transition(.asymmetric(
+                                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                                    removal: .move(edge: .leading).combined(with: .opacity)
+                                ))
+                                
+                        }
+                        
                     }
                     .animation(.interpolatingSpring, value: viewModel.selectedMode)
                     
-                    // Action Section (updates based on mode)
-                    actionSection
                     
-                    // Progress Section (common to all modes)
-                    progressSection
+                    
+                        // Action Section (updates based on mode)
+                        actionSection
+                        if viewModel.selectedMode != .settings
+                        {
+                        // Progress Section (common to all modes)
+                        progressSection
+                    }
                 }
                 .padding()
             }
         }
-        .frame(width: 800, height: 700)
+        .frame(width: 800, height: 1000)
         .background(Color(.windowBackgroundColor))
     }
+    /// Header
+    private var header: some View {
+        HStack {
+            Label {
+                Text("Mosaic Generator")
+                    .font(.title3.weight(.medium))
+            } icon: {
+                Image(systemName: "square.stack.3d.up")
+                    .foregroundStyle(.blue)
+            }
+            Spacer()
+        }
+        .padding()
+        
+    }
+    
+    
+    /// Previews
+    ///
     // Preview Settings Panel
     private var previewSettingsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -99,13 +136,71 @@ struct ContentView: View {
                             Text(density).tag(density)
                         }
                     }
-                    .pickerStyle(.segmented)
+
+                }
+                settingRow("Mac conurent Duration", icon: "clock.fill") {
+                    Picker("" , selection: $viewModel.concurrentOps)
+                    {
+                        ForEach(viewModel.concurrent, id: \.self) { concurrent in
+                            Text(String(concurrent)).tag(concurrent)
+                        }
+                    }.pickerStyle(.segmented)
+                    ActionButton(
+                        title: "update",
+                        icon: "play.circle.fill",
+                        isPrimary: true,
+                        action: {
+                            viewModel.updateMaxConcurrentTasks()
+                        }, viewModel: viewModel// Will need to update this to handle previews
+                        )
+                    
+                    
                 }
             }
             .padding()
             .background(RoundedRectangle(cornerRadius: 12).fill(Color(.quaternarySystemFill)))
         }
     }
+    private var globalSettingsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHeader(title: "Preview Settings", icon: "play.circle.fill")
+            
+                Form {
+                         
+                               Stepper("Max Concurrent Operations: \(viewModel.config.maxConcurrentOperations)", value: $viewModel.config.maxConcurrentOperations, in: 1...10)
+
+                               Picker("Video Export Preset", selection: $viewModel.config.videoExportPreset) {
+                                   ForEach(availableExportPresets, id: \.self) { preset in
+                                       Text(preset).tag(preset)
+                                   }
+                               }
+
+                               Slider(value: $viewModel.config.compressionQuality, in: 0...1, step: 0.1) {
+                                   Text("Compression Quality: \(String(format: "%.1f", viewModel.config.compressionQuality))")
+                               }
+
+                               Toggle("Use Accurate Timestamps", isOn: $viewModel.config.accurateTimestamps)
+                           }
+                       
+                   
+
+                var availableExportPresets: [String] {
+                       [
+                           AVAssetExportPresetHighestQuality,
+                           AVAssetExportPresetMediumQuality,
+                           AVAssetExportPreset640x480,
+                           AVAssetExportPreset960x540,
+                           AVAssetExportPreset1280x720,
+                           AVAssetExportPreset1920x1080,
+                           AVAssetExportPresetHEVC1920x1080
+                       ]
+                   }
+                }
+            
+            .padding()
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color(.quaternarySystemFill)))
+        }
+    
     
     // Playlist Settings Panel (placeholder for now)
     private var playlistSettingsSection: some View {
@@ -119,21 +214,6 @@ struct ContentView: View {
         } .modifier(ThemedSectionBackground(theme: viewModel.currentTheme.colors))
     }
     
-    /// Header
-    private var header: some View {
-        HStack {
-            Label {
-                Text("Mosaic Generator")
-                    .font(.title3.weight(.medium))
-            } icon: {
-                Image(systemName: "square.stack.3d.up")
-                    .foregroundStyle(.blue)
-            }
-            Spacer()
-        }
-        .padding()
-        
-    }
     
     /// Sections
     private var inputSection: some View {
@@ -153,7 +233,7 @@ struct ContentView: View {
         }
     }
     
-    private var settingsSection: some View {
+    private var mosaicSettingsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             SectionHeader(title: "Processing Settings", icon: "slider.horizontal.3")
                 .foregroundStyle(viewModel.currentTheme.colors.primary)
@@ -200,26 +280,46 @@ struct ContentView: View {
                                      label: "Save at Root")
                         OptionToggle(isOn: $viewModel.seperate,
                                      icon: "folder.badge.plus",
-                                     label: "Separate Folders")
+                                     label: "create folders by movie size")
+                        OptionToggle(isOn: $viewModel.addFullPath,
+                                     icon: "text.alignleft",
+                                     label: "Add Full Path to mosaic name")
                     }
                 }
                 
                 settingRow("Processing", icon: "doc.badge.gearshape.fill") {
                     
                     HStack(spacing: 10) {
-                        OptionToggle(isOn: $viewModel.customLayout,
-                                     icon: "square.grid.3x3.fill",
-                                     label: "Custom Layout")
-                        OptionToggle(isOn: $viewModel.addFullPath,
-                                     icon: "text.alignleft",
-                                     label: "Add Full Path")
+                        /*OptionToggle(isOn: $viewModel.customLayout,
+                         icon: "square.grid.3x3.fill",
+                         label: "Custom Layout")*/
+                        LayoutPicker(selection: $viewModel.layoutName)
+                        
                     }
+                }
+                settingRow("Mac conurent Duration", icon: "clock.fill") {
+                    Picker("" , selection: $viewModel.concurrentOps)
+                    {
+                        ForEach(viewModel.concurrent, id: \.self) { concurrent in
+                            Text(String(concurrent)).tag(concurrent)
+                        }
+                    }.pickerStyle(.segmented)
+                    ActionButton(
+                        title: "update",
+                        icon: "play.circle.fill",
+                        isPrimary: true,
+                        action: {
+                            viewModel.updateMaxConcurrentTasks()
+                        }, viewModel: viewModel// Will need to update this to handle previews
+                        )
+                    
+                    
                 }
                 
             }
             .modifier(ThemedSectionBackground(theme: viewModel.currentTheme.colors))
             .padding()
-           
+            
         }
     }
     
@@ -256,7 +356,7 @@ struct ContentView: View {
                         title: "Generate Previews",
                         icon: "play.circle.fill",
                         isPrimary: true,
-                        action: { 
+                        action: {
                             viewModel.processInput()
                         }, viewModel: viewModel// Will need to update this to handle previews
                     )
@@ -270,10 +370,18 @@ struct ContentView: View {
                         action: { viewModel.generatePlaylist(viewModel.inputPaths[0]) }, viewModel: viewModel
                     )
                     .disabled(viewModel.inputPaths.isEmpty)
+                    
+                case .settings:
+                    ActionButton(
+                        title: "Save Setting",
+                        icon: "list.wheel",
+                        isPrimary: true,
+                        action: { viewModel.updateConfig()}, viewModel: viewModel
+                    )
                 }
             }
-        }
-        .animation(.spring(), value: viewModel.selectedMode)
+            
+        }.animation(.spring( ), value: viewModel.selectedMode)
     }
     
     private var progressSection: some View {
@@ -281,22 +389,77 @@ struct ContentView: View {
             SectionHeader(title: "Progress", icon: "chart.bar.fill")
             
             VStack(alignment: .leading, spacing: 12) {
-                // Progress Bar
-                ProgressView(value: viewModel.progressG)
-                    .progressViewStyle(.linear)
-                    .frame(height: 8)
-                    .overlay(
-                        Text("\(Int(viewModel.progressG * 100))%")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                // Global Progress Bar
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Overall Progress")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    ProgressView(value: viewModel.progressG)
+                        .progressViewStyle(.linear)
+                        .frame(height: 8)
+                        .overlay(
+                            Text("\(Int(viewModel.progressG * 100))%")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        )
+                }
+                
+                // Individual File Progress Bars
+                if !viewModel.activeFiles.isEmpty {
+                    DisclosureGroup(
+                        isExpanded: $showActiveFiles,
+                        content: {
+                            ForEach(viewModel.activeFiles, id: \.id) { file in
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(file.filename)
+                                            .font(.caption)
+                                            .lineLimit(1)
+                                        ProgressView(value: file.progress)
+                                            .progressViewStyle(.linear)
+                                            .frame(height: 6)
+                                    }
+                                    
+                                    Button(action: {
+                                        viewModel.cancelFile(file.id)
+                                    }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundColor(.red)
+                                            .opacity(file.isComplete ? 0 : 1)
+                                    }
+                                    .disabled(file.isComplete)
+                                    .frame(width: 24, height: 24)
+                                    .padding(.leading, 8)
+                                }
+                                .padding(.vertical, 2)
+                            }
+                        },
+                        label: {
+                            HStack {
+                                Text("Active Files")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text("\(viewModel.activeFiles.count)")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 2)
+                                    .background(Color(.quaternarySystemFill))
+                                    .cornerRadius(8)
+                            }
+                            .padding(.vertical, 4)
+                        }
                     )
+                    .padding(.top, 8)
+                }
                 
                 // Status Messages
                 VStack(alignment: .leading, spacing: 8) {
-                    StatusMessage(icon: "doc.text", message: viewModel.statusMessage1 )
-                    StatusMessage(icon: "chart.bar.fill", message: viewModel.isProcessing ? viewModel.statusMessage2: "")
-                    StatusMessage(icon: "clock", message:  viewModel.isProcessing ? viewModel.statusMessage3: "")
-                    StatusMessage(icon: "timer", message: viewModel.isProcessing ? viewModel.statusMessage4: "")
+                    StatusMessage(icon: "doc.text", message: viewModel.statusMessage1)
+                    StatusMessage(icon: "chart.bar.fill", message: viewModel.isProcessing ? viewModel.statusMessage2 : "")
+                    StatusMessage(icon: "clock", message: viewModel.isProcessing ? viewModel.statusMessage3 : "")
+                    StatusMessage(icon: "timer", message: viewModel.isProcessing ? viewModel.statusMessage4 : "")
                 }
             }
             .padding()
@@ -323,7 +486,7 @@ struct ContentView: View {
         
         var body: some View {
             HStack(spacing: 0) {
-                ForEach([ProcessingMode.mosaic, .preview, .playlist], id: \.self) { mode in
+                ForEach([ProcessingMode.mosaic, .preview, .playlist, .settings], id: \.self) { mode in
                     modeButton(for: mode)
                 }
             }
@@ -354,7 +517,9 @@ struct ContentView: View {
             case .mosaic: return "square.grid.3x3"
             case .preview: return "play.circle"
             case .playlist: return "list.bullet"
+            case .settings: return "gearshape.circle"
             }
+            
         }
         
         private func title(for mode: ProcessingMode) -> String {
@@ -362,6 +527,7 @@ struct ContentView: View {
             case .mosaic: return "Mosaic"
             case .preview: return "Preview"
             case .playlist: return "Playlist"
+            case .settings: return "Settings"
             }
         }
     }
@@ -495,6 +661,19 @@ struct ContentView: View {
             .frame(width: 120)
         }
     }
+    struct LayoutPicker: View {
+        @Binding var selection: String
+        
+        var body: some View {
+            Picker("", selection: $selection) {
+                Text("Classic").tag("Classic")
+                Text("Focus").tag("Focus")
+            }
+            .pickerStyle(.segmented)
+            .padding(0.0)
+            .frame(width: 120)
+        }
+    }
     
     
     
@@ -598,7 +777,9 @@ struct ContentView: View {
                         ForEach(inputPaths, id: \.self) { path in
                             FileRowView(
                                 path: path,
+                                
                                 onDelete: { removeItem(path) },
+                                count: 0,
                                 viewModel: viewModel
                             )
                         }
@@ -664,6 +845,7 @@ struct ContentView: View {
                     
                     if droppedPaths.count == 1 {
                         let url = URL(fileURLWithPath: droppedPaths[0])
+                        
                         if url.hasDirectoryPath {
                             self.inputType = .folder
                         } else if url.pathExtension.lowercased() == "m3u8" {
@@ -681,6 +863,7 @@ struct ContentView: View {
     struct FileRowView: View {
         let path: String
         let onDelete: () -> Void
+        let count: Int
         @ObservedObject var viewModel: MosaicViewModel
         
         var body: some View {
@@ -693,7 +876,7 @@ struct ContentView: View {
                     .truncationMode(.middle)
                 
                 Spacer()
-                
+                Text(String(count))
                 Button(action: onDelete) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(.secondary)
@@ -707,13 +890,10 @@ struct ContentView: View {
             .cornerRadius(6)
         }
     }
+    
+    
+ 
 }
-
-
-
-
-
-
 
 #Preview {
     ContentView()

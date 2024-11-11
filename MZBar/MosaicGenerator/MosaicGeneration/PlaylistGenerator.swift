@@ -118,7 +118,7 @@ public final class PlaylistGenerator {
     // MARK: - Private Methods
     
     public func findVideoFiles(in directory: URL) async throws -> [URL] {
-        let enumerator = FileManager.default.enumerator(
+      /* let enumerator = FileManager.default.enumerator(
             at: directory,
             includingPropertiesForKeys: [.isRegularFileKey],
             options: [.skipsHiddenFiles]
@@ -131,9 +131,60 @@ public final class PlaylistGenerator {
             if isVideo && !fileURL.lastPathComponent.lowercased().contains("amprv") {
                 videos.append(fileURL)
             }
-        }
+        }*/
+       let query = NSMetadataQuery()
+       let calendar = Calendar.current
+       let today = calendar.startOfDay(for: Date())
+       let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
+       
+      
+       
+     /*  let videoTypes = [
+           "public.movie",
+           "public.video",
+           "public.mpeg-4",
+           "com.apple.quicktime-movie",
+           "public.mpeg",
+           "public.avi",
+           "public.mkv"
+       ]*/
+        let videoTypes = [
+            "public.mpeg-4",
+            "com.apple.quicktime-movie",
+            "public.mpeg",
+            "public.mkv"
+        ]
+       
+       let typePredicates = videoTypes.map { type in
+           NSPredicate(format: "kMDItemContentTypeTree == %@", type)
+       }
+       
+       let typePredicate = NSCompoundPredicate(orPredicateWithSubpredicates: typePredicates)
+       query.predicate = typePredicate
+        query.searchScopes = [directory]
+       
+       return try await withCheckedThrowingContinuation { @Sendable (continuation) in
+           NotificationCenter.default.addObserver(
+               forName: .NSMetadataQueryDidFinishGathering,
+               object: query,
+               queue: .main
+           ) { _ in
+               let videos = (query.results as! [NSMetadataItem]).compactMap { item -> URL? in
+                   guard let path = item.value(forAttribute: "kMDItemPath") as? String else {
+                       return nil
+                   }
+                   let url = URL(fileURLWithPath: path)
+                   return url.lastPathComponent.lowercased().contains("amprv") ? nil : url
+               }
+               continuation.resume(returning: videos)
+               query.stop()
+           }
+           
+           DispatchQueue.main.async {
+               query.start()
+           }
+       }
         
-        return videos
     }
     
     public func findTodayVideos() async throws -> [URL] {

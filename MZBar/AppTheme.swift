@@ -19,6 +19,7 @@ enum AppTheme {
     case preview
     case playlist
     
+
     var colors: ThemeColors {
         switch self {
         case .mosaic:

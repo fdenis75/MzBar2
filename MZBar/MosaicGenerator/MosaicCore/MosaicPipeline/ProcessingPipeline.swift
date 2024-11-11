@@ -1,5 +1,3 @@
-
-
 import Foundation
 import os.log
 
@@ -29,16 +27,23 @@ public final class ProcessingPipeline {
         coordinator.cancelGeneration()
     }
     
+    public func cancelFile(_ filename: String) {
+    coordinator.cancelFile(filename)
+}
     /// Gets files from a specified path
     /// - Parameters:
     ///   - path: Input path
     ///   - width: Width for output
     /// - Returns: Array of video files and their output locations
-    public func getFiles(from path: String, width: Int) async throws -> [(URL, URL)] {
+    public func getFiles(from path: String, width: Int, config: ProcessingConfiguration) async throws -> [(URL, URL)] {
         logger.debug("Getting files from: \(path)")
-        return try await coordinator.getFiles(input: path, width: width)
+        return try await coordinator.getFiles(input: path, width: width, config: config)
         
         //getFiles(input: path, width: width)
+    }
+    public func getSingleFile(from path: String, width: Int) async throws -> [(URL, URL)] {
+        logger.debug("Getting files from: \(path)")
+        return try await coordinator.getSingleFile(input: path, width: width)
     }
     
     /// Gets files created today
@@ -96,6 +101,15 @@ public final class ProcessingPipeline {
         )
     }
     
+    /// Updates the configuration for the pipeline
+    /// - Parameter config: New configuration
+    public func updateConfig(_ config: MosaicGeneratorConfig) {
+        coordinator.updateConfig(config)
+    }
+    
+    public func updateMaxConcurrentTasks(_ maxConcurrentTasks: Int) {
+        coordinator.updateMaxConcurrentTasks(maxConcurrentTasks)
+    }
     // MARK: - Private Methods
     
     private func setupCoordinator() {

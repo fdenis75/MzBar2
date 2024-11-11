@@ -59,64 +59,29 @@ public final class MosaicGenerator {
         isCancelled = true
     }
     
-    /// Generate mosaics for video files
-    /// - Parameters:
-    ///   - files: Array of video files and their output locations
-    ///   - config: Processing configuration
-    public func generateMosaics(files: [(URL, URL)],
-                                forConfig config: ProcessingConfiguration
-    ) async throws -> [(video: URL, preview: URL)] {
-        guard !files.isEmpty else {
-            throw MosaicError.inputNotFound
-        }
-        
-        var results: [(URL, URL)] = []
-        var processedFiles = 0
-        let totalFiles = files.count
-        let startTime = CFAbsoluteTimeGetCurrent()
-        
-        for (video, output) in files {
-            if isCancelled { throw CancellationError() }
-            
-            do {
-                let result = try await processSingleFile(
-                    video: video,
-                    output: output,
-                    config: config
-                )
-                
-                results.append(result)
-                processedFiles += 1
-                
-                updateProgress(
-                    currentFile: video.lastPathComponent,
-                    processedFiles: processedFiles,
-                    totalFiles: totalFiles,
-                    stage: "Processing Files",
-                    startTime: startTime
-                )
-            } catch {
-                logger.error("Failed to process file: \(error.localizedDescription)")
-                throw error
-            }
-        }
-        
-        return results
-    }
-    
+  
   
     // MARK: - Private Methods
     
-    private func processSingleFile(
+    public func processSingleFile(
         video: URL,
         output: URL,
         config: ProcessingConfiguration
     ) async throws -> (URL, URL) {
         logger.debug("Processing file: \(video.lastPathComponent)")
-        
+        let startTime = CFAbsoluteTimeGetCurrent()
         let asset = AVURLAsset(url: video)
-        let metadata = try await videoProcessor.processVideo(file: video, asset: asset)
+         updateProgress(
+        currentFile: video.path,
+        processedFiles: 0,
+        totalFiles: 1,
+        stage: "Processing metadata",
+        startTime: startTime,
+        fileProgress: 0.2
+    )
+      
         
+        let metadata = try await videoProcessor.processVideo(file: video, asset: asset)
         if config.duration > 0 && Int(metadata.duration) < config.duration {
             logger.debug("File too short: \(video.lastPathComponent)")
             throw MosaicError.tooShort
@@ -129,7 +94,15 @@ public final class MosaicGenerator {
             width: config.width,
             density: config.density
         )
-        
+         updateProgress(
+        currentFile: video.path,
+        processedFiles: 0,
+        totalFiles: 1,
+        stage: "Generating layout",
+        startTime: startTime,
+        fileProgress: 0.4
+    )
+       
         let layout = layoutProcessor.calculateLayout(
             originalAspectRatio: aspectRatio,
             thumbnailCount: thumbnailCount,
@@ -145,14 +118,31 @@ public final class MosaicGenerator {
             preview: false,
             accurate: config.generatorConfig.accurateTimestamps
         )
-        
+        updateProgress(
+        currentFile: video.path,
+        processedFiles: 0,
+        totalFiles: 1,
+        stage: "Creating mosaic",
+        startTime: startTime,
+        fileProgress: 0.6
+    )
+
         let mosaic = try await generateMosaic(
             from: thumbnails,
             layout: layout,
             metadata: metadata
         )
         
-        return try await saveMosaic(
+        // Update progress for saving stage
+    updateProgress(
+        currentFile: video.path,
+        processedFiles: 0,
+        totalFiles: 1,
+        stage: "Saving mosaic",
+        startTime: startTime,
+        fileProgress: 0.8
+    )
+        let result = try await saveMosaic(
             mosaic,
             for: video,
             in: output,
@@ -161,39 +151,63 @@ public final class MosaicGenerator {
             density: config.density.rawValue,
             addPath: config.addFullPath
         )
+
+        // Final progress update after everything is complete
+        updateProgress(
+            currentFile: video.path,
+            processedFiles: 1,
+            totalFiles: 1,
+            stage: "mosaic generation complete",
+            startTime: startTime,
+            fileProgress: 1.0
+        )
+
+        return result
     }
     
     
     private func updateProgress(
-        currentFile: String,
-        processedFiles: Int,
-        totalFiles: Int,
-        stage: String,
-        startTime: CFAbsoluteTime
-    ) {
-        let elapsedTime = CFAbsoluteTimeGetCurrent() - startTime
-        let progress = Double(processedFiles) / Double(totalFiles)
-        var estimatedTimeRemaining = TimeInterval(0.0)
-        
-        if processedFiles > 0 {
-            estimatedTimeRemaining = elapsedTime / progress - elapsedTime
-        }
-        
-        let info = ProgressInfo(
-            progress: progress,
-            currentFile: currentFile,
-            processedFiles: processedFiles,
-            totalFiles: totalFiles,
-            currentStage: stage,
-            elapsedTime: elapsedTime,
-            estimatedTimeRemaining: estimatedTimeRemaining,
-            skippedFiles: 0,
-            errorFiles: 0,
-            isRunning: true
-        )
-        
-        progressHandler?(info)
+    currentFile: String,
+    processedFiles: Int,
+    totalFiles: Int,
+    stage: String,
+    startTime: CFAbsoluteTime,
+    fileProgress: Double = 0.0
+) {
+    let elapsedTime = CFAbsoluteTimeGetCurrent() - startTime
+    let progress = Double(processedFiles) / Double(totalFiles)
+    var estimatedTimeRemaining = TimeInterval(0.0)
+    
+    if processedFiles > 0 {
+        estimatedTimeRemaining = elapsedTime / progress - elapsedTime
     }
+    
+    var gProg = Double(processedFiles) / Double(totalFiles)
+    
+    if gProg.isNaN
+    {
+        gProg = 0
+    }
+    
+    let info = ProgressInfo(
+        progressType: .file,
+        progress: gProg,
+        currentFile: currentFile,
+        processedFiles: processedFiles,
+        totalFiles: totalFiles,
+        currentStage: stage,
+        elapsedTime: elapsedTime,
+        estimatedTimeRemaining: estimatedTimeRemaining,
+        skippedFiles: 0,
+        errorFiles: 0,
+        isRunning: true,
+        fileProgress: Double(progress)
+    )
+    
+    DispatchQueue.main.async {
+        self.progressHandler?(info)
+    }
+}
     /// Generate a mosaic from thumbnails
     /// - Parameters:
     ///   - thumbnails: Array of thumbnails with timestamps
@@ -207,7 +221,7 @@ public final class MosaicGenerator {
     ) async throws -> CGImage {
         logger.debug("Generating mosaic for: \(metadata.file.lastPathComponent)")
         
-        return try autoreleasepool {
+        
             // Create drawing context
             guard let context = createContext(width: Int(layout.mosaicSize.width),
                                            height: Int(layout.mosaicSize.height)) else {
@@ -261,7 +275,7 @@ public final class MosaicGenerator {
             }
             
             return outputImage
-        }
+        
     }
     // MARK: - Private Methods
     

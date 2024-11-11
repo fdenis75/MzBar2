@@ -10,15 +10,15 @@
 				<key>location-parameters</key>
 				<dict>
 					<key>EndingColumnNumber</key>
-					<string>43</string>
+					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>444</string>
+					<string>730</string>
 					<key>StartingColumnNumber</key>
-					<string>21</string>
+					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>444</string>
+					<string>729</string>
 					<key>Timestamp</key>
-					<string>752446660.211543</string>
+					<string>752769191.623577</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -34,15 +34,61 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>appendingPathComponent</string>
+				<string>    }
+</string>
 				<key>leading</key>
-				<string>            return urls.map { videoURL in
-                let outputDir = videoURL.deletingLastPathComponent()
-                    .</string>
+				<string>            }
+        }
+</string>
 				<key>trailing</key>
-				<string>(ThDir, isDirectory: true).appendingPathComponent(String(width), isDirectory: true)
-                return (videoURL, outputDir)
-            }
+				<string>
+extension GenerationCoordinator {
+    /// Gets files created today
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>0</string>
+					<key>EndingLineNumber</key>
+					<string>88</string>
+					<key>StartingColumnNumber</key>
+					<string>0</string>
+					<key>StartingLineNumber</key>
+					<string>87</string>
+					<key>Timestamp</key>
+					<string>752766767.448501</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>    /// Generate mosaics for video files
+</string>
+				<key>leading</key>
+				<string>    }
+    
+</string>
+				<key>trailing</key>
+				<string>    /// - Parameters:
+    ///   - files: Array of video files and their output locations
+    ///   - width: Width of generated mosaics
 </string>
 			</dict>
 			<key>type</key>
