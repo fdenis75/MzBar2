@@ -23,6 +23,8 @@ public final class PreviewGenerator {
     private var currentExportSession: AVAssetExportSession?
     private var currentVideoFile: URL?
     private let signposter = OSSignposter(logHandle: .preview)
+    private let exportTimeoutInterval: TimeInterval = 120 // 5 minutes timeout
+    private var exportStartTime: CFAbsoluteTime?
     
     
     
@@ -108,7 +110,7 @@ public final class PreviewGenerator {
             signposter.endInterval("Process Video", state)
         }
         var previewURL: URL = outputDirectory
-        
+        do {
             logger.debug("Generating preview for: \(videoFile.lastPathComponent)")
             isCancelled = false
             let startTime = CFAbsoluteTimeGetCurrent()
@@ -117,23 +119,30 @@ public final class PreviewGenerator {
             currentVideoFile = videoFile
             // Create asset
             let asset = AVURLAsset(url: videoFile)
+            do {
+                let _ = try await !asset.load(.isPlayable)
+            }catch {
+                throw MosaicError.notAVideoFile
+            }
+            
             let duration = try await asset.load(.duration).seconds
             logger.debug("extracting params for: \(videoFile.lastPathComponent)")
             // Calculate extract parameters
-           
-            let extractParams = try calculateExtractionParameters(
+            
+             let extractParams =  try calculateExtractionParameters(
                 duration: duration,
                 density: density,
                 previewDuration: Double(previewDuration),
                 minExtractDuration: minExtractDuration
             )
-         
+            
+            
             if isCancelled { throw CancellationError() }
             
             // Setup output location
-            let previewDirectory = try await setupOutputDirectory(baseDirectory: outputDirectory)
+            let previewDirectory = try await setupOutputDirectory(baseDirectory: outputDirectory, duration: Int(duration))
             previewURL = previewDirectory.appendingPathComponent(
-                "\(videoFile.deletingPathExtension().lastPathComponent)-amprv-\(density.rawValue)-\(extractParams.extractCount).mp4"
+                "\(videoFile.deletingPathExtension().lastPathComponent)-amprv-\(density.rawValue).mp4"
             )
             updateProgress(
                 currentFile: videoFile.path,
@@ -157,6 +166,7 @@ public final class PreviewGenerator {
                 speedMultiplier: speedMultiplier
             )
             
+            
             // Export preview
             logger.debug("export preview  for: \(videoFile.lastPathComponent)")
             
@@ -164,8 +174,10 @@ public final class PreviewGenerator {
                 composition: composition,
                 videoTrack: videoTrack,
                 audioTrack: audioTrack,
-                to: previewURL
-                
+                to: previewURL,
+                speedMultiplier: speedMultiplier,
+                asset: asset,
+                sourcefile: videoFile
             )
             
             logger.debug("Preview generation completed in \(CFAbsoluteTimeGetCurrent() - startTime) seconds")
@@ -181,7 +193,9 @@ public final class PreviewGenerator {
                 try? FileManager.default.removeItem(at: previewURL)
                 throw CancellationError()
             }
-        
+        } catch {
+            throw error
+        }
             return previewURL
         }
     
@@ -220,9 +234,9 @@ public final class PreviewGenerator {
         return (extractCount, extractDuration, finalPreviewDuration)
     }
     
-    private func setupOutputDirectory(baseDirectory: URL) async throws -> URL {
+    private func setupOutputDirectory(baseDirectory: URL, duration: Int) async throws -> URL {
         let previewDirectory = baseDirectory.deletingLastPathComponent()
-            .appendingPathComponent("amprv", isDirectory: true)
+            .appendingPathComponent("amprv", isDirectory: true).appendingPathComponent(String(duration), isDirectory: true)
         if !FileManager.default.fileExists(atPath: previewDirectory.path) {
             try FileManager.default.createDirectory(
                 at: previewDirectory,
@@ -328,30 +342,68 @@ public final class PreviewGenerator {
     
     private func exportPreview(
         composition: AVComposition,
-        videoTrack: AVAssetTrack?,
-        audioTrack: AVAssetTrack?,
-        to outputURL: URL
+        videoTrack: AVAssetTrack,
+        audioTrack: AVAssetTrack,
+        to outputURL: URL,
+        speedMultiplier: Double,
+        asset: AVAsset,
+        sourcefile: URL
     ) async throws {
+        exportStartTime = CFAbsoluteTimeGetCurrent()
+        
         guard let exportSession = AVAssetExportSession(
             asset: composition,
             presetName: config.videoExportPreset
         ) else {
             throw MosaicError.unableToGenerateMosaic
         }
+        let state = signposter.beginInterval("exportPreview")
+        defer{
+            signposter.endInterval("exportPreview", state)
+        }
+        let originalFrameRate = try await videoTrack.load(.nominalFrameRate)
+        let videoComposition = AVMutableVideoComposition(propertiesOf: composition)
+                videoComposition.frameDuration = CMTime(
+                    value: 1,
+                    timescale: CMTimeScale(originalFrameRate * Float(speedMultiplier))
+                )
         
+        let audioMix = AVMutableAudioMix()
+        let audioParameters = AVMutableAudioMixInputParameters(track: audioTrack)
+        audioMix.inputParameters = [audioParameters]
         currentExportSession = exportSession
         exportSession.outputURL = outputURL
-        exportSession.outputFileType = .mp4
-        exportSession.shouldOptimizeForNetworkUse = true
-        exportSession.allowsParallelizedExport = true
-        exportSession.directoryForTemporaryFiles = FileManager.default.temporaryDirectory
         
-        let exportTask = Task {
-            try await exportSession.export(to: outputURL, as: .mp4)
+        // Determine output file type based on source file
+        let sourceExtension = sourcefile.pathExtension.lowercased()
+        switch sourceExtension {
+        case "mov":
+            exportSession.outputFileType = AVFileType.mov
+        case "m4v":
+            exportSession.outputFileType = AVFileType.m4v 
+        case "mp4":
+            exportSession.outputFileType = AVFileType.mp4
+        default:
+            // Default to mp4 for maximum compatibility
+            exportSession.outputFileType = AVFileType.mp4
         }
         
+        exportSession.shouldOptimizeForNetworkUse = true
+        exportSession.allowsParallelizedExport = false
+        exportSession.directoryForTemporaryFiles = FileManager.default.temporaryDirectory
+        exportSession.audioMix = audioMix
+        exportSession.videoComposition = videoComposition
+
+        let startTime = CFAbsoluteTimeGetCurrent()
+        defer {
+            self.updateProgress(currentFile: sourcefile.path, processedFiles: 0, totalFiles: 0, stage: "Exporting preview (100%)", startTime: startTime, progress: 1.0)
+        }
+        
+        let exportTask = Task {
+            try await exportSession.export(to: outputURL, as:  exportSession.outputFileType ?? .mp4)
+        }
         let progressTask = Task {
-            await trackExportProgress(exportSession: exportSession, outputURL: outputURL)
+            try await trackExportProgress(exportSession: exportSession, outputURL: outputURL, startTime: startTime, sourcefile: sourcefile)
         }
         
         do {
@@ -361,43 +413,68 @@ public final class PreviewGenerator {
                 }
                 
                 taskGroup.addTask {
-                    await progressTask.value
+                    try await progressTask.value
                 }
                 
-                taskGroup.addTask {
-                    while !Task.isCancelled && !self.isCancelled {
-                        try await Task.sleep(nanoseconds: 100_000_000)
-                    }
-                    if self.isCancelled || Task.isCancelled {
-                        exportTask.cancel()
-                        progressTask.cancel()
-                        exportSession.cancelExport()
-                        throw CancellationError()
-                    }
-                }
-            
                 try await taskGroup.waitForAll()
             }
-        } catch is CancellationError {
-            throw CancellationError()
+        }
+        catch {
+            switch error {
+            case is CancellationError:
+                throw CancellationError()
+            case MosaicError.exportTimeout:
+                throw MosaicError.exportTimeout
+            default:
+                throw error
+            }
         }
     }
     
     private func trackExportProgress(
-        exportSession: AVAssetExportSession,
-        outputURL: URL
-    ) async {
-        let updateInterval: TimeInterval = 0.5
-        
-        for await state in await exportSession.states(updateInterval: updateInterval) {
-            if Task.isCancelled { break }
-            
-            let progress = exportSession.progress
-            let percentage = Int(progress * 100)
-            
-            logger.debug("Export progress: \(percentage)% for \(outputURL.lastPathComponent)")
-            
-            if exportSession.status == .completed { break }
-        }
+               exportSession: AVAssetExportSession,
+           outputURL: URL,
+               startTime: CFAbsoluteTime,
+               sourcefile: URL
+               
+           ) async throws {
+               let updateInterval: TimeInterval = 0.5
+               let states = exportSession.states(updateInterval: updateInterval)
+               
+               for await state in states {
+
+                   if Task.isCancelled { break }
+                  // var currentProgress: Progress = Progress()
+                   switch state
+                   {
+                   case .pending, .waiting:
+                       continue
+                   case let .exporting(currentProgress):
+                       let percentage = currentProgress.fractionCompleted * 100
+                       
+                        //logger.debug("Export progress: \(percentage)% for \(outputURL.lastPathComponent)")
+                       if percentage == 100 {
+                           self.updateProgress(currentFile: sourcefile.path, processedFiles: 0, totalFiles: 0, stage: "Exporting preview (100%)", startTime:  startTime, progress: 1.0)
+                           break
+                       }
+                       else
+                       {
+                           if let startTime = exportStartTime,
+                              CFAbsoluteTimeGetCurrent() - startTime > exportTimeoutInterval {
+                               throw MosaicError.exportTimeout
+                           }
+                           self.updateProgress(currentFile: sourcefile.path, processedFiles: 0, totalFiles: 0, stage: "Exporting preview (\(percentage.format(2))%)", startTime:  startTime, progress: Float(currentProgress.fractionCompleted))
+                          // logger.debug("Export progress: \(percentage.format(2))% for \(outputURL.lastPathComponent)")
+                           continue
+                       }
+                   default:
+                       continue
+                   }
+               }
+           }
+    
+    public func resetExport() {
+        currentExportSession?.cancelExport()
+        isCancelled = false
     }
 }

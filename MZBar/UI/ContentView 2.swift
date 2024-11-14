@@ -470,39 +470,22 @@ struct EnhancedPlaylistSettings: View {
             EnhancedDropZone(viewModel: viewModel, inputPaths: $viewModel.inputPaths, inputType: $viewModel.inputType)
             
             SettingsCard(title: "Playlist Type", icon: "music.note.list") {
-                Picker("Type", selection: $selectedPlaylistType) {
+                Picker("Type", selection: $viewModel.selectedPlaylistType) {
                     Text("Standard").tag(0)
                     Text("Duration Based").tag(1)
-                    Text("Custom").tag(2)
                 }
                 .pickerStyle(.segmented)
             }
             
-            // Organization
-            SettingsCard(title: "Organization", icon: "folder.fill") {
-                VStack(alignment: .leading, spacing: 16) {
-                    Toggle("Create Subfolders", isOn: .constant(true))
-                    Toggle("Sort by Duration", isOn: .constant(true))
-                    Toggle("Include Metadata", isOn: .constant(true))
-                }
-            }
             
             // Filters
             SettingsCard(title: "Filters", icon: "line.3.horizontal.decrease.circle.fill") {
                 VStack(spacing: 16) {
                     DurationFilterView()
-                    FileTypeFilterView()
                 }
             }
             
             // Export Options
-            SettingsCard(title: "Export", icon: "square.and.arrow.up.fill") {
-                VStack(alignment: .leading, spacing: 16) {
-                    Toggle("Generate M3U8", isOn: .constant(true))
-                    Toggle("Include Previews", isOn: .constant(true))
-                    Toggle("Create Backup", isOn: .constant(true))
-                }
-            }
         }
     }
 }
@@ -937,9 +920,11 @@ struct EnhancedProgressView: View {
                         .foregroundStyle(.secondary)
                     
                     ForEach(viewModel.activeFiles) { file in
-                        FileProgressView(file: file) {
+                        FileProgressView(file: file, onCancel: {
                             viewModel.cancelFile(file.id)
-                        }
+                        }, onRetry: {
+                            viewModel.retryPreview(for: file.id)
+                        })
                     }
                 }
                 .padding(20)
@@ -999,7 +984,8 @@ struct ProgressCard: View {
 struct FileProgressView: View {
     let file: FileProgress
     let onCancel: () -> Void
-    
+    let onRetry: () -> Void
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -1016,6 +1002,13 @@ struct FileProgressView: View {
                     }
                     .buttonStyle(.plain)
                 }
+                if file.stage.contains("Exporting") && file.progress < 1.0 {
+                Button(action: onRetry) {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .buttonStyle(.borderless)
+                .help("Retry preview generation")
+            }
             }
             
             GeometryReader { geometry in

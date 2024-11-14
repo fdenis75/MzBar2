@@ -56,9 +56,15 @@ public final class ProcessingPipeline {
     
     /// Creates a playlist from input
     /// - Parameter path: Input path
-    public func createPlaylist(from path: String) async throws {
+    public func createPlaylist(from path: String, playlistype: Int = 0) async throws {
         logger.debug("Creating playlist from: \(path)")
-        try await coordinator.createPlaylist(from: path)
+        if playlistype == 0 {
+            try await coordinator.createPlaylist(from: path)
+        }
+        else
+        {
+            try await coordinator.createPlaylistDiff(from: path)
+        }
     }
     /// Creates a playlist from input
     /// - Parameter path: Input path

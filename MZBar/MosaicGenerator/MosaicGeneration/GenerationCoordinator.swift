@@ -340,12 +340,16 @@ public final class GenerationCoordinator {
                                 skippedFiles += 1
                                 processedFiles += 1
                                 activeTasks -= 1
+                        case MosaicError.notAVideoFile:
+                            self.logger.error("skipped because the file can't be opened: \(error.localizedDescription)")
+                                skippedFiles += 1
+                                processedFiles += 1
+                                activeTasks -= 1
                         default:
                             self.logger.error("Failed to process video: \(error.localizedDescription)")
                             errorFiles += 1
                             processedFiles += 1
                             activeTasks -= 1
-                            throw error
                         }
                     }
                     
@@ -358,7 +362,8 @@ public final class GenerationCoordinator {
                         errorFiles: errorFiles
                     )
                 }
-                
+                print("processed \(processedFiles) files, skipped \(skippedFiles), error \(errorFiles), total \(totalFiles)")
+               
             }
             try await group.waitForAll()
             
@@ -460,6 +465,7 @@ public final class GenerationCoordinator {
      }
      
      }*/
+    
     
     
     
@@ -738,7 +744,7 @@ public final class GenerationCoordinator {
         /// - Parameter path: Directory path
         func createDurationBasedPlaylists(from path: String) async throws {
             logger.debug("Creating duration-based playlists from: \(path)")
-            try await playlistGenerator.generateDurationBasedPlaylists(from: URL(fileURLWithPath: path), outputDirectory: URL(fileURLWithPath: path))
+            _ = try await playlistGenerator.generateDurationBasedPlaylists(from: URL(fileURLWithPath: path), outputDirectory: URL(fileURLWithPath: path))
         }
         
         /// Gets files for playlist generation
@@ -834,6 +840,16 @@ public final class GenerationCoordinator {
                 outputDirectory: inputURL
             )
         }
+        func createPlaylistDiff(from path: String) async throws {
+            logger.debug("Creating playlist from: \(path)")
+            let playlistGenerator = PlaylistGenerator()
+            let inputURL = URL(fileURLWithPath: path)
+            _ = try await playlistGenerator.generateDurationBasedPlaylists(
+                from: inputURL,
+                outputDirectory: inputURL
+            )
+        }
+        
         /// Creates a playlist from a directory
         /// - Parameter path: Directory path
         func createPlaylisttoday() async throws {

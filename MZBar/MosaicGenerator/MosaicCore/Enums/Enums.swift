@@ -29,6 +29,15 @@ public enum ProcessingMode {
     case playlist
     case settings 
 }
+public let videoTypes = [
+           "public.movie",
+           "public.video",
+           "public.mpeg-4",
+           "com.apple.quicktime-movie",
+           "public.mpeg",
+           "public.avi",
+           "public.mkv"
+       ]
 
 public enum ProgressType {
     case global
@@ -76,6 +85,10 @@ public enum MosaicError: LocalizedError {
     case unableToCreateExportSession
     /// Video duration too short
     case tooShort
+    case exportTimeout
+    case unableToExtractParams
+    
+
     
     public var errorDescription: String? {
         switch self {
@@ -109,6 +122,10 @@ public enum MosaicError: LocalizedError {
             return "Unable to create export session"
         case .tooShort:
             return "Video duration is too short"
+        case .exportTimeout:
+            return "Preview export timed out"
+        case .unableToExtractParams:
+            return "Unable to extract parameters"
         }
     }
 }

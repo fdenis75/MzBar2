@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>832</string>
+					<string>837</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>831</string>
+					<string>836</string>
 					<key>Timestamp</key>
-					<string>753212175.001506</string>
+					<string>753305154.879733</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -34,16 +34,16 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>            _ = try await playlistGenerator.generateStandardPlaylist(
+				<string>            let inputURL = URL(fileURLWithPath: path)
 </string>
 				<key>leading</key>
-				<string>            let playlistGenerator = PlaylistGenerator()
-            let inputURL = URL(fileURLWithPath: path)
+				<string>            logger.debug("Creating playlist from: \(path)")
+            let playlistGenerator = PlaylistGenerator()
 </string>
 				<key>trailing</key>
-				<string>                from: inputURL,
+				<string>            _ = try await playlistGenerator.generateStandardPlaylist(
+                from: inputURL,
                 outputDirectory: inputURL
-            )
 </string>
 			</dict>
 			<key>type</key>

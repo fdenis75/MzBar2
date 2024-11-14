@@ -28,6 +28,7 @@ class MosaicViewModel: ObservableObject {
     @Published var customLayout = true
     @Published var addFullPath = false
     @Published var layoutName = "Focus"
+    @Published var selectedPlaylistType = 0
     
     // State
     @Published var isProcessing = false
@@ -48,7 +49,7 @@ class MosaicViewModel: ObservableObject {
     @Published private(set) var elapsedTime: TimeInterval = 0
     @Published private(set) var estimatedTimeRemaining: TimeInterval = 0
     @Published private(set) var fps: Double = 0
-     @Published private(set) var activeFiles: [FileProgress] = []
+    @Published private(set) var activeFiles: [FileProgress] = []
     private let maxConcurrentFiles = 24 // Match with your generator config
     @Published var autoProcessDroppedFiles: Bool = false
     
@@ -104,12 +105,12 @@ class MosaicViewModel: ObservableObject {
                 let files = try await getInputFiles(Pconfig: config)
                 
                 
-               
-                    try await pipeline.generateMosaics(
-                        for: files,
-                        config: config
-                    )
-            
+                
+                try await pipeline.generateMosaics(
+                    for: files,
+                    config: config
+                )
+                
                 
                 await MainActor.run {
                     completeProcessing(success: true)
@@ -136,12 +137,12 @@ class MosaicViewModel: ObservableObject {
                 let files = try await getInputFiles(Pconfig: config)
                 
                 
-               
-                    try await pipeline.generatePreviews(
-                        for: files,
-                        config: config
-                    )
-               
+                
+                try await pipeline.generatePreviews(
+                    for: files,
+                    config: config
+                )
+                
                 
                 await MainActor.run {
                     completeProcessing(success: true)
@@ -190,7 +191,7 @@ class MosaicViewModel: ObservableObject {
         
         Task {
             do {
-                try await pipeline.createPlaylist(from: path)
+                try await pipeline.createPlaylist(from: path, playlistype: selectedPlaylistType)
                 await MainActor.run {
                     completeProcessing(success: true, message: "Playlist generation completed")
                 }
@@ -218,26 +219,6 @@ class MosaicViewModel: ObservableObject {
             }
         }
     }
-    /*func handleDroppedFiles(_ urls: [URL]) {
-        inputPaths = urls[0].map { $0.path}
-            
-            if urls.count == 1 {
-                let url = urls[0]
-                if (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false {
-                    inputType = .folder
-                } else if url.pathExtension.lowercased() == "m3u8" {
-                    inputType = .m3u8
-                } else {
-                    inputType = .files
-                }
-            } else {
-                inputType = .files
-            }
-            
-            if autoProcessDroppedFiles {
-               // processInput()
-            }
-        }*/
     
     func cancelGeneration() {
         pipeline.cancel()
@@ -275,7 +256,7 @@ class MosaicViewModel: ObservableObject {
             generatorConfig: .default
         )
     }
-
+    
     private func updateProgress(with info: ProgressInfo) {
         // Since this might be called from a background thread, ensure we're on main thread
         DispatchQueue.main.async { [weak self] in
@@ -309,7 +290,7 @@ class MosaicViewModel: ObservableObject {
         statusMessage3 = "Stage: \(stage)"
         statusMessage4 = "Estimated Time Remaining: \(estimatedTimeRemaining.format(2))s (current speed : \(fps.format(2)) files/s)"
     }
- 
+    
     private func updateFileProgress(_ filename: String, progress: Double, stage: String) {
         // Since we're already on the main thread from updateProgress, we don't need another dispatch
         if let index = activeFiles.firstIndex(where: { $0.filename == filename }) {
@@ -319,7 +300,7 @@ class MosaicViewModel: ObservableObject {
             addFileProgress(filename)
         }
     }
-
+    
     private func addFileProgress(_ filename: String) {
         // Since we're already on the main thread from updateProgress, we don't need another dispatch
         if activeFiles.count >= maxConcurrentFiles {
@@ -332,15 +313,15 @@ class MosaicViewModel: ObservableObject {
             activeFiles.append(FileProgress(filename: filename))
         }
     }
-
+    
     private func completeFileProgress(_ filename: String) {
         // Since we're already on the main thread from updateProgress, we don't need another dispatch
         if let index = activeFiles.firstIndex(where: { $0.filename == filename }) {
             activeFiles.remove(at: index)
         }
     }
-        
-
+    
+    
     private func getInputFiles(Pconfig: ProcessingConfiguration) async throws -> [(URL, URL)] {
         switch inputType {
         case .folder:
@@ -376,15 +357,15 @@ class MosaicViewModel: ObservableObject {
         
         isProcessing = false
     }
-
+    
     func cancelFile(_ fileId: UUID) {
-    if let index = activeFiles.firstIndex(where: { $0.id == fileId }) {
-        activeFiles[index].isCancelled = true
-        pipeline.cancelFile(activeFiles[index].filename)
-        completeFileProgress(activeFiles[index].filename)
+        if let index = activeFiles.firstIndex(where: { $0.id == fileId }) {
+            activeFiles[index].isCancelled = true
+            pipeline.cancelFile(activeFiles[index].filename)
+            completeFileProgress(activeFiles[index].filename)
         }
     }
-
+    
     private func handleError(_ error: Error) {
         isProcessing = false
         if error is CancellationError {
@@ -393,22 +374,46 @@ class MosaicViewModel: ObservableObject {
             statusMessage1 = "Error: \(error.localizedDescription)"
         }
     }
-
+    
     func updateConfig() {
         // Update the config in GenerationCoordinator
         pipeline.updateConfig(config)
     }
-   /* private func removeItem(_ path: String) {
-        withAnimation {
-            inputPaths.removeAll { $0 == path }
-            if inputPaths.isEmpty {
-                isTargeted = false
+    /* private func removeItem(_ path: String) {
+     withAnimation {
+     inputPaths.removeAll { $0 == path }
+     if inputPaths.isEmpty {
+     isTargeted = false
+     }
+     }
+     }*/
+    
+    func retryPreview(for fileId: UUID) {
+        Task {
+            guard let index = activeFiles.firstIndex(where: { $0.id == fileId }),
+                  activeFiles[index].stage.contains("Exporting") else { return }
+            
+            let file = activeFiles[index]
+            
+            await MainActor.run {
+                activeFiles[index].progress = 0
+                activeFiles[index].stage = "Retrying preview generation"
+            }
+            
+            pipeline.cancelFile(file.filename)
+            
+            do {
+                let config = getCurrentConfig()
+                let files = try await pipeline.getSingleFile(from: file.filename, width: selectedSize)
+                try await pipeline.generatePreviews(for: files, config: config)
+            } catch {
+                await MainActor.run {
+                    handleError(error)
+                }
             }
         }
-    }*/
-
+    }
 }
-
 // MARK: - Type Definitions
 extension MosaicViewModel {
     enum InputType {

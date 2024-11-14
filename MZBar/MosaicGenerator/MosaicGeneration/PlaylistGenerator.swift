@@ -6,6 +6,8 @@
 //
 
 
+
+
 @preconcurrency import Foundation
 import AVFoundation
 import os.log
@@ -21,9 +23,11 @@ public final class PlaylistGenerator {
         case medium = "M"       // 300-900s
         case long = "L"        // 900-1800s
         case extraLong = "XL"   // 1800s+
+        case unknown = "U"
         
         static func categorize(duration: Double) -> DurationCategory {
             switch duration {
+            case -1.0:         return .unknown
             case 0..<60:     return .extraShort
             case 60..<300:   return .short
             case 300..<900:  return .medium
@@ -46,8 +50,11 @@ public final class PlaylistGenerator {
         
         let videos = try await findVideoFiles(in: directory)
         let content = try await generatePlaylistContent(from: videos)
-        let playlistURL = outputDirectory.appendingPathComponent("\(directory.lastPathComponent).m3u8")
-        
+        let playlistURL = outputDirectory
+            .appendingPathComponent("0th",  isDirectory: true)
+            .appendingPathComponent("playlists", isDirectory: true)
+            .appendingPathComponent("\(directory.lastPathComponent).m3u8")
+        try await createDirectory(at: playlistURL.deletingLastPathComponent())
         try await savePlaylist(content: content, to: playlistURL)
         return playlistURL
     }
@@ -69,7 +76,13 @@ public final class PlaylistGenerator {
         // Categorize videos by duration
         for video in videos {
             let asset = AVURLAsset(url: video)
-            let duration = try await asset.load(.duration).seconds
+            var duration = 0.0
+            if try await !asset.load(.isPlayable) {
+                    duration = -1
+                logger.error("Failed to load asset: \(video.path)")
+            }
+            else
+            { duration = try await asset.load(.duration).seconds }
             let category = DurationCategory.categorize(duration: duration)
             categorizedVideos[category, default: []].append(video)
         }
@@ -79,6 +92,7 @@ public final class PlaylistGenerator {
         for (category, videos) in categorizedVideos {
             let content = try await generatePlaylistContent(from: videos)
             let playlistURL = outputDirectory
+                .appendingPathComponent("0th",  isDirectory: true)
                 .appendingPathComponent("playlists", isDirectory: true)
                 .appendingPathComponent("\(category.rawValue)-\(directory.lastPathComponent).m3u8")
             
@@ -137,23 +151,9 @@ public final class PlaylistGenerator {
        let today = calendar.startOfDay(for: Date())
        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
        
-      
+        let type = videoTypes
        
-     /*  let videoTypes = [
-           "public.movie",
-           "public.video",
-           "public.mpeg-4",
-           "com.apple.quicktime-movie",
-           "public.mpeg",
-           "public.avi",
-           "public.mkv"
-       ]*/
-        let videoTypes = [
-            "public.mpeg-4",
-            "com.apple.quicktime-movie",
-            "public.mpeg",
-            "public.mkv"
-        ]
+     
        
        let typePredicates = videoTypes.map { type in
            NSPredicate(format: "kMDItemContentTypeTree == %@", type)
@@ -199,14 +199,8 @@ public final class PlaylistGenerator {
             tomorrow as NSDate
         )
         
-        let videoTypes = [
+        let type = videoTypes
 
-            "public.mpeg-4",
-            "com.apple.quicktime-movie",
-            "public.mpeg",
-           
-            "public.mkv"
-        ]
         
         let typePredicates = videoTypes.map { type in
             NSPredicate(format: "kMDItemContentTypeTree == %@", type)
