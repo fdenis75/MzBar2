@@ -200,12 +200,11 @@ public final class PlaylistGenerator {
         )
         
         let videoTypes = [
-            "public.movie",
-            "public.video",
+
             "public.mpeg-4",
             "com.apple.quicktime-movie",
             "public.mpeg",
-            "public.avi",
+           
             "public.mkv"
         ]
         
@@ -228,7 +227,7 @@ public final class PlaylistGenerator {
                         return nil
                     }
                     let url = URL(fileURLWithPath: path)
-                    return url.lastPathComponent.lowercased().contains("amprv") ? nil : url
+                    return (url.lastPathComponent.lowercased().contains("amprv") || url.pathExtension.lowercased().contains("rmvb")) ? nil : url
                 }
                 continuation.resume(returning: videos)
                 query.stop()

@@ -60,6 +60,12 @@ public final class ProcessingPipeline {
         logger.debug("Creating playlist from: \(path)")
         try await coordinator.createPlaylist(from: path)
     }
+    /// Creates a playlist from input
+    /// - Parameter path: Input path
+    public func createPlaylisttoday() async throws {
+        logger.debug("Creating playlist today from: ")
+        try await coordinator.createPlaylisttoday()
+    }
     
     /// Generates mosaics for video files
     /// - Parameters:
@@ -80,7 +86,8 @@ public final class ProcessingPipeline {
                 generatePlaylist: config.summary,
                 addFullPath: config.addFullPath,
                 minimumDuration: config.duration,
-                accurateTimestamps: config.generatorConfig.accurateTimestamps
+                accurateTimestamps: config.generatorConfig.accurateTimestamps,
+                useSeparateFolder: config.separateFolders
             )
         )
     }

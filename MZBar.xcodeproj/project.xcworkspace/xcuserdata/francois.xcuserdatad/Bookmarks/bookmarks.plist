@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>730</string>
+					<string>832</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>729</string>
+					<string>831</string>
 					<key>Timestamp</key>
-					<string>752769191.623577</string>
+					<string>753212175.001506</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -34,16 +34,16 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>    }
+				<string>            _ = try await playlistGenerator.generateStandardPlaylist(
 </string>
 				<key>leading</key>
-				<string>            }
-        }
+				<string>            let playlistGenerator = PlaylistGenerator()
+            let inputURL = URL(fileURLWithPath: path)
 </string>
 				<key>trailing</key>
-				<string>
-extension GenerationCoordinator {
-    /// Gets files created today
+				<string>                from: inputURL,
+                outputDirectory: inputURL
+            )
 </string>
 			</dict>
 			<key>type</key>
@@ -57,13 +57,13 @@ extension GenerationCoordinator {
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>88</string>
+					<string>89</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>87</string>
+					<string>88</string>
 					<key>Timestamp</key>
-					<string>752766767.448501</string>
+					<string>753190433.250897</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -79,16 +79,16 @@ extension GenerationCoordinator {
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>    /// Generate mosaics for video files
+				<string>    }
 </string>
 				<key>leading</key>
-				<string>    }
-    
+				<string>        isRunning = false
+        cancelAllPreviews()
 </string>
 				<key>trailing</key>
-				<string>    /// - Parameters:
-    ///   - files: Array of video files and their output locations
-    ///   - width: Width of generated mosaics
+				<string>    
+    /// Generate mosaics for video files
+    /// - Parameters:
 </string>
 			</dict>
 			<key>type</key>

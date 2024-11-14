@@ -62,6 +62,8 @@ public struct ProgressInfo {
 
      public let fileProgress: Double?
     
+    public let fps: Double?
+    
     /// Initialize progress information
     public init(
         progressType: ProgressType,
@@ -89,6 +91,7 @@ public struct ProgressInfo {
         self.errorFiles = errorFiles
         self.isRunning = isRunning
         self.fileProgress = fileProgress
+        self.fps = Double(processedFiles) / elapsedTime
     }
 }
 

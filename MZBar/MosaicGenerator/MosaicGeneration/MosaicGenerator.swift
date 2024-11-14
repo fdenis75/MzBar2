@@ -70,6 +70,7 @@ public final class MosaicGenerator {
     ) async throws -> (URL, URL) {
         logger.debug("Processing file: \(video.lastPathComponent)")
         let startTime = CFAbsoluteTimeGetCurrent()
+        var lookprogress: Float = 0
         let asset = AVURLAsset(url: video)
          updateProgress(
         currentFile: video.path,
@@ -80,12 +81,18 @@ public final class MosaicGenerator {
         fileProgress: 0.2
     )
       
-        
-        let metadata = try await videoProcessor.processVideo(file: video, asset: asset)
+        do {
+            let metadata = try await videoProcessor.processVideo(file: video, asset: asset)
+            
+            
         if config.duration > 0 && Int(metadata.duration) < config.duration {
             logger.debug("File too short: \(video.lastPathComponent)")
             throw MosaicError.tooShort
         }
+            if (try await isExistingFile(for: video, in: output, format: config.format, type: metadata.type, density: config.density.rawValue, addPath: config.addFullPath) && !config.overwrite) {
+                logger.debug("exitsing \(video.lastPathComponent)")
+                throw MosaicError.existingVid
+            }
         
         // Calculate aspect ratio and thumbnail count
         let aspectRatio = metadata.resolution.width / metadata.resolution.height
@@ -110,6 +117,13 @@ public final class MosaicGenerator {
             density: config.density,
             useCustomLayout: config.customLayout
         )
+        updateProgress(
+       currentFile: video.path,
+       processedFiles: 0,
+       totalFiles: 1,
+       stage: "Generating layout",
+       startTime: startTime,
+       fileProgress: 0.4)
         
         let thumbnails = try await thumbnailProcessor.extractThumbnails(
             from: video,
@@ -118,6 +132,14 @@ public final class MosaicGenerator {
             preview: false,
             accurate: config.generatorConfig.accurateTimestamps
         )
+        
+       /* let thumbnails = try await thumbnailProcessor.processVideo(
+            for: video,
+            layout: layout,
+            asset: asset,
+            preview: false,
+            accurate: config.generatorConfig.accurateTimestamps
+        )*/
         updateProgress(
         currentFile: video.path,
         processedFiles: 0,
@@ -142,10 +164,20 @@ public final class MosaicGenerator {
         startTime: startTime,
         fileProgress: 0.8
     )
+            var finalOutputDirectory: URL
+            if config.separateFolders {
+                finalOutputDirectory = output.appendingPathComponent(
+                    metadata.type, isDirectory: true)
+            }
+            else
+                {
+                finalOutputDirectory = output
+            }
+            
         let result = try await saveMosaic(
             mosaic,
             for: video,
-            in: output,
+            in: finalOutputDirectory,
             format: config.format,
             type: metadata.type,
             density: config.density.rawValue,
@@ -161,8 +193,44 @@ public final class MosaicGenerator {
             startTime: startTime,
             fileProgress: 1.0
         )
-
-        return result
+            return result
+        }catch
+            {
+            switch error {
+            case MosaicError.tooShort:
+                updateProgress(
+                    currentFile: video.path,
+                    processedFiles: 1,
+                    totalFiles: 1,
+                    stage: "File too short",
+                    startTime: startTime,
+                    fileProgress: 1.0
+                )
+                throw MosaicError.tooShort
+                
+            case MosaicError.existingVid:
+                updateProgress(
+                    currentFile: video.path,
+                    processedFiles: 1,
+                    totalFiles: 1,
+                    stage: "Files Alrady exists",
+                    startTime: startTime,
+                    fileProgress: 1.0
+                )
+                throw MosaicError.existingVid
+            default:
+                updateProgress(
+                    currentFile: video.path,
+                    processedFiles: 1,
+                    totalFiles: 1,
+                    stage: "error while processing file",
+                    startTime: startTime,
+                    fileProgress: 1.0
+                )
+                throw error
+            }
+        }
+        
     }
     
     
@@ -404,8 +472,19 @@ extension MosaicGenerator {
             density: density,
             addPath: addPath
         )
-        
         return (videoFile, outputURL)
+    }
+    
+    
+    private func isExistingFile( for videoFile: URL,
+                                 in outputDirectory: URL,
+                                 format: String,
+                                 type: String,
+                                 density: String,
+                                 addPath: Bool) async throws -> Bool
+    {
+        let exportManager = ExportManager(config: self.config)
+        return try await exportManager.FileExists(for: videoFile, in: outputDirectory, format: format, type: type, density: density, addPath: addPath)
     }
 }
 

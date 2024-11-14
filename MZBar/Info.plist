@@ -3,24 +3,24 @@
 <plist version="1.0">
 <dict>
 	<key>NSServices</key>
-    <array>
-        <dict>
-            <key>NSMenuItem</key>
-            <dict>
-                <key>default</key>
-                <string>Generate Mosaic</string>
-            </dict>
-            <key>NSMessage</key>
-            <string>generateMosaic</string>
-            <key>NSPortName</key>
-            <string>MosaicGen</string>
-            <key>NSRequiredContext</key>
-            <dict/>
-            <key>NSSendTypes</key>
-            <array>
-                <string>public.file-url</string>
-            </array>
-        </dict>
-    </array>
+	<array>
+		<dict>
+			<key>NSMenuItem</key>
+			<dict>
+				<key>default</key>
+				<string>Generate Mosaic</string>
+			</dict>
+			<key>NSMessage</key>
+			<string>generateMosaic</string>
+			<key>NSPortName</key>
+			<string>MosaicGen</string>
+			<key>NSRequiredContext</key>
+			<dict/>
+			<key>NSSendTypes</key>
+			<array>
+				<string>public.file-url</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

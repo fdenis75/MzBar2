@@ -10,7 +10,7 @@ class MosaicViewModel: ObservableObject {
     @Published var selectedMode: ProcessingMode = .mosaic
     
     // Input Management
-    @Published var inputPaths: [String] = []
+    @Published var inputPaths: [(String,Int)] = []
     @Published var inputType: InputType = .folder
     
     // Processing Settings
@@ -47,8 +47,10 @@ class MosaicViewModel: ObservableObject {
     @Published private(set) var errorFiles: Int = 0
     @Published private(set) var elapsedTime: TimeInterval = 0
     @Published private(set) var estimatedTimeRemaining: TimeInterval = 0
+    @Published private(set) var fps: Double = 0
      @Published private(set) var activeFiles: [FileProgress] = []
     private let maxConcurrentFiles = 24 // Match with your generator config
+    @Published var autoProcessDroppedFiles: Bool = false
     
     @Published var config: MosaicGeneratorConfig
     
@@ -87,8 +89,7 @@ class MosaicViewModel: ObservableObject {
     }
     
     // MARK: - Public Methods
-    
-    func processInput() {
+    func processMosaics() {
         guard !inputPaths.isEmpty else {
             statusMessage1 = "Please select input first."
             return
@@ -103,17 +104,44 @@ class MosaicViewModel: ObservableObject {
                 let files = try await getInputFiles(Pconfig: config)
                 
                 
-                if selectedMode == .preview {
-                    try await pipeline.generatePreviews(
-                        for: files,
-                        config: config
-                    )
-                } else {
+               
                     try await pipeline.generateMosaics(
                         for: files,
                         config: config
                     )
+            
+                
+                await MainActor.run {
+                    completeProcessing(success: true)
                 }
+            } catch {
+                await MainActor.run {
+                    handleError(error)
+                }
+            }
+        }
+    }
+    func processPreviews() {
+        guard !inputPaths.isEmpty else {
+            statusMessage1 = "Please select input first."
+            return
+        }
+        
+        isProcessing = true
+        statusMessage1 = "Starting processing..."
+        
+        Task {
+            do {
+                let config = getCurrentConfig()
+                let files = try await getInputFiles(Pconfig: config)
+                
+                
+               
+                    try await pipeline.generatePreviews(
+                        for: files,
+                        config: config
+                    )
+               
                 
                 await MainActor.run {
                     completeProcessing(success: true)
@@ -135,7 +163,9 @@ class MosaicViewModel: ObservableObject {
         
         Task {
             do {
+                
                 let files = try await pipeline.getTodayFiles(width: selectedSize)
+                try await pipeline.createPlaylisttoday()
                 let config = getCurrentConfig()
                 
                 try await pipeline.generateMosaics(
@@ -171,6 +201,43 @@ class MosaicViewModel: ObservableObject {
             }
         }
     }
+    func generatePlaylisttoday() {
+        isProcessing = true
+        statusMessage1 = "Starting playlist today generation..."
+        
+        Task {
+            do {
+                try await pipeline.createPlaylisttoday()
+                await MainActor.run {
+                    completeProcessing(success: true, message: "Playlist generation completed")
+                }
+            } catch {
+                await MainActor.run {
+                    handleError(error)
+                }
+            }
+        }
+    }
+    /*func handleDroppedFiles(_ urls: [URL]) {
+        inputPaths = urls[0].map { $0.path}
+            
+            if urls.count == 1 {
+                let url = urls[0]
+                if (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false {
+                    inputType = .folder
+                } else if url.pathExtension.lowercased() == "m3u8" {
+                    inputType = .m3u8
+                } else {
+                    inputType = .files
+                }
+            } else {
+                inputType = .files
+            }
+            
+            if autoProcessDroppedFiles {
+               // processInput()
+            }
+        }*/
     
     func cancelGeneration() {
         pipeline.cancel()
@@ -208,38 +275,14 @@ class MosaicViewModel: ObservableObject {
             generatorConfig: .default
         )
     }
-    /*
-    private func updateProgress(with info: ProgressInfo) {
-        if (info.progressType == .global)
-        {
-            progressG = info.progress
-            processedFiles = info.processedFiles
-            totalFiles = info.totalFiles
-            skippedFiles = info.skippedFiles
-            errorFiles = info.errorFiles
-            elapsedTime = info.elapsedTime
-            estimatedTimeRemaining = info.estimatedTimeRemaining
-            updateStatusMessages(stage: info.currentStage)
-        }
-        else
-        {
-            currentFile = info.currentFile
-            updateFileProgress(info.currentFile, progress: info.fileProgress ?? 0.0, stage: info.currentStage)
-            if info.fileProgress == 1.0 {
-                completeFileProgress(info.currentFile)
-            }
-        }
-    isProcessing = info.isRunning
-    
-    
-    }*/
+
     private func updateProgress(with info: ProgressInfo) {
         // Since this might be called from a background thread, ensure we're on main thread
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
             if (info.progressType == .global) {
-                self.progressG = info.progress
+                self.progressG = info.progress.isNaN ? 0.0 : info.progress
                 self.processedFiles = info.processedFiles
                 self.totalFiles = info.totalFiles
                 self.skippedFiles = info.skippedFiles
@@ -247,6 +290,7 @@ class MosaicViewModel: ObservableObject {
                 self.elapsedTime = info.elapsedTime
                 self.estimatedTimeRemaining = info.estimatedTimeRemaining
                 self.updateStatusMessages(stage: info.currentStage)
+                self.fps = info.fps ?? 0.0
             } else {
                 self.currentFile = info.currentFile
                 self.updateFileProgress(info.currentFile, progress: info.fileProgress ?? 0.0, stage: info.currentStage)
@@ -260,38 +304,12 @@ class MosaicViewModel: ObservableObject {
     }
     
     private func updateStatusMessages(stage: String) {
-        statusMessage1 = "Processing: \(currentFile)"
+        statusMessage1 = "Processing: \(currentFile.substringWithRange(0,end: 30))..."
         statusMessage2 = "Progress: \(processedFiles)/\(totalFiles) files (skipped: \(skippedFiles), Error: \(errorFiles))"
         statusMessage3 = "Stage: \(stage)"
-        statusMessage4 = "Estimated Time Remaining: \(estimatedTimeRemaining.format(2)) s"
+        statusMessage4 = "Estimated Time Remaining: \(estimatedTimeRemaining.format(2))s (current speed : \(fps.format(2)) files/s)"
     }
-    /*
-    private func addFileProgress(_ filename: String) {
-        if activeFiles.count >= maxConcurrentFiles {
-            if let completeIndex = activeFiles.firstIndex(where: { $0.isComplete }) {
-                activeFiles.remove(at: completeIndex)
-            }
-        }
-        
-        if activeFiles.count < maxConcurrentFiles {
-            activeFiles.append(FileProgress(filename: filename))
-        }
-    }
-    
-    private func updateFileProgress(_ filename: String, progress: Double, stage: String) {
-        if let index = activeFiles.firstIndex(where: { $0.filename == filename }) {
-            activeFiles[index].progress = progress
-            activeFiles[index].stage = stage
-        } else {
-            addFileProgress(filename)
-        }
-    }
-    
-    private func completeFileProgress(_ filename: String) {
-        if let index = activeFiles.firstIndex(where: { $0.filename == filename }) {
-            activeFiles.remove(at: index)
-        }
-    }*/
+ 
     private func updateFileProgress(_ filename: String, progress: Double, stage: String) {
         // Since we're already on the main thread from updateProgress, we don't need another dispatch
         if let index = activeFiles.firstIndex(where: { $0.filename == filename }) {
@@ -326,15 +344,15 @@ class MosaicViewModel: ObservableObject {
     private func getInputFiles(Pconfig: ProcessingConfiguration) async throws -> [(URL, URL)] {
         switch inputType {
         case .folder:
-            return try await pipeline.getFiles(from: inputPaths[0], width: selectedSize, config: Pconfig)
+            return try await pipeline.getFiles(from: inputPaths[0].0, width: selectedSize, config: Pconfig)
         case .m3u8:
-            return try await pipeline.getFiles(from: inputPaths[0], width: selectedSize, config: Pconfig )
+            return try await pipeline.getFiles(from: inputPaths[0].0, width: selectedSize, config: Pconfig )
         case .files:
             // Create an array to hold all the results
             var allFiles: [(URL, URL)] = []
             
             // Process each path sequentially
-            for path in inputPaths {
+            for (path, count ) in inputPaths {
                 let files = try await pipeline.getSingleFile(from: path, width: selectedSize)
                 allFiles.append(contentsOf: files)
             }
@@ -380,6 +398,15 @@ class MosaicViewModel: ObservableObject {
         // Update the config in GenerationCoordinator
         pipeline.updateConfig(config)
     }
+   /* private func removeItem(_ path: String) {
+        withAnimation {
+            inputPaths.removeAll { $0 == path }
+            if inputPaths.isEmpty {
+                isTargeted = false
+            }
+        }
+    }*/
+
 }
 
 // MARK: - Type Definitions
