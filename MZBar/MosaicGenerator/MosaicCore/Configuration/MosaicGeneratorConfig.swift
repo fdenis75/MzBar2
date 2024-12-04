@@ -6,7 +6,10 @@
 //
 import Foundation
 import AVFoundation
-
+public enum PreviewEngine {
+        case avFoundation
+        case ffmpeg
+    }
 /// Configuration options for the mosaic generation process
 public struct MosaicGeneratorConfig {
     /// Maximum number of concurrent operations
@@ -27,6 +30,9 @@ public struct MosaicGeneratorConfig {
     /// Whether to use debug logging
     public let debug: Bool
     
+    /// Preview engine
+    public let previewEngine: PreviewEngine
+    
     /// Default configuration
     public static let `default` = MosaicGeneratorConfig(
         maxConcurrentOperations: 8,
@@ -34,7 +40,8 @@ public struct MosaicGeneratorConfig {
         videoExportPreset: AVAssetExportPresetHEVC1920x1080,
         compressionQuality: 0.4,
         accurateTimestamps: false,
-        debug: false
+        debug: false,
+        previewEngine: .avFoundation
     )
     
     /// Initialize with custom settings
@@ -45,13 +52,15 @@ public struct MosaicGeneratorConfig {
     ///   - compressionQuality: Compression quality for image outputs
     ///   - accurateTimestamps: Whether to use accurate timestamps
     ///   - debug: Whether to use debug logging
+    ///   - previewEngine: Preview engine
     public init(
         maxConcurrentOperations: Int = 8,
         batchSize: Int = 24,
         videoExportPreset: String = AVAssetExportPresetHEVC1920x1080,
         compressionQuality: Float = 0.4,
         accurateTimestamps: Bool = false,
-        debug: Bool = false
+        debug: Bool = false,
+        previewEngine: PreviewEngine = .avFoundation
     ) {
         self.maxConcurrentOperations = maxConcurrentOperations
         self.batchSize = batchSize
@@ -59,6 +68,24 @@ public struct MosaicGeneratorConfig {
         self.compressionQuality = compressionQuality
         self.accurateTimestamps = accurateTimestamps
         self.debug = debug
+        self.previewEngine = previewEngine
+    }
+}
+
+public enum QualityPreset: Int {
+    case balanced = 0
+    case performance = 1
+    case quality = 2
+    
+    var compressionQuality: Float {
+        switch self {
+        case .balanced:
+            return 0.4
+        case .performance:
+            return 0.2
+        case .quality:
+            return 0.8
+        }
     }
 }
 

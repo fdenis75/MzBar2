@@ -8,7 +8,7 @@
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>Generate Mosaic</string>
+				<string>Send to MZBar</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>generateMosaic</string>
@@ -22,5 +22,7 @@
 			</array>
 		</dict>
 	</array>
+	<key>CFBundleIdentifier</key>
+	<string></string>
 </dict>
 </plist>

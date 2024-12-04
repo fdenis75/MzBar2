@@ -35,8 +35,43 @@
 
 /* Begin PBXFileReference section */
 		0F4BF64C2CA602C200AD34C7 /* MZBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MZBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0F4F13FE2CF9BA670035061B /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		0F7DC52A2CB12BD0005F928A /* MZBarTests2.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MZBarTests2.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0FCA7B292CD9712B00AE26E4 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		0FE71CC42CFA0C9D00FD28CF /* constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = constants.swift; sourceTree = "<group>"; };
+		0FE71CC52CFA0C9D00FD28CF /* DensityConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DensityConfig.swift; sourceTree = "<group>"; };
+		0FE71CC62CFA0C9D00FD28CF /* MosaicGeneratorConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MosaicGeneratorConfig.swift; sourceTree = "<group>"; };
+		0FE71CC72CFA0C9D00FD28CF /* ProcessingConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingConfiguration.swift; sourceTree = "<group>"; };
+		0FE71CC92CFA0C9D00FD28CF /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
+		0FE71CCB2CFA0C9D00FD28CF /* CancellationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancellationManager.swift; sourceTree = "<group>"; };
+		0FE71CCD2CFA0C9D00FD28CF /* MosaicLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MosaicLayout.swift; sourceTree = "<group>"; };
+		0FE71CCE2CFA0C9D00FD28CF /* ProgressInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressInfo.swift; sourceTree = "<group>"; };
+		0FE71CCF2CFA0C9D00FD28CF /* VideoMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoMetadata.swift; sourceTree = "<group>"; };
+		0FE71CD12CFA0C9D00FD28CF /* ProcessingPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingPipeline.swift; sourceTree = "<group>"; };
+		0FE71CD32CFA0C9D00FD28CF /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
+		0FE71CD62CFA0C9D00FD28CF /* ExportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportManager.swift; sourceTree = "<group>"; };
+		0FE71CD72CFA0C9D00FD28CF /* GenerationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationCoordinator.swift; sourceTree = "<group>"; };
+		0FE71CD82CFA0C9D00FD28CF /* MosaicGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MosaicGenerator.swift; sourceTree = "<group>"; };
+		0FE71CD92CFA0C9D00FD28CF /* PlaylistGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistGenerator.swift; sourceTree = "<group>"; };
+		0FE71CDA2CFA0C9D00FD28CF /* PreviewGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewGenerator.swift; sourceTree = "<group>"; };
+		0FE71CDB2CFA0C9D00FD28CF /* SceneDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDetector.swift; sourceTree = "<group>"; };
+		0FE71CDD2CFA0C9D00FD28CF /* LayoutProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutProcessor.swift; sourceTree = "<group>"; };
+		0FE71CDE2CFA0C9D00FD28CF /* ThumbnailProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailProcessor.swift; sourceTree = "<group>"; };
+		0FE71CDF2CFA0C9D00FD28CF /* VideoProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoProcessor.swift; sourceTree = "<group>"; };
+		0FE71CE12CFA0C9D00FD28CF /* Signposted.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signposted.swift; sourceTree = "<group>"; };
+		0FE71CE22CFA0C9D00FD28CF /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
+		0FE71CE52CFA0C9D00FD28CF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		0FE71CE72CFA0C9D00FD28CF /* MosaicCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MosaicCache.swift; sourceTree = "<group>"; };
+		0FE71CE82CFA0C9D00FD28CF /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
+		0FE71CEA2CFA0C9D00FD28CF /* MosaicServiceHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MosaicServiceHandler.swift; sourceTree = "<group>"; };
+		0FE71CEC2CFA0C9D00FD28CF /* SettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCard.swift; sourceTree = "<group>"; };
+		0FE71CEE2CFA0C9D00FD28CF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		0FE71CEF2CFA0C9D00FD28CF /* MosaicViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MosaicViewModel.swift; sourceTree = "<group>"; };
+		0FE71CF02CFA0C9D00FD28CF /* MZBarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MZBarApp.swift; sourceTree = "<group>"; };
+		0FE71CF22CFA0C9D00FD28CF /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		0FE71CF32CFA0C9D00FD28CF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0FE71CF42CFA0C9D00FD28CF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0FE71CF52CFA0C9D00FD28CF /* MZBar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MZBar.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -89,6 +124,7 @@
 				0FCA7B292CD9712B00AE26E4 /* .gitignore */,
 				0F4BF64E2CA602C200AD34C7 /* MZBar */,
 				0F7DC52B2CB12BD0005F928A /* MZBarTests2 */,
+				0F4F13FD2CF9BA670035061B /* Frameworks */,
 				0F4BF64D2CA602C200AD34C7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -100,6 +136,184 @@
 				0F7DC52A2CB12BD0005F928A /* MZBarTests2.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		0F4F13FD2CF9BA670035061B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CF62CFA0C9D00FD28CF /* MZBar */,
+				0F4F13FE2CF9BA670035061B /* Quartz.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		0FE71CC82CFA0C9D00FD28CF /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CC42CFA0C9D00FD28CF /* constants.swift */,
+				0FE71CC52CFA0C9D00FD28CF /* DensityConfig.swift */,
+				0FE71CC62CFA0C9D00FD28CF /* MosaicGeneratorConfig.swift */,
+				0FE71CC72CFA0C9D00FD28CF /* ProcessingConfiguration.swift */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
+		0FE71CCA2CFA0C9D00FD28CF /* Enums */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CC92CFA0C9D00FD28CF /* Enums.swift */,
+			);
+			path = Enums;
+			sourceTree = "<group>";
+		};
+		0FE71CCC2CFA0C9D00FD28CF /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CCB2CFA0C9D00FD28CF /* CancellationManager.swift */,
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		0FE71CD02CFA0C9D00FD28CF /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CCD2CFA0C9D00FD28CF /* MosaicLayout.swift */,
+				0FE71CCE2CFA0C9D00FD28CF /* ProgressInfo.swift */,
+				0FE71CCF2CFA0C9D00FD28CF /* VideoMetadata.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		0FE71CD22CFA0C9D00FD28CF /* MosaicPipeline */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CD12CFA0C9D00FD28CF /* ProcessingPipeline.swift */,
+			);
+			path = MosaicPipeline;
+			sourceTree = "<group>";
+		};
+		0FE71CD42CFA0C9D00FD28CF /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CD32CFA0C9D00FD28CF /* Protocols.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		0FE71CD52CFA0C9D00FD28CF /* MosaicCore */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CC82CFA0C9D00FD28CF /* Configuration */,
+				0FE71CCA2CFA0C9D00FD28CF /* Enums */,
+				0FE71CCC2CFA0C9D00FD28CF /* Managers */,
+				0FE71CD02CFA0C9D00FD28CF /* Models */,
+				0FE71CD22CFA0C9D00FD28CF /* MosaicPipeline */,
+				0FE71CD42CFA0C9D00FD28CF /* Protocols */,
+			);
+			path = MosaicCore;
+			sourceTree = "<group>";
+		};
+		0FE71CDC2CFA0C9D00FD28CF /* MosaicGeneration */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CD62CFA0C9D00FD28CF /* ExportManager.swift */,
+				0FE71CD72CFA0C9D00FD28CF /* GenerationCoordinator.swift */,
+				0FE71CD82CFA0C9D00FD28CF /* MosaicGenerator.swift */,
+				0FE71CD92CFA0C9D00FD28CF /* PlaylistGenerator.swift */,
+				0FE71CDA2CFA0C9D00FD28CF /* PreviewGenerator.swift */,
+				0FE71CDB2CFA0C9D00FD28CF /* SceneDetector.swift */,
+			);
+			path = MosaicGeneration;
+			sourceTree = "<group>";
+		};
+		0FE71CE02CFA0C9D00FD28CF /* MosaicProcessing */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CDD2CFA0C9D00FD28CF /* LayoutProcessor.swift */,
+				0FE71CDE2CFA0C9D00FD28CF /* ThumbnailProcessor.swift */,
+				0FE71CDF2CFA0C9D00FD28CF /* VideoProcessor.swift */,
+			);
+			path = MosaicProcessing;
+			sourceTree = "<group>";
+		};
+		0FE71CE32CFA0C9D00FD28CF /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CE12CFA0C9D00FD28CF /* Signposted.swift */,
+				0FE71CE22CFA0C9D00FD28CF /* Utilities.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		0FE71CE42CFA0C9D00FD28CF /* MosaicGenerator */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CD52CFA0C9D00FD28CF /* MosaicCore */,
+				0FE71CDC2CFA0C9D00FD28CF /* MosaicGeneration */,
+				0FE71CE02CFA0C9D00FD28CF /* MosaicProcessing */,
+				0FE71CE32CFA0C9D00FD28CF /* Utils */,
+			);
+			path = MosaicGenerator;
+			sourceTree = "<group>";
+		};
+		0FE71CE62CFA0C9D00FD28CF /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CE52CFA0C9D00FD28CF /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		0FE71CE92CFA0C9D00FD28CF /* QuickLookPreview */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CE72CFA0C9D00FD28CF /* MosaicCache.swift */,
+				0FE71CE82CFA0C9D00FD28CF /* PreviewViewController.swift */,
+			);
+			path = QuickLookPreview;
+			sourceTree = "<group>";
+		};
+		0FE71CEB2CFA0C9D00FD28CF /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CEA2CFA0C9D00FD28CF /* MosaicServiceHandler.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		0FE71CED2CFA0C9D00FD28CF /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CEC2CFA0C9D00FD28CF /* SettingsCard.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		0FE71CF12CFA0C9D00FD28CF /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CED2CFA0C9D00FD28CF /* Components */,
+				0FE71CEE2CFA0C9D00FD28CF /* ContentView.swift */,
+				0FE71CEF2CFA0C9D00FD28CF /* MosaicViewModel.swift */,
+				0FE71CF02CFA0C9D00FD28CF /* MZBarApp.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		0FE71CF62CFA0C9D00FD28CF /* MZBar */ = {
+			isa = PBXGroup;
+			children = (
+				0FE71CE42CFA0C9D00FD28CF /* MosaicGenerator */,
+				0FE71CE62CFA0C9D00FD28CF /* Preview Content */,
+				0FE71CE92CFA0C9D00FD28CF /* QuickLookPreview */,
+				0FE71CEB2CFA0C9D00FD28CF /* Services */,
+				0FE71CF12CFA0C9D00FD28CF /* UI */,
+				0FE71CF22CFA0C9D00FD28CF /* AppTheme.swift */,
+				0FE71CF32CFA0C9D00FD28CF /* Assets.xcassets */,
+				0FE71CF42CFA0C9D00FD28CF /* Info.plist */,
+				0FE71CF52CFA0C9D00FD28CF /* MZBar.entitlements */,
+			);
+			path = MZBar;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -158,7 +372,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1600;
+				LastSwiftUpdateCheck = 1610;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					0F4BF64B2CA602C200AD34C7 = {

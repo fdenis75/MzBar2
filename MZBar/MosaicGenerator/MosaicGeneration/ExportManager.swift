@@ -80,6 +80,11 @@ public final class ExportManager {
         return FileManager.default.fileExists(atPath: URL.path)
     }
     
+    public func previewExists(for preview: URL)
+    async throws -> Bool {
+        return FileManager.default.fileExists(atPath: preview.path)
+    }
+    
     // MARK: - Private Methods
     
     private func createDirectoryIfNeeded(_ directory: URL) async throws {
@@ -101,15 +106,24 @@ public final class ExportManager {
         let fileExtension = format.lowercased()
         let baseName: String
         
+        // Get initial base name
         if addPath {
             baseName = videoFile.deletingPathExtension().path
                 .split(separator: "/")
                 .joined(separator: "-")
-            return "\(baseName)-\(density)-\(type).\(fileExtension)"
         } else {
             baseName = videoFile.deletingPathExtension().lastPathComponent
-            return "\(baseName)-\(density)-\(type).\(fileExtension)"
         }
+        
+        // Calculate available space for base name
+        // Format: name-density-type.ext
+        let suffixLength = 1 + density.count + 1 + type.count + 1 + fileExtension.count // counts separators and extension
+        let maxBaseLength = 128 - suffixLength
+        
+        // Truncate base name if needed
+        let truncatedBase = String(baseName.prefix(maxBaseLength))
+        
+        return "\(truncatedBase)-\(density)-\(type).\(fileExtension)"
     }
     
     private func saveAsHEIC(_ image: CGImage, to url: URL) async throws {

@@ -20,14 +20,40 @@ public struct DensityConfig {
     /// - Parameter density: Density identifier (XXS, XS, S, M, L, XL, XXL)
     public static func from(_ density: String) -> DensityConfig {
         switch density.lowercased() {
-        case "xxl": return DensityConfig(factor: 4.0, extractsMultiplier: 0.25)
-        case "xl":  return DensityConfig(factor: 3.0, extractsMultiplier: 0.5)
-        case "l":   return DensityConfig(factor: 2.0, extractsMultiplier: 0.75)
+        case "xxl": return DensityConfig(factor: 0.25, extractsMultiplier: 0.25)
+        case "xl":  return DensityConfig(factor: 0.5, extractsMultiplier: 0.5)
+        case "l":   return DensityConfig(factor: 0.75, extractsMultiplier: 0.75)
         case "m":   return DensityConfig(factor: 1.0, extractsMultiplier: 1.0)
-        case "s":   return DensityConfig(factor: 0.75, extractsMultiplier: 1.5)
-        case "xs":  return DensityConfig(factor: 0.5, extractsMultiplier: 2.0)
-        case "xxs": return DensityConfig(factor: 0.25, extractsMultiplier: 3.0)
+        case "s":   return DensityConfig(factor: 2.0, extractsMultiplier: 1.5)
+        case "xs":  return DensityConfig(factor: 3.0, extractsMultiplier: 2.0)
+        case "xxs": return DensityConfig(factor: 4.0, extractsMultiplier: 3.0)
         default:    return DensityConfig(factor: 1.0, extractsMultiplier: 1.0)
+        }
+    }
+
+    public static func extractsFrom(_ density: Double) -> String {
+        switch density {
+        case 1.0: return "XXS"
+        case 2.0: return "XS"
+        case 3.0: return "S"
+        case 4.0: return "M"
+        case 5.0: return "L"
+        case 6.0: return "XL"
+        case 7.0: return "XXL"
+        default:    return "M"
+        }
+    }
+
+    public static func densityFrom(_ density: Double) -> String {
+       switch density {
+        case 1.0: return "XXL"
+        case 2.0: return "XL"
+        case 3.0: return "L"
+        case 4.0: return "M"
+        case 5.0: return "S"
+        case 6.0: return "XS"
+        case 7.0: return "XXS"
+        default:    return "M"
         }
     }
     

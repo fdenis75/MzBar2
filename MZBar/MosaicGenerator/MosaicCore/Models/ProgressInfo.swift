@@ -7,22 +7,31 @@
 
 
 import Foundation
-public struct FileProgress: Identifiable {
+public struct FileProgress: Identifiable, Hashable {
     public let id: UUID
     let filename: String
     var progress: Double
     var stage: String
     var isComplete: Bool
     var isCancelled: Bool
+    var outputURL: URL?
     
     init(filename: String) {
         self.id = UUID()
         self.filename = filename
         self.progress = 0.0
-        self.stage = "Starting"
+        self.stage = "Pending"
         self.isComplete = false
         self.isCancelled = false
+        self.outputURL = nil
     }
+    public static func == (lhs: FileProgress, rhs: FileProgress) -> Bool {
+           lhs.id == rhs.id
+       }
+       
+       public func hash(into hasher: inout Hasher) {
+           hasher.combine(id)
+       }
 }
 
 

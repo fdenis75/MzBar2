@@ -24,7 +24,7 @@ public final class VideoProcessor: VideoProcessing {
     ///   - asset: Pre-loaded asset for the video
     /// - Returns: Metadata for the video
     public func processVideo(file: URL, asset: AVAsset) async throws -> VideoMetadata {
-        logger.debug("Processing video: \(file.lastPathComponent)")
+        logger.info("Processing video: \(file.lastPathComponent)")
         
         let tracks = try await asset.loadTracks(withMediaType: .video)
         guard let track = tracks.first else {
@@ -40,7 +40,7 @@ public final class VideoProcessor: VideoProcessing {
         let codec = try await track.mediaFormat
         let type = VideoMetadata.classifyType(duration: duration)
         
-        logger.debug("""
+        logger.info("""
             Video processed: \
             duration=\(String(describing: duration)), \
             size=\(String(describing: size)), \

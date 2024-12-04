@@ -23,7 +23,8 @@ public final class MosaicGenerator {
     
     
     private let logger = Logger(subsystem: "com.mosaic.generation", category: "MosaicGenerator")
-    private let config: MosaicGeneratorConfig
+    private let generatorConfig: MosaicGeneratorConfig
+    private let processingConfig: ProcessingConfiguration
     private let videoProcessor: VideoProcessor
     private let thumbnailProcessor: ThumbnailProcessor
     private let layoutProcessor: LayoutProcessor
@@ -39,11 +40,12 @@ public final class MosaicGenerator {
     
     /// Initialize mosaic generator with configuration
     /// - Parameter config: Generator configuration
-    public init(config: MosaicGeneratorConfig = .default) {
-        self.config = config
+    public init(config: MosaicGeneratorConfig = .default, processingConfig: ProcessingConfiguration = .default, layoutProcessor: LayoutProcessor? = nil) {
+        self.generatorConfig = config
+        self.processingConfig = processingConfig
         self.videoProcessor = VideoProcessor()
         self.thumbnailProcessor = ThumbnailProcessor(config: config)
-        self.layoutProcessor = LayoutProcessor()
+        self.layoutProcessor = layoutProcessor ?? LayoutProcessor()
     }
     
     // MARK: - Public Methods
@@ -77,7 +79,7 @@ public final class MosaicGenerator {
     ) async throws -> (URL, URL) {
         // Initialize timing and logging
         let startTime = CFAbsoluteTimeGetCurrent()
-        logger.debug("Processing file: \(video.lastPathComponent)")
+        logger.info("Processing file: \(video.lastPathComponent)")
         let asset = AVURLAsset(url: video)
         if try await !asset.load(.isPlayable) {
             throw MosaicError.notAVideoFile
@@ -160,7 +162,8 @@ public final class MosaicGenerator {
             let mosaic = try await generateMosaic(
                 from: thumbnails,
                 layout: layout,
-                metadata: metadata
+                metadata: metadata,
+                config: config
             )
             
             // MARK: - Save Results
@@ -272,67 +275,161 @@ public final class MosaicGenerator {
     public func generateMosaic(
         from thumbnails: [(image: CGImage, timestamp: String)],
         layout: MosaicLayout,
-        metadata: VideoMetadata
+        metadata: VideoMetadata,
+        config: ProcessingConfiguration
     ) async throws -> CGImage {
-        logger.debug("Generating mosaic for: \(metadata.file.lastPathComponent)")
+        logger.info("Generating mosaic for: \(metadata.file.lastPathComponent)")
         
+        // Create drawing context
+        guard let context = createContext(width: Int(layout.mosaicSize.width),
+                                       height: Int(layout.mosaicSize.height)) else {
+            throw MosaicError.unableToCreateContext
+        }
         
-            // Create drawing context
-            guard let context = createContext(width: Int(layout.mosaicSize.width),
-                                           height: Int(layout.mosaicSize.height)) else {
-                throw MosaicError.unableToCreateContext
+        // Fill background
+        context.setFillColor(CGColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0))
+        context.fill(CGRect(x: 0, y: 0,
+                          width: layout.mosaicSize.width,
+                          height: layout.mosaicSize.height))
+        
+        // Create array for timestamp info
+        let count = min(thumbnails.count, layout.positions.count)
+        var timestampInfo = Array(repeating: TimeStamp(ts: "", x: 0, y: 0, w: 0, h: 0),
+                                count: count)
+        
+        // Use actor to synchronize context access
+        actor ContextManager {
+            let context: CGContext
+            
+            init(context: CGContext) {
+                self.context = context
             }
             
-            // Fill background
-            context.setFillColor(CGColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0))
-            context.fill(CGRect(x: 0, y: 0,
-                              width: layout.mosaicSize.width,
-                              height: layout.mosaicSize.height))
-            
-            // Draw thumbnails concurrently
-            var timestampInfo = Array(repeating: TimeStamp(ts: "", x: 0, y: 0, w: 0, h: 0),
-                                    count: min(thumbnails.count, layout.positions.count))
-            
-            DispatchQueue.concurrentPerform(
-                iterations: min(thumbnails.count, layout.positions.count)
-            ) { index in
-                let (thumbnail, timestamp) = thumbnails[index]
-                let position = layout.positions[index]
-                let thumbnailSize = layout.thumbnailSizes[index]
-                let x = position.x
-                let y = Int(layout.mosaicSize.height) - Int(thumbnailSize.height) - position.y
-                
-                context.draw(thumbnail, in: CGRect(
-                    x: x, y: y,
-                    width: Int(thumbnailSize.width),
-                    height: Int(thumbnailSize.height)
-                ))
-                
-                timestampInfo[index] = TimeStamp(
-                    ts: timestamp,
-                    x: x,
-                    y: y,
-                    w: Int(thumbnailSize.width),
-                    h: Int(thumbnailSize.height)
-                )
+            func drawImage(_ image: CGImage, in rect: CGRect) {
+                context.draw(image, in: rect)
             }
-            
-            // Draw timestamps
-            drawTimestamps(context: context, timestamps: timestampInfo)
-            
-            // Draw metadata
-            drawMetadata(context: context, metadata: metadata,
-                        width: Int(layout.mosaicSize.width),
-                        height: Int(layout.mosaicSize.height))
-            
-            guard let outputImage = context.makeImage() else {
-                throw MosaicError.unableToGenerateMosaic
-            }
-            
-            return outputImage
+        }
         
+        let contextManager = ContextManager(context: context)
+        
+        // Process thumbnails concurrently but draw sequentially
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for index in 0..<count {
+                group.addTask {
+                    let (thumbnail, timestamp) = thumbnails[index]
+                    let position = layout.positions[index]
+                    var thumbnailSize = layout.thumbnailSizes[index]
+                    var x = position.x
+                    var y = Int(layout.mosaicSize.height) - Int(thumbnailSize.height) - position.y
+                    
+                    var imageToDraw = thumbnail
+                    
+                    // Resize if needed
+                    if thumbnail.width != Int(thumbnailSize.width) || thumbnail.height != Int(thumbnailSize.height) {
+                        autoreleasepool {
+                            if let resizeContext = self.createContext(
+                                width: Int(thumbnailSize.width),
+                                height: Int(thumbnailSize.height)
+                            ) {
+                                let rect = CGRect(x: 0, y: 0,
+                                                width: thumbnailSize.width,
+                                                height: thumbnailSize.height)
+                                resizeContext.draw(thumbnail, in: rect)
+                                
+                                if let resizedImage = resizeContext.makeImage() {
+                                    imageToDraw = resizedImage
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Create drawing context for effects
+                    if config.addBorder || config.addShadow {
+                        // Calculate padding needed for effects
+                        let borderPadding = config.addBorder ? config.borderWidth : 0
+                        let shadowPadding: CGFloat = config.addShadow ? 8 : 0 // Space for shadow
+                        let totalPadding = borderPadding + shadowPadding
+                        
+                        // Create larger context to accommodate effects
+                        if let effectContext = self.createContext(
+                            width: Int(thumbnailSize.width + totalPadding * 2),  // Add padding on both sides
+                            height: Int(thumbnailSize.height + totalPadding * 2)  // Add padding on top and bottom
+                        ) {
+                            // Apply shadow if enabled
+                            if config.addShadow {
+                                effectContext.setShadow(
+                                    offset: CGSize(width: 3, height: 3),
+                                    blur: 5,
+                                    color: CGColor(gray: 0, alpha: 0.5)
+                                )
+                            }
+                            
+                            // Calculate the drawing rect with padding
+                            let drawRect = CGRect(
+                                x: totalPadding,
+                                y: totalPadding,
+                                width: thumbnailSize.width - (borderPadding * 2),  // Adjust for border width
+                                height: thumbnailSize.height - (borderPadding * 2)  // Adjust for border width
+                            )
+                            
+                            // Draw the image
+                            effectContext.draw(imageToDraw, in: drawRect)
+                            
+                            // Add border if enabled
+                            if config.addBorder {
+                                effectContext.setStrokeColor(config.borderColor)
+                                effectContext.setLineWidth(config.borderWidth)
+                                effectContext.stroke(drawRect)
+                            }
+                            
+                            if let processedImage = effectContext.makeImage() {
+                                imageToDraw = processedImage
+                                
+                                // Update the position to account for the larger image with effects
+                                x -= Int(totalPadding)
+                                y -= Int(totalPadding)
+                                thumbnailSize = CGSize(
+                                    width: thumbnailSize.width + totalPadding * 2,
+                                    height: thumbnailSize.height + totalPadding * 2
+                                )
+                            }
+                        }
+                    }
+                    
+                    // Draw using the context manager with potentially updated position and size
+                    await contextManager.drawImage(
+                        imageToDraw,
+                        in: CGRect(x: CGFloat(x), y: CGFloat(y),
+                                  width: CGFloat(thumbnailSize.width),
+                                  height: CGFloat(thumbnailSize.height))
+                    )
+                    
+                    timestampInfo[index] = TimeStamp(
+                        ts: timestamp,
+                        x: x,
+                        y: y,
+                        w: Int(thumbnailSize.width),
+                        h: Int(thumbnailSize.height)
+                    )
+                }
+            }
+            
+            try await group.waitForAll()
+        }
+        
+        // Draw timestamps and metadata
+        drawTimestamps(context: context, timestamps: timestampInfo)
+        drawMetadata(context: context, metadata: metadata,
+                    width: Int(layout.mosaicSize.width),
+                    height: Int(layout.mosaicSize.height))
+        
+        guard let outputImage = context.makeImage() else {
+            throw MosaicError.unableToGenerateMosaic
+        }
+        
+        return outputImage
     }
-
+    
     // MARK: - Private Methods
     
     private func createContext(width: Int, height: Int) -> CGContext? {
@@ -390,7 +487,7 @@ public final class MosaicGenerator {
     private func drawMetadata(context: CGContext, metadata: VideoMetadata, width: Int, height: Int) {
         let metadataHeight = Int(round(Double(height) * 0.1))
         let lineHeight = metadataHeight / 4
-        let fontSize = round(Double(lineHeight) / 1.618)
+        let fontSize = round(Double(lineHeight) / 2)
         
         context.setFillColor(CGColor(red: 0, green: 0, blue: 1, alpha: 0.2))
         context.fill(CGRect(
@@ -448,7 +545,7 @@ extension MosaicGenerator {
         addPath: Bool
     ) async throws -> (URL, URL) {
         // Create export manager if not exists
-        let exportManager = ExportManager(config: self.config)
+        let exportManager = ExportManager(config: self.generatorConfig)
         
         // Save the mosaic
         let outputURL = try await exportManager.saveMosaic(
@@ -471,7 +568,7 @@ extension MosaicGenerator {
                                  density: String,
                                  addPath: Bool) async throws -> Bool
     {
-        let exportManager = ExportManager(config: self.config)
+        let exportManager = ExportManager(config: self.generatorConfig)
         return try await exportManager.FileExists(for: videoFile, in: outputDirectory, format: format, type: type, density: density, addPath: addPath)
     }
 }

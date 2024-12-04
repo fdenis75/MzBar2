@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>837</string>
+					<string>959</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>836</string>
+					<string>959</string>
 					<key>Timestamp</key>
-					<string>753305154.879733</string>
+					<string>754323997.762256</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -34,16 +34,15 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>            let inputURL = URL(fileURLWithPath: path)
-</string>
+				<string></string>
 				<key>leading</key>
-				<string>            logger.debug("Creating playlist from: \(path)")
-            let playlistGenerator = PlaylistGenerator()
+				<string>                .appendingPathComponent("\(width)_\(aspectRatioStr)", isDirectory: true)  // Include aspect ratio
+            return [(inputURL, outputDir)]
 </string>
 				<key>trailing</key>
-				<string>            _ = try await playlistGenerator.generateStandardPlaylist(
-                from: inputURL,
-                outputDirectory: inputURL
+				<string>        }
+        
+        /// Creates a playlist from a directory
 </string>
 			</dict>
 			<key>type</key>
@@ -57,13 +56,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>89</string>
+					<string>94</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>88</string>
+					<string>93</string>
 					<key>Timestamp</key>
-					<string>753190433.250897</string>
+					<string>753892615.014675</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -79,16 +78,16 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>    }
+				<string>    
 </string>
 				<key>leading</key>
-				<string>        isRunning = false
-        cancelAllPreviews()
+				<string>        self.maxTasks = maxConcurrentTasks
+    }
 </string>
 				<key>trailing</key>
 				<string>    
-    /// Generate mosaics for video files
-    /// - Parameters:
+
+    
 </string>
 			</dict>
 			<key>type</key>

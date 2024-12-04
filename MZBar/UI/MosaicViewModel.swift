@@ -7,8 +7,8 @@ class MosaicViewModel: ObservableObject {
     // MARK: - Published Properties
     
     // Mode Selection
-    @Published var selectedMode: ProcessingMode = .mosaic
-    
+   
+
     // Input Management
     @Published var inputPaths: [(String,Int)] = []
     @Published var inputType: InputType = .folder
@@ -16,10 +16,12 @@ class MosaicViewModel: ObservableObject {
     // Processing Settings
     @Published var selectedSize = 5120
     @Published var selectedduration = 0
-    @Published var selectedDensity = "M"
+    @Published var selectedDensity = 4.0
+    @Published var previewDensity = 4.0
     @Published var selectedFormat = "heic"
     @Published var previewDuration: Double = 60.0
     @Published var concurrentOps = 8
+    @Published var codec: String = "AVAssetExportPresetHEVC1920x1080"
     // Processing Options
     @Published var overwrite = false
     @Published var saveAtRoot = false
@@ -29,6 +31,9 @@ class MosaicViewModel: ObservableObject {
     @Published var addFullPath = false
     @Published var layoutName = "Focus"
     @Published var selectedPlaylistType = 0
+    @Published var previewEngine = PreviewEngine.avFoundation
+    @Published var startDate: Date = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+    @Published var endDate: Date = Date()
     
     // State
     @Published var isProcessing = false
@@ -55,6 +60,16 @@ class MosaicViewModel: ObservableObject {
     
     @Published var config: MosaicGeneratorConfig
     
+    @Published private(set) var queuedFiles: [FileProgress] = []
+    @Published private(set) var currentlyProcessingFile: URL?
+    @Published private(set) var failedFiles: Set<URL> = []
+    @Published private(set) var completedFiles: [FileProgress] = []
+@Published var compressionQuality: Float = 0.6 {
+    didSet {
+        config.compressionQuality = compressionQuality
+        updateConfig()
+    }
+}
     // MARK: - Constants
     let sizes = [2000, 4000, 5120, 8000, 10000]
     let densities = ["XXS", "XS", "S", "M", "L", "XL", "XXL"]
@@ -65,10 +80,19 @@ class MosaicViewModel: ObservableObject {
     
     // MARK: - Private Properties
     private let pipeline: ProcessingPipeline
-    
+    @Published var selectedMode: TabSelection = .mosaic {
+            didSet {
+                // Notify views to apply the new theme when mode changes
+                currentTheme = AppTheme(from: selectedMode)
+            }
+        }
+        
+        @Published var currentTheme: AppTheme = .mosaic
+
     // MARK: - Initialization
     init() {
         self.config = .default
+     //   self.compressionQuality = self.config.compressionQuality
         
         var Pconfig = ProcessingConfiguration(
             width: 5120,
@@ -76,6 +100,7 @@ class MosaicViewModel: ObservableObject {
             format: "heic",
             duration: 0,
             previewDuration: 60,
+            previewDensity: "M",
             overwrite: false,
             saveAtRoot: false,
             separateFolders: true,
@@ -87,6 +112,7 @@ class MosaicViewModel: ObservableObject {
         
         self.pipeline = ProcessingPipeline(config: Pconfig)
         setupPipeline()
+        loadSavedOutputFolder()
     }
     
     // MARK: - Public Methods
@@ -103,13 +129,23 @@ class MosaicViewModel: ObservableObject {
             do {
                 let config = getCurrentConfig()
                 let files = try await getInputFiles(Pconfig: config)
-                
+                await MainActor.run {
+                    queuedFiles = files.map { file in
+                        FileProgress(filename: file.0.path)
+                    }
+                }
                 
                 
                 try await pipeline.generateMosaics(
                     for: files,
                     config: config
-                )
+                ) { result in
+                    if case let .success((input, outputURL)) = result {
+                        Task { @MainActor in
+                            self.completeFileProgress(input.path, outputURL: outputURL)
+                        }
+                    }
+                }
                 
                 
                 await MainActor.run {
@@ -135,7 +171,11 @@ class MosaicViewModel: ObservableObject {
             do {
                 let config = getCurrentConfig()
                 let files = try await getInputFiles(Pconfig: config)
-                
+                await MainActor.run {
+                    queuedFiles = files.map { file in
+                        FileProgress(filename: file.0.path)
+                    }
+                }
                 
                 
                 try await pipeline.generatePreviews(
@@ -157,6 +197,9 @@ class MosaicViewModel: ObservableObject {
     func updateMaxConcurrentTasks() {
         pipeline.updateMaxConcurrentTasks(concurrentOps)
     }
+    func updateCodec() {
+        pipeline.updateCodec(codec)
+    }
     
     func generateMosaictoday() {
         isProcessing = true
@@ -168,11 +211,21 @@ class MosaicViewModel: ObservableObject {
                 let files = try await pipeline.getTodayFiles(width: selectedSize)
                 try await pipeline.createPlaylisttoday()
                 let config = getCurrentConfig()
-                
+                await MainActor.run {
+                    queuedFiles = files.map { file in
+                        FileProgress(filename: file.0.path)
+                    }
+                }
                 try await pipeline.generateMosaics(
                     for: files,
                     config: config
-                )
+                ) { result in
+                    if case let .success((input, outputURL)) = result {
+                        Task { @MainActor in
+                            self.completeFileProgress(input.path, outputURL: outputURL)
+                        }
+                    }
+                }
                 
                 await MainActor.run {
                     completeProcessing(success: true)
@@ -191,8 +244,13 @@ class MosaicViewModel: ObservableObject {
         
         Task {
             do {
-                try await pipeline.createPlaylist(from: path, playlistype: selectedPlaylistType)
+                let playlistURL = try await pipeline.createPlaylist(
+                    from: path, 
+                    playlistype: selectedPlaylistType,
+                    outputFolder: playlistOutputFolder
+                )
                 await MainActor.run {
+                    self.lastGeneratedPlaylistURL = playlistURL
                     completeProcessing(success: true, message: "Playlist generation completed")
                 }
             } catch {
@@ -202,14 +260,44 @@ class MosaicViewModel: ObservableObject {
             }
         }
     }
+
+
+    
+    func generateDateRangePlaylist() {
+        isProcessing = true
+        statusMessage1 = "Starting date range playlist generation..."
+        
+        Task {
+            do {
+                let playlistURL = try await pipeline.createDateRangePlaylist(
+                    from: startDate,
+                    to: endDate,
+                    playlistype: selectedPlaylistType,
+                    outputFolder: playlistOutputFolder
+                )
+                await MainActor.run {
+                    self.lastGeneratedPlaylistURL = playlistURL
+                    completeProcessing(success: true, message: "Date range playlist generation completed")
+                }
+            } catch {
+                await MainActor.run {
+                    handleError(error)
+                }
+            }
+        }
+    }
+
     func generatePlaylisttoday() {
         isProcessing = true
         statusMessage1 = "Starting playlist today generation..."
         
         Task {
             do {
-                try await pipeline.createPlaylisttoday()
+                let playlistURL = try await pipeline.createPlaylisttoday(
+                    outputFolder: playlistOutputFolder
+                )
                 await MainActor.run {
+                    self.lastGeneratedPlaylistURL = playlistURL
                     completeProcessing(success: true, message: "Playlist generation completed")
                 }
             } catch {
@@ -223,6 +311,24 @@ class MosaicViewModel: ObservableObject {
     func cancelGeneration() {
         pipeline.cancel()
         statusMessage1 = "Cancelling generation..."
+        
+        // Update UI state
+        queuedFiles.forEach { file in
+            if let index = queuedFiles.firstIndex(where: { $0.id == file.id }) {
+                queuedFiles[index].isCancelled = true
+                queuedFiles[index].stage = "Cancelled"
+            }
+        }
+        
+        isProcessing = false
+        
+        // Reset messages
+        statusMessage2 = ""
+        statusMessage3 = ""
+        statusMessage4 = ""
+        
+        // Show notification
+        showCancellationNotification()
     }
     
     // MARK: - Private Methods
@@ -237,23 +343,32 @@ class MosaicViewModel: ObservableObject {
     
     private func getCurrentConfig() -> ProcessingConfiguration {
         if layoutName == "Focus" { customLayout = true }
-        else
-        {
-            customLayout = false
+        else { customLayout = false }
+        
+        // Update the generator config with current compression quality
+        if let preset = QualityPreset(rawValue: selectedQualityPreset) {
+            config.compressionQuality = preset.compressionQuality
         }
+        config.videoExportPreset = codec
+        
         return ProcessingConfiguration(
             width: selectedSize,
-            density: selectedDensity,
+            density: DensityConfig.densityFrom(selectedDensity),
             format: selectedFormat,
             duration: selectedduration,
             previewDuration: Int(previewDuration),
+            previewDensity:  DensityConfig.extractsFrom(previewDensity),
             overwrite: overwrite,
             saveAtRoot: saveAtRoot,
             separateFolders: seperate,
             summary: summary,
             customLayout: customLayout,
             addFullPath: addFullPath,
-            generatorConfig: .default
+            addBorder: addBorder,
+            addShadow: addShadow,
+            borderColor: NSColor(borderColor).cgColor,
+            borderWidth: CGFloat(borderWidth),
+            generatorConfig: config
         )
     }
     
@@ -293,14 +408,14 @@ class MosaicViewModel: ObservableObject {
     
     private func updateFileProgress(_ filename: String, progress: Double, stage: String) {
         // Since we're already on the main thread from updateProgress, we don't need another dispatch
-        if let index = activeFiles.firstIndex(where: { $0.filename == filename }) {
-            activeFiles[index].progress = progress
-            activeFiles[index].stage = stage
+        if let index = queuedFiles.firstIndex(where: { $0.filename == filename }) {
+            queuedFiles[index].progress = progress
+            queuedFiles[index].stage = stage
         } else {
-            addFileProgress(filename)
+            return
         }
     }
-    
+    /*
     private func addFileProgress(_ filename: String) {
         // Since we're already on the main thread from updateProgress, we don't need another dispatch
         if activeFiles.count >= maxConcurrentFiles {
@@ -312,12 +427,24 @@ class MosaicViewModel: ObservableObject {
         if activeFiles.count < maxConcurrentFiles {
             activeFiles.append(FileProgress(filename: filename))
         }
-    }
+    }*/
     
-    private func completeFileProgress(_ filename: String) {
-        // Since we're already on the main thread from updateProgress, we don't need another dispatch
-        if let index = activeFiles.firstIndex(where: { $0.filename == filename }) {
-            activeFiles.remove(at: index)
+    private func completeFileProgress(_ filename: String, outputURL: URL? = nil) {
+        if let index = queuedFiles.firstIndex(where: { $0.filename == filename }) {
+            queuedFiles[index].progress = 1.0
+            queuedFiles[index].stage = "Complete"
+            queuedFiles[index].isComplete = true
+            queuedFiles[index].outputURL = outputURL
+            
+            // Move to completed files
+            let completedFile = queuedFiles[index]
+            DispatchQueue.main.async {
+                self.completedFiles.append(completedFile)
+                if !self.queuedFiles.isEmpty {
+                    self.queuedFiles.remove(at: index)
+                }
+               
+            }
         }
     }
     
@@ -359,10 +486,20 @@ class MosaicViewModel: ObservableObject {
     }
     
     func cancelFile(_ fileId: UUID) {
-        if let index = activeFiles.firstIndex(where: { $0.id == fileId }) {
-            activeFiles[index].isCancelled = true
-            pipeline.cancelFile(activeFiles[index].filename)
-            completeFileProgress(activeFiles[index].filename)
+        if let index = queuedFiles.firstIndex(where: { $0.id == fileId }) {
+            let filename = queuedFiles[index].filename
+            
+            // Update UI state
+            queuedFiles[index].isCancelled = true
+            queuedFiles[index].stage = "Cancelled"
+            
+            // Cancel in pipeline
+            pipeline.cancelFile(filename)
+            
+            // Update status if this was the current file
+            if statusMessage1.contains(filename) {
+                statusMessage1 = "Cancelled: \(filename)"
+            }
         }
     }
     
@@ -390,14 +527,14 @@ class MosaicViewModel: ObservableObject {
     
     func retryPreview(for fileId: UUID) {
         Task {
-            guard let index = activeFiles.firstIndex(where: { $0.id == fileId }),
-                  activeFiles[index].stage.contains("Exporting") else { return }
+            guard let index = queuedFiles.firstIndex(where: { $0.id == fileId }),
+                  queuedFiles[index].stage.contains("Exporting") else { return }
             
-            let file = activeFiles[index]
+            let file = queuedFiles[index]
             
             await MainActor.run {
-                activeFiles[index].progress = 0
-                activeFiles[index].stage = "Retrying preview generation"
+                queuedFiles[index].progress = 0
+                queuedFiles[index].stage = "Retrying preview generation"
             }
             
             pipeline.cancelFile(file.filename)
@@ -413,7 +550,132 @@ class MosaicViewModel: ObservableObject {
             }
         }
     }
+    
+    @Published var selectedQualityPreset: Int = 0 {
+        didSet {
+            if let preset = QualityPreset(rawValue: selectedQualityPreset) {
+                config.compressionQuality = preset.compressionQuality
+                updateConfig()
+            }
+        }
+    }
+    
+    
+    
+   
+    
+    func fileStatus(for file: URL) -> FileStatus {
+        if failedFiles.contains(file) {
+            return .failed
+        } else if completedFiles.contains(where: { $0.filename == file.path }) {
+            return .completed
+        } else if currentlyProcessingFile == file {
+            return .processing
+        } else {
+            return .queued
+        }
+    }
+    /*
+    func cancelFile(_ file: FileProgress) {
+        Task {
+            await pipeline.cancelFile(file.filename)
+            DispatchQueue.main.async {
+                self.queuedFiles.removeAll { $0.path == file.filename }
+            }
+        }
+    }*/
+    
+   /* func retryFile(_ file: FileProgress) {
+        DispatchQueue.main.async {
+            self.failedFiles.remove(URL(fileURLWithPath: file.filename))
+            // Add to beginning of queue for immediate processing
+            self.queuedFiles.insert(URL(fileURLWithPath: file.filename), at: 0)
+        }
+    }*/
+    
+   
+    
+    func updateCurrentFile(_ file: URL?) {
+        DispatchQueue.main.async {
+            self.currentlyProcessingFile = file
+        }
+    }
+    
+    func markFileAsFailed(_ file: URL) {
+        DispatchQueue.main.async {
+            self.failedFiles.insert(file)
+        }
+    }
+    
+    func markFileAsCompleted(_ file: URL) {
+        DispatchQueue.main.async {
+            self.completedFiles.append(FileProgress(filename: file.path))
+        }
+    }
+    
+    private func showCancellationNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Processing Cancelled"
+        content.body = "Mosaic generation has been cancelled"
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
+    }
+    
+    @Published var lastGeneratedPlaylistURL: URL? = nil
+    
+    @Published var playlistOutputFolder: URL? = nil
+    
+    func setPlaylistOutputFolder(_ url: URL) {
+        playlistOutputFolder = url
+        // Optionally save to UserDefaults for persistence
+        if let bookmarkData = try? url.bookmarkData() {
+            UserDefaults.standard.set(bookmarkData, forKey: "PlaylistOutputFolder")
+        }
+    }
+    
+    func resetPlaylistOutputFolder() {
+        playlistOutputFolder = nil
+        UserDefaults.standard.removeObject(forKey: "PlaylistOutputFolder")
+    }
+    
+    private func loadSavedOutputFolder() {
+        if let bookmarkData = UserDefaults.standard.data(forKey: "PlaylistOutputFolder") {
+            var isStale = false
+            do {
+                let url = try URL(resolvingBookmarkData: bookmarkData, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &isStale)
+                if !isStale {
+                    playlistOutputFolder = url
+                }
+            } catch {
+                print("Failed to resolve bookmark: \(error)")
+            }
+        }
+    }
+    
+    @Published var isFileDiscoveryCancelled = false
+    
+    func cancelFileDiscovery() {
+        isFileDiscoveryCancelled = true
+    }
+    
+    @Published var selectedAspectRatio: MosaicAspectRatio = .landscape {
+        didSet {
+            updateAspectRatio()
+        }
+    }
+    
+    private func updateAspectRatio() {
+        pipeline.updateAspectRatio(selectedAspectRatio.ratio)
+    }
+
+    // Add new published properties
+    @Published var addBorder = false
+    @Published var addShadow = false
+    @Published var borderColor = Color.white
+    @Published var borderWidth: Double = 2
+    
 }
+
 // MARK: - Type Definitions
 extension MosaicViewModel {
     enum InputType {
@@ -421,16 +683,20 @@ extension MosaicViewModel {
         case m3u8
         case files
     }
-}
-
-// MARK: - Theme Support
-extension MosaicViewModel {
-    var currentTheme: AppTheme {
-        switch selectedMode {
-        case .mosaic: return .mosaic
-        case .preview: return .preview
-        case .playlist: return .playlist
-        case .settings: return .preview
+    
+    enum MosaicAspectRatio: String, CaseIterable {
+        case landscape = "16:9"
+        case square = "1:1"
+        case portrait = "9:16"
+        
+        var ratio: CGFloat {
+            switch self {
+            case .landscape: return 16.0 / 9.0
+            case .square: return 1.0
+            case .portrait: return 9.0 / 16.0
+            }
         }
     }
 }
+
+// MARK: - Theme Support

@@ -63,7 +63,7 @@ public final class ThumbnailProcessor: ThumbnailExtraction {
         preview: Bool,
         accurate: Bool
     ) async throws -> [(image: CGImage, timestamp: String)] {
-        logger.debug("Starting thumbnail extraction: \(file.lastPathComponent)")
+        logger.info("Starting thumbnail extraction: \(file.lastPathComponent)")
         
         let duration = try await asset.load(.duration).seconds
        let generator = configureGenerator(for: asset, accurate: accurate, preview: preview, layout: layout)
@@ -226,7 +226,7 @@ public final class ThumbnailProcessor: ThumbnailExtraction {
                 }
                 for (offset, frame) in topFrames.enumerated(){
                     times.append(frame.time)
-                    print("adding a frame at \(frame.time)")
+                   // print("adding a frame at \(frame.time)")
                 }
             } catch {
                 fatalError("Error processing video: \(error.localizedDescription)")

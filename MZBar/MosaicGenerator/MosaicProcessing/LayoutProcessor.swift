@@ -5,11 +5,20 @@ import os.log
 /// Handles mosaic layout calculations and optimization
 public final class LayoutProcessor {
     private let logger = Logger(subsystem: "com.mosaic.processing", category: "LayoutProcessor")
-    private let mosaicAspectRatio: CGFloat = 16.0 / 9.0
+    public var mosaicAspectRatio: CGFloat
     private var layoutCache: [String: MosaicLayout] = [:]
     
     /// Initialize a new layout processor
-    public init() {}
+    public init(aspectRatio: CGFloat = 16.0 / 9.0) {
+        self.mosaicAspectRatio = aspectRatio
+    }
+    
+    /// Update the mosaic aspect ratio
+    /// - Parameter ratio: New aspect ratio to use
+    public func updateAspectRatio(_ ratio: CGFloat) {
+        self.mosaicAspectRatio = ratio
+        layoutCache.removeAll()
+    }
     
     /// Calculate optimal mosaic layout
     /// - Parameters:
@@ -26,7 +35,7 @@ public final class LayoutProcessor {
         density: DensityConfig,  // Changed from String to DensityConfig
         useCustomLayout: Bool
     ) -> MosaicLayout {
-        logger.debug("Calculating layout: aspectRatio=\(originalAspectRatio), count=\(thumbnailCount)")
+        logger.info("Calculating layout: aspectRatio=\(originalAspectRatio), count=\(thumbnailCount)")
         
         return useCustomLayout
         ? calculateCustomLayout(
@@ -64,8 +73,8 @@ public final class LayoutProcessor {
         }
         
         let totalCols = smallCols
-        let smallThumbWidth = CGFloat(mosaicWidth) / CGFloat(totalCols)
-        let smallThumbHeight = smallThumbWidth / originalAspectRatio
+        let smallThumbWidth = CGFloat(Int(mosaicWidth/totalCols))
+        let smallThumbHeight =  CGFloat(Int(smallThumbWidth / originalAspectRatio))
         
         // Adjust layout for aspect ratio
         if originalAspectRatio < 1.0 {

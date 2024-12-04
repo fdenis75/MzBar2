@@ -3,10 +3,13 @@
    version = "1.0">
    <ContextStates>
       <ContextState
+         contextName = "closure #1 in closure #1 in GenerationCoordinator.generateMosaics(for:width:density:format:options:):GenerationCoordinator.swift">
+      </ContextState>
+      <ContextState
          contextName = "MosaicGenerator.updateProgressG(currentFile:processedFiles:totalFiles:currentStage:startTime:):mosaic-generator-swift.swift">
       </ContextState>
       <ContextState
-         contextName = "closure #1 in MosaicGenerator.updateProgressG(currentFile:processedFiles:totalFiles:currentStage:startTime:):mosaic-generator-swift.swift">
+         contextName = "MosaicGenerator.processSingleFile(video:output:config:):MosaicGenerator.swift">
       </ContextState>
       <ContextState
          contextName = "MosaicGenerator.init(debug:renderingMode:maxConcurrentOperations:timeStamps:skip:smart:createPreview:batchsize:accurate:saveAtRoot:separate:summary:custom:):mosaic-generator-swift.swift">
@@ -15,6 +18,20 @@
                value = "">
             </PersistentString>
          </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "closure #1 in MosaicGenerator.updateProgressG(currentFile:processedFiles:totalFiles:currentStage:startTime:):mosaic-generator-swift.swift">
+      </ContextState>
+      <ContextState
+         contextName = "closure #1 in MosaicGenerator.generateMosaic(from:layout:metadata:):MosaicGenerator.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "(CGImageRef)thumbnail">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "PreviewGenerator.exportPreview(composition:videoTrack:audioTrack:to:speedMultiplier:asset:sourcefile:):PreviewGenerator.swift">
       </ContextState>
    </ContextStates>
 </VariablesViewState>

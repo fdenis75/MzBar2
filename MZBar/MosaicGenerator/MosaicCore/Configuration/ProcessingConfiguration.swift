@@ -5,6 +5,8 @@
 //  Created by Francois on 02/11/2024.
 //
 import Foundation
+import CoreGraphics
+
 
 /// High-level configuration for the mosaic processing pipeline
 public struct ProcessingConfiguration {
@@ -24,6 +26,8 @@ public struct ProcessingConfiguration {
     
     /// Duration for preview generation
     public let previewDuration: Int
+    
+    public let previewDensity: DensityConfig
     
     // MARK: - Processing Options
     
@@ -45,6 +49,17 @@ public struct ProcessingConfiguration {
     /// Whether to add full path to filenames
     public let addFullPath: Bool
     
+    /// Whether to add border around thumbnails
+    public let addBorder: Bool
+    
+    /// Whether to add shadow around thumbnails
+    public let addShadow: Bool
+    
+    /// Border color for thumbnails
+    public let borderColor: CoreGraphics.CGColor
+    
+    /// Border width for thumbnails
+    public let borderWidth: CoreGraphics.CGFloat
     /// Low-level generator configuration
     public let generatorConfig: MosaicGeneratorConfig
     
@@ -61,6 +76,10 @@ public struct ProcessingConfiguration {
         summary: false,
         customLayout: true,
         addFullPath: false,
+        addBorder: false,
+        addShadow: false,
+        borderColor: CGColor(red: 1, green: 1, blue: 1, alpha: 0.8),
+        borderWidth: 2,
         generatorConfig: .default
     )
     
@@ -77,6 +96,10 @@ public struct ProcessingConfiguration {
     ///   - summary: Whether to generate summary
     ///   - customLayout: Whether to use custom layout
     ///   - addFullPath: Whether to add full path to filenames
+    ///   - addBorder: Whether to add border around thumbnails
+    ///   - addShadow: Whether to add shadow around thumbnails
+    ///   - borderColor: Border color for thumbnails
+    ///   - borderWidth: Border width for thumbnails
     ///   - generatorConfig: Low-level generator configuration
     public init(
         width: Int = 5120,
@@ -84,12 +107,17 @@ public struct ProcessingConfiguration {
         format: String = "heic",
         duration: Int = 0,
         previewDuration: Int = 60,
+        previewDensity: String = "M",
         overwrite: Bool = false,
         saveAtRoot: Bool = false,
         separateFolders: Bool = true,
         summary: Bool = false,
         customLayout: Bool = true,
         addFullPath: Bool = false,
+        addBorder: Bool = false,
+        addShadow: Bool = false,
+        borderColor: CGColor = CGColor(red: 1, green: 1, blue: 1, alpha: 0.8),
+        borderWidth: CGFloat = 2,
         generatorConfig: MosaicGeneratorConfig = .default
     ) {
         self.width = width
@@ -97,12 +125,17 @@ public struct ProcessingConfiguration {
         self.format = format
         self.duration = duration
         self.previewDuration = previewDuration
+        self.previewDensity = DensityConfig.from(density)
         self.overwrite = overwrite
         self.saveAtRoot = saveAtRoot
         self.separateFolders = separateFolders
         self.summary = summary
         self.customLayout = customLayout
         self.addFullPath = addFullPath
+        self.addBorder = addBorder
+        self.addShadow = addShadow
+        self.borderColor = borderColor
+        self.borderWidth = borderWidth
         self.generatorConfig = generatorConfig
     }
 }

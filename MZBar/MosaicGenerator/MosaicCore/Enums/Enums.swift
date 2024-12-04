@@ -53,6 +53,13 @@ public enum InputType {
     case files
 }
 
+public enum FileStatus {
+    case queued
+    case processing
+    case failed
+    case completed
+}
+
 /// Core errors that can occur during mosaic generation
 public enum MosaicError: LocalizedError {
     /// Input file or directory not found
@@ -87,6 +94,8 @@ public enum MosaicError: LocalizedError {
     case tooShort
     case exportTimeout
     case unableToExtractParams
+    case ffmpegProcessFailed
+
     
 
     
@@ -126,6 +135,8 @@ public enum MosaicError: LocalizedError {
             return "Preview export timed out"
         case .unableToExtractParams:
             return "Unable to extract parameters"
+        case .ffmpegProcessFailed:
+            return "FFmpeg process failed"  
         }
     }
 }
