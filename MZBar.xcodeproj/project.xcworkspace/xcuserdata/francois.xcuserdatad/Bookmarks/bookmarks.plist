@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>959</string>
+					<string>967</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>959</string>
+					<string>966</string>
 					<key>Timestamp</key>
-					<string>754323997.762256</string>
+					<string>755524236.932188</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -34,15 +34,16 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string></string>
+				<string>            
+</string>
 				<key>leading</key>
-				<string>                .appendingPathComponent("\(width)_\(aspectRatioStr)", isDirectory: true)  // Include aspect ratio
-            return [(inputURL, outputDir)]
+				<string>            let aspectRatioStr = layoutProcessor.mosaicAspectRatio == 1.0 ? "1x1" :
+                                layoutProcessor.mosaicAspectRatio &gt; 1.0 ? "16x9" : "9x16"
 </string>
 				<key>trailing</key>
-				<string>        }
-        
-        /// Creates a playlist from a directory
+				<string>            let outputDir = inputURL.deletingLastPathComponent()
+                .appendingPathComponent(ThDir, isDirectory: true)
+                .appendingPathComponent("\(width)_\(aspectRatioStr)", isDirectory: true)  // Include aspect ratio
 </string>
 			</dict>
 			<key>type</key>
@@ -85,7 +86,7 @@
     }
 </string>
 				<key>trailing</key>
-				<string>    
+				<string>
 
     
 </string>

@@ -29,6 +29,8 @@ public final class MosaicGenerator {
     private let thumbnailProcessor: ThumbnailProcessor
     private let layoutProcessor: LayoutProcessor
     private var progressHandler: ((ProgressInfo) -> Void)?
+    private let signposter = OSSignposter(logHandle: .mosaic)
+
     
     /// Whether processing should be cancelled
     private var isCancelled = false
@@ -76,11 +78,17 @@ public final class MosaicGenerator {
         video: URL,
         output: URL,
         config: ProcessingConfiguration
-    ) async throws -> (URL, URL) {
+    ) async throws -> ResultFiles {
         // Initialize timing and logging
         let startTime = CFAbsoluteTimeGetCurrent()
         logger.info("Processing file: \(video.lastPathComponent)")
         let asset = AVURLAsset(url: video)
+        let state = signposter.beginInterval("mosaic generation")
+        var metadata: VideoMetadata  = try await videoProcessor.processVideo(file: video, asset: asset)
+        var outputURL: URL = output
+        defer{
+            signposter.endInterval("mosaic generation", state)
+        }
         if try await !asset.load(.isPlayable) {
             throw MosaicError.notAVideoFile
         }	
@@ -89,14 +97,14 @@ public final class MosaicGenerator {
             currentFile: video.path,
             processedFiles: 0,
             totalFiles: 1,
-            stage: "Processing metadata",
+            stage: "Starting",
             startTime: startTime,
             fileProgress: 0.2
         )
         
         do {
-            let metadata = try await videoProcessor.processVideo(file: video, asset: asset)
-            
+           
+          //  metadata = try await videoProcessor.processVideo(file: video, asset: asset)
             // Early validation checks
             guard config.duration <= 0 || Int(metadata.duration) >= config.duration else {
                 logger.debug("File too short: \(video.lastPathComponent)")
@@ -123,14 +131,14 @@ public final class MosaicGenerator {
                 density: config.density
             )
             
-            updateProgress(
+            /*updateProgress(
                 currentFile: video.path,
                 processedFiles: 0,
                 totalFiles: 1,
                 stage: "Generating layout",
                 startTime: startTime,
                 fileProgress: 0.4
-            )
+            )*/
             
             let layout = layoutProcessor.calculateLayout(
                 originalAspectRatio: aspectRatio,
@@ -150,7 +158,7 @@ public final class MosaicGenerator {
             )
             
             // MARK: - Mosaic Generation
-            updateProgress(
+         /*   updateProgress(
                 currentFile: video.path,
                 processedFiles: 0,
                 totalFiles: 1,
@@ -158,7 +166,7 @@ public final class MosaicGenerator {
                 startTime: startTime,
                 fileProgress: 0.6
             )
-            
+            */
             let mosaic = try await generateMosaic(
                 from: thumbnails,
                 layout: layout,
@@ -167,14 +175,14 @@ public final class MosaicGenerator {
             )
             
             // MARK: - Save Results
-            updateProgress(
+           /* updateProgress(
                 currentFile: video.path,
                 processedFiles: 0,
                 totalFiles: 1,
                 stage: "Saving mosaic",
                 startTime: startTime,
                 fileProgress: 0.8
-            )
+            )*/
             
             let finalOutputDirectory = config.separateFolders 
                 ? output.appendingPathComponent(metadata.type, isDirectory: true)
@@ -196,10 +204,11 @@ public final class MosaicGenerator {
                 totalFiles: 1,
                 stage: "Mosaic generation complete",
                 startTime: startTime,
-                fileProgress: 1.0
+                fileProgress: 1.0,
+                doneFile: ResultFiles(video: result.0, output: result.1)
             )
-            
-            return result
+            let resultat = ResultFiles(video: result.0, output: result.1)
+            return resultat
             
         } catch {
             let (stage, errorToThrow): (String, Error) = {
@@ -207,7 +216,14 @@ public final class MosaicGenerator {
                 case MosaicError.tooShort:
                     return ("File too short", error)
                 case MosaicError.existingVid:
+                    outputURL = getOutputFileName(for: video,
+                                      in: output,
+                                      format: config.format,
+                                      type: metadata.type,
+                                      density: config.density.rawValue,
+                                      addPath: config.addFullPath)
                     return ("File already exists", error)
+                    
                 default:
                     return ("Error while processing file", error)
                 }
@@ -219,8 +235,12 @@ public final class MosaicGenerator {
                 totalFiles: 1,
                 stage: stage,
                 startTime: startTime,
-                fileProgress: 1.0
+                fileProgress: 1.0,
+                doneFile: ResultFiles(video: video, output: outputURL)
             )
+            
+            
+            
             
             throw errorToThrow
         }
@@ -233,7 +253,8 @@ public final class MosaicGenerator {
         totalFiles: Int,
         stage: String,
         startTime: CFAbsoluteTime,
-        fileProgress: Double = 0.0
+        fileProgress: Double = 0.0,
+        doneFile: ResultFiles? = nil
     ) {
         // Calculate elapsed time once
         let elapsedTime = CFAbsoluteTimeGetCurrent() - startTime
@@ -258,7 +279,8 @@ public final class MosaicGenerator {
             skippedFiles: 0,
             errorFiles: 0,
             isRunning: true,
-            fileProgress: fileProgress // Use the passed fileProgress instead of overall progress
+            fileProgress: fileProgress, // Use the passed fileProgress instead of overall progress
+            doneFile: doneFile
         )
         
         DispatchQueue.main.async { [weak self] in
@@ -279,7 +301,10 @@ public final class MosaicGenerator {
         config: ProcessingConfiguration
     ) async throws -> CGImage {
         logger.info("Generating mosaic for: \(metadata.file.lastPathComponent)")
-        
+        let state = signposter.beginInterval("gen mosaic")
+        defer{
+            signposter.endInterval("gen mosaic", state)
+        }
         // Create drawing context
         guard let context = createContext(width: Int(layout.mosaicSize.width),
                                        height: Int(layout.mosaicSize.height)) else {
@@ -546,7 +571,10 @@ extension MosaicGenerator {
     ) async throws -> (URL, URL) {
         // Create export manager if not exists
         let exportManager = ExportManager(config: self.generatorConfig)
-        
+        let state = signposter.beginInterval("save mosaic")
+        defer{
+            signposter.endInterval("save mosaic", state)
+        }
         // Save the mosaic
         let outputURL = try await exportManager.saveMosaic(
             mosaic,
@@ -570,6 +598,16 @@ extension MosaicGenerator {
     {
         let exportManager = ExportManager(config: self.generatorConfig)
         return try await exportManager.FileExists(for: videoFile, in: outputDirectory, format: format, type: type, density: density, addPath: addPath)
+    }
+    private func getOutputFileName ( for videoFile: URL,
+                                     in outputDirectory: URL,
+                                     format: String,
+                                     type: String,
+                                     density: String,
+                                     addPath: Bool)   -> URL
+    {
+        let exportManager = ExportManager(config: self.generatorConfig)
+        return   exportManager.getFileName(for: videoFile, in: outputDirectory, format: format, type: type, density: density, addPath: addPath)
     }
 }
 

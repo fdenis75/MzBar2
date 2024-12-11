@@ -14,7 +14,8 @@ import os.log
 /// Handles video processing operations including metadata extraction and format validation
 public final class VideoProcessor: VideoProcessing {
     private let logger = Logger(subsystem: "com.mosaic.processing", category: "VideoProcessor")
-    
+    private let signposter = OSSignposter(logHandle: .processing)
+
     /// Initialize a new video processor
     public init() {}
     
@@ -25,7 +26,10 @@ public final class VideoProcessor: VideoProcessing {
     /// - Returns: Metadata for the video
     public func processVideo(file: URL, asset: AVAsset) async throws -> VideoMetadata {
         logger.info("Processing video: \(file.lastPathComponent)")
-        
+        let state = signposter.beginInterval("get metadata for Video")
+        defer{
+            signposter.endInterval("get metadata for Video", state)
+        }
         let tracks = try await asset.loadTracks(withMediaType: .video)
         guard let track = tracks.first else {
             logger.error("No video track found: \(file.lastPathComponent)")

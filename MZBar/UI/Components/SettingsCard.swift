@@ -19,6 +19,7 @@ struct SettingsCard<Content: View>: View {
         }
         .padding(20)
         .background(Material.ultraThinMaterial)
+        .opacity(isHovered ? 1 : 0.5)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
         .overlay(

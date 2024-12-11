@@ -22,9 +22,9 @@ struct AppTheme {
     static let mosaic = AppTheme(colors: ThemeColors(
         primary: Color(hex: "73A5F5"),     // Bright blue from icon
         accent: Color(hex: "C3C4F5"),      // Purple accent from icon
-        background: Color(.darkGray).opacity(0.9),
-        cardBackground: Color(hex: "ECE8F5").opacity(0.9),
-        surfaceBackground: Color(hex: "ECE8F5").opacity(0.9),
+        background: Color(.darkGray).opacity(0.3),
+        cardBackground: Color(hex: "ECE8F5").opacity(0.3),
+        surfaceBackground: Color(hex: "ECE8F5").opacity(0.2),
         text: .white,
         secondaryText: .accentColor
     ))
@@ -32,9 +32,9 @@ struct AppTheme {
     static let preview = AppTheme(colors: ThemeColors(
         primary: Color(hex: "BA8EF6"),     // Lighter blue from icon
         accent: Color(hex: "DAB6F6"),      // Blue-purple blend
-        background: Color(.darkGray).opacity(0.9),
-        cardBackground: Color(hex: "F3E2F6").opacity(0.9),
-        surfaceBackground: Color(hex: "F3E2F6").opacity(0.9),
+        background: Color(.darkGray).opacity(0.3),
+        cardBackground: Color(hex: "F3E2F6").opacity(0.3),
+        surfaceBackground: Color(hex: "F3E2F6").opacity(0.2),
         text: .white,
         secondaryText: .accentColor
     ))
@@ -42,9 +42,9 @@ struct AppTheme {
     static let playlist = AppTheme(colors: ThemeColors(
         primary: Color(hex: "F28EAF"),     // Blue-purple from icon
         accent: Color(hex: "F8B6B3"),      // Pink-purple accent
-        background: Color(.darkGray).opacity(0.9),
-        cardBackground: Color(hex: "FEE2B5").opacity(0.9),
-        surfaceBackground: Color(hex: "FEE2B5").opacity(0.9),
+        background: Color(.darkGray).opacity(0.3),
+        cardBackground: Color(hex: "FEE2B5").opacity(0.3),
+        surfaceBackground: Color(hex: "FEE2B5").opacity(0.2),
         text: .white,
         secondaryText: .accentColor
     ))

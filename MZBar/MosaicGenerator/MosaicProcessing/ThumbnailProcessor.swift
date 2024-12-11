@@ -41,7 +41,8 @@ class Thumbnail: Identifiable {
 public final class ThumbnailProcessor: ThumbnailExtraction {
     private let logger = Logger(subsystem: "com.mosaic.processing", category: "ThumbnailProcessor")
     private let config: MosaicGeneratorConfig
-    
+    private let signposter = OSSignposter(logHandle: .mosaic)
+
     /// Initialize a new thumbnail processor
     /// - Parameter config: Configuration for thumbnail processing
     public init(config: MosaicGeneratorConfig) {
@@ -56,6 +57,15 @@ public final class ThumbnailProcessor: ThumbnailExtraction {
     ///   - preview: Whether generating previews
     ///   - accurate: Whether to use accurate timestamp extraction
     /// - Returns: Array of thumbnails with timestamps
+    /// Extract thumbnails from video with timestamps
+    /// - Parameters:
+    ///   - file: Video file URL
+    ///   - layout: Layout information for the mosaic
+    ///   - asset: Video asset to extract thumbnails from
+    ///   - preview: Whether generating preview thumbnails
+    ///   - accurate: Whether to use accurate timestamp extraction
+    /// - Returns: Array of tuples containing thumbnail images and their timestamps. If thumbnail extraction fails for any frame, 
+    ///           a blank image will be used as a fallback.
     public func extractThumbnails(
         from file: URL,
         layout: MosaicLayout,
@@ -64,7 +74,10 @@ public final class ThumbnailProcessor: ThumbnailExtraction {
         accurate: Bool
     ) async throws -> [(image: CGImage, timestamp: String)] {
         logger.info("Starting thumbnail extraction: \(file.lastPathComponent)")
-        
+        let state = signposter.beginInterval("etxract Thumbs")
+        defer{
+            signposter.endInterval("etxract Thumbs", state)
+        }
         let duration = try await asset.load(.duration).seconds
        let generator = configureGenerator(for: asset, accurate: accurate, preview: preview, layout: layout)
         
@@ -84,6 +97,10 @@ public final class ThumbnailProcessor: ThumbnailExtraction {
             case .failure(requestedTime: _, error: let error):
                 logger.error("Thumbnail extraction failed: \(error.localizedDescription)")
                 failedCount += 1
+                // Create a blank image to replace the failed thumbnail
+                if let blankImage = createBlankImage(size: layout.thumbnailSize) {
+                    thumbnails.append((thumbnails.count, blankImage, "00:00:00"))
+                }
             }
         }
         
@@ -245,6 +262,10 @@ public final class ThumbnailProcessor: ThumbnailExtraction {
                 case .failure(requestedTime: _, error: let error):
                     logger.error("Thumbnail extraction failed: \(error.localizedDescription)")
                     failedCount += 1
+                    // Create a blank image to replace the failed thumbnail
+                    if let blankImage = createBlankImage(size: layout.thumbnailSize) {
+                        thumbnails.append((thumbnails.count, blankImage, "00:00:00"))
+                    }
                 }
             }
             
@@ -331,5 +352,22 @@ public final class ThumbnailProcessor: ThumbnailExtraction {
         let minutes = (Int(seconds) % 3600) / 60
         let seconds = Int(seconds) % 60
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+    }
+
+    private func createBlankImage(size: CGSize) -> CGImage? {
+        // Create a blank image with the specified size
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let context = CGContext(
+            data: nil,
+            width: Int(size.width),
+            height: Int(size.height),
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )
+        context?.setFillColor(CGColor(gray: 0.0, alpha: 0.0))
+        context?.fill(CGRect(origin: .zero, size: size))
+        return context?.makeImage()
     }
 }

@@ -46,7 +46,7 @@ public final class GenerationCoordinator {
         var isCancelled: Bool = false
     }
     private var activeFiles: [ActiveFile] = []
-    
+    private var lastUpdateTime: CFAbsoluteTime = 0
     private let layoutProcessor: LayoutProcessor
     
     /// Initialize a new generation coordinator
@@ -92,7 +92,7 @@ public final class GenerationCoordinator {
         self.maxTasks = maxConcurrentTasks
     }
     
-    
+
 
     
     /// Generate mosaics for video files
@@ -110,10 +110,19 @@ public final class GenerationCoordinator {
            density: String,
            format: String,
            options: GenerationOptions
-       ) async throws -> [(video: URL, output: URL)] {
+       ) async throws -> [ResultFiles] {
+           let activemozLock = DispatchQueue(label: "com.mosaic.activemozLock")
+
+           func incrementActiveTasks() {
+               activemozLock.sync { activemozTasks += 1 }
+           }
+
+           func decrementActiveTasks() {
+               activemozLock.sync { activemozTasks -= 1 }
+           }
            isRunning = true
            isCancelled = false
-           var results: [(URL, URL)] = []
+           var results: [ResultFiles] = []
            var activemozTasks = 0
            
            let totalFiles = files.count
@@ -146,13 +155,13 @@ public final class GenerationCoordinator {
                        while activemozTasks >= maxTasks {
                            try await group.next()
                        }
-                       activemozTasks += 1
+                       incrementActiveTasks()
                        group.addTask {
                            do {
                                let fileActivity = self.startBackgroundActivity(
                                    reason: "Processing \(video.lastPathComponent)"
                                )
-                               print("activemozTasks: \(activemozTasks)")
+                              // print("activemozTasks: \(activemozTasks)")
                                defer {
                                    // self.activeFiles.removeAll(where: { $0.filename == video.path() })
                                    self.endBackgroundActivity(fileActivity) }
@@ -162,13 +171,13 @@ public final class GenerationCoordinator {
                                }
                                let mosaicGenerator = MosaicGenerator(config: self.config, layoutProcessor: self.layoutProcessor)
                                self.setupmosaicGenerator(mosaicGenerator)
-                               self.mosaicGenerators.append(mosaicGens(generator: mosaicGenerator, filename: video.path()))
+                               self.mosaicGenerators.append(mosaicGens(generator: mosaicGenerator, filename: video.path))
                                let config = ProcessingConfiguration(width: width, density: density, format: format, previewDuration: options.minimumDuration,separateFolders: options.useSeparateFolder,addFullPath: options.addFullPath,addBorder: options.addBorder,addShadow: options.addShadow,borderWidth: options.borderWidth)
                                let result = try await mosaicGenerator.processSingleFile(video: video, output: outputDirectory, config: config)
                                
                                results.append(result)
                                processedFiles += 1
-                               activemozTasks -= 1
+                               decrementActiveTasks()
                            } catch {
                                switch error {
 
@@ -176,19 +185,18 @@ public final class GenerationCoordinator {
                                self.logger.error("video alredy exists: \(error.localizedDescription)")
                                skippedFiles += 1
                                processedFiles += 1
-                               activemozTasks -= 1
-                               
+                                   decrementActiveTasks()
                            case MosaicError.tooShort:
                                self.logger.error("skipped because too short to process video: \(error.localizedDescription)")
                                skippedFiles += 1
                                processedFiles += 1
-                               activemozTasks -= 1
-                           default:
+                                   decrementActiveTasks()
+                               default:
                                self.logger.error("Failed to process video: \(error.localizedDescription)")
                                errorFiles += 1
                                processedFiles += 1
-                               activemozTasks -= 1
-                               
+                                   decrementActiveTasks()
+                                   
                            }
                        }
                                
@@ -229,18 +237,17 @@ public final class GenerationCoordinator {
                    self.logger.error("video alredy exists: \(error.localizedDescription)")
                    skippedFiles += 1
                    processedFiles += 1
-                       activemozTasks -= 1
-              
+                       decrementActiveTasks()
                case MosaicError.tooShort:
                    self.logger.error("skipped because too short to process video: \(error.localizedDescription)")
                        skippedFiles += 1
                        processedFiles += 1
-                       activemozTasks -= 1
-               default:
+                       decrementActiveTasks()
+                   default:
                    self.logger.error("Failed to process video: \(error.localizedDescription)")
                    errorFiles += 1
                    processedFiles += 1
-                       activemozTasks -= 1
+                       decrementActiveTasks()
                    throw error
                }
                
@@ -659,6 +666,11 @@ public final class GenerationCoordinator {
                 fileProgress: fileProgress
              )
          }
+        
+        // Throttle updates to maximum 4 times per second
+        let now = CFAbsoluteTimeGetCurrent()
+        if now - lastUpdateTime < 0.25 { return }
+        lastUpdateTime = now
         
         // Ensure we're on the main thread when calling the progress handler
         DispatchQueue.main.async { [weak self] in

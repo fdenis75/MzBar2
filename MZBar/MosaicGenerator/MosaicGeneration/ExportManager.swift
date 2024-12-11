@@ -75,9 +75,22 @@ public final class ExportManager {
                            type: String,
                            density: String,
                            addPath: Bool) async throws -> Bool {
-        let fileName = try generateFileName(for: videoFile, in: directory, format: format, type: type, density: density,addPath: addPath)
+        let fileName =  generateFileName(for: videoFile, in: directory, format: format, type: type, density: density,addPath: addPath)
         let URL = directory.appendingPathComponent(fileName)
         return FileManager.default.fileExists(atPath: URL.path)
+    }
+    
+    public func getFileName(
+        for videoFile: URL,
+        in directory: URL,
+        format: String,
+        type: String,
+        density: String,
+        addPath: Bool
+    )  -> URL {
+        let fileName =  generateFileName(for: videoFile, in: directory, format: format, type: type, density: density,addPath: addPath)
+        let URL = directory.appendingPathComponent(fileName)
+        return URL
     }
     
     public func previewExists(for preview: URL)
@@ -102,7 +115,7 @@ public final class ExportManager {
         type: String,
         density: String,
         addPath: Bool
-    ) throws -> String {
+    )  -> String {
         let fileExtension = format.lowercased()
         let baseName: String
         

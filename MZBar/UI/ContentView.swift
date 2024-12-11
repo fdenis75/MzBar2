@@ -10,6 +10,8 @@ import Foundation
 import UniformTypeIdentifiers
 import AVFoundation
 
+
+
 extension UTType {
     static var m3u8Playlist: UTType {
         UTType(filenameExtension: "m3u8")!
@@ -34,19 +36,48 @@ struct ContentView: View {
     
     
     var body: some View {
-        NavigationSplitView {
-            SidebarView(viewModel: viewModel)
-                .frame(alignment: .center)
-                .background(Color(.darkGray).opacity(0.8))
-        }
-         detail: {
-            DetailView(viewModel: viewModel)
-                .background(Color(.darkGray).opacity(0.8))
-        }
-       
-        .onAppear {
-            if viewModel.selectedMode == nil {
-                viewModel.selectedMode = .mosaic
+        ZStack {
+            // Vibrant Background
+            Color.gray
+                .opacity(0.25)
+                .ignoresSafeArea()
+            
+            Color.white
+                .opacity(0.7)
+                .blur(radius: 200)
+                .ignoresSafeArea()
+            
+            GeometryReader { proxy in
+                let size = proxy.size
+                
+                Circle()
+                    .fill(viewModel.currentTheme.colors.primary)
+                    .padding(50)
+                    .blur(radius: 120)
+                    .offset(x: -size.width/1.8, y: -size.height/5)
+                
+                Circle()
+                    .fill(viewModel.currentTheme.colors.accent)
+                    .padding(50)
+                    .blur(radius: 150)
+                    .offset(x: size.width/1.8, y: size.height/2)
+            }
+     
+            NavigationSplitView {
+                
+                SidebarView(viewModel: viewModel)
+                    .frame(alignment: .center)
+                    //.opacity(0.2)
+            }
+            detail: {
+                DetailView(viewModel: viewModel)
+                    //.background(Color(.darkGray).opacity(0.8))
+            }
+            
+            .onAppear {
+                if viewModel.selectedMode == nil {
+                    viewModel.selectedMode = .mosaic
+                }
             }
         }
     }
@@ -57,18 +88,45 @@ private struct SidebarView: View {
     @ObservedObject var viewModel: MosaicViewModel
     
     var body: some View {
+        ZStack {
+            ZStack {
+                Color.gray
+                .opacity(0.25)
+                .ignoresSafeArea()
+            
+            Color.white
+                .opacity(0.7)
+                .blur(radius: 200)
+                .ignoresSafeArea()
+            
+            GeometryReader { proxy in
+                let size = proxy.size
+                
+                Circle()
+                    .fill(viewModel.currentTheme.colors.primary)
+                    .padding(50)
+                    .blur(radius: 120)
+                    .offset(x: -size.width/1.8, y: -size.height/5)
+                
+                Circle()
+                    .fill(viewModel.currentTheme.colors.accent)
+                    .padding(50)
+                    .blur(radius: 150)
+                    .offset(x: size.width/1.8, y: size.height/2)
+            }
+
         VStack(spacing: 0) {
             List(selection: $viewModel.selectedMode) {
-                ForEach([
-                    (TabSelection.mosaic, "square.grid.3x3.fill", "Mosaic"),
-                    (TabSelection.preview, "play.square.fill", "Preview"),
-                    (TabSelection.playlist, "music.note.list", "Playlist")
-                ], id: \.0) { tab, icon, title in
-                    TabItemView(tab: tab, icon: icon, title: title, viewModel: viewModel)
-                        
+                        ForEach([
+                            (TabSelection.mosaic, "square.grid.3x3.fill", "Mosaic"),
+                            (TabSelection.preview, "play.square.fill", "Preview"),
+                            (TabSelection.playlist, "music.note.list", "Playlist")
+                        ], id: \.0) { tab, icon, title in
+                            TabItemView(tab: tab, icon: icon, title: title, viewModel: viewModel)
+                        }
+                    }
+                    .listStyle(.sidebar)
                 }
-            }
-            .listStyle(.sidebar)
             
             
     
@@ -78,8 +136,11 @@ private struct SidebarView: View {
             SettingsButton()
         }.frame(minWidth: 80, maxWidth: 80, alignment: .center)
             .padding(.horizontal, 16)
+            .opacity(0.7)
+    }
     }
 }
+
 
 private struct TabItemView: View {
     let tab: TabSelection
@@ -114,11 +175,11 @@ private struct DetailView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(
+           /* LinearGradient(
             colors: [viewModel.currentTheme.colors.background, .black],
                            startPoint: .top,
                            endPoint: .bottom
-            ).ignoresSafeArea().opacity(0.2)
+            ).ignoresSafeArea().opacity(0.2)*/
            
             mainContent
                 .padding()
@@ -126,8 +187,9 @@ private struct DetailView: View {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(.ultraThinMaterial)
                         .shadow(color: .black.opacity(0.05), radius: 10)
-                        .opacity(0.2)
-                ).opacity(0.95)
+                        .opacity(0.01)
+                )
+                .opacity(1)
                 .padding()
         }
     }
@@ -136,8 +198,19 @@ private struct DetailView: View {
     private var mainContent: some View {
         switch viewModel.selectedMode {
         case .mosaic:
-            EnhancedMosaicSettings(viewModel: viewModel)
-            .opacity(viewModel.isProcessing ? 0.05 : 1)
+            VStack {
+                EnhancedMosaicSettings(viewModel: viewModel)
+                    .opacity(viewModel.isProcessing ? 0.05 : 1)
+                
+                if !viewModel.isProcessing && !viewModel.completedFiles.isEmpty {
+                    Button(action: { viewModel.showMosaicBrowser() }) {
+                        Label("Browse Mosaics", systemImage: "photo.on.rectangle")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding()
+                }
+            }
         case .preview:
             EnhancedPreviewSettings(viewModel: viewModel)
             .opacity(viewModel.isProcessing ? 0.05 : 1)
@@ -940,6 +1013,7 @@ struct EnhancedDropZone: View {
         }
         .frame(minHeight: 60)
         .background(viewModel.currentTheme.colors.surfaceBackground)
+       
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
@@ -1005,6 +1079,7 @@ struct EnhancedDropZone: View {
         }
         .frame(minWidth: 200, maxWidth: .infinity)
         .padding(32)
+        .opacity(0.3)
     }
     
     private var fileListView: some View {
@@ -1578,73 +1653,77 @@ struct OptionToggle: View {
 }
 
 struct EnhancedProgressView: View {
-    @ObservedObject var viewModel: MosaicViewModel
-    @State private var selectedTab = 0
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            // Overall Progress
-            SettingsCard(title: "Concurrency", icon: "dial.high.fill", viewModel: viewModel)  {
-                Picker("Concurrent Ops" , selection: $viewModel.concurrentOps)
-                {
-                    ForEach(viewModel.concurrent, id: \.self) { concurrent in
-                        Text(String(concurrent)).tag(concurrent)
-                    }
-                }.pickerStyle(.segmented)
-                    .onChange(of: viewModel.concurrentOps) {
-                        viewModel.updateMaxConcurrentTasks()
-                    }
+  @ObservedObject var viewModel: MosaicViewModel
+  @State private var selectedTab = 0
+
+  var body: some View {
+    ScrollView {
+      VStack(spacing: 20) {
+        // Overall Progress
+        SettingsCard(title: "Concurrency", icon: "dial.high.fill", viewModel: viewModel) {
+          Picker("Concurrent Ops", selection: $viewModel.concurrentOps) {
+            ForEach(viewModel.concurrent, id: \.self) { concurrent in
+              Text(String(concurrent)).tag(concurrent)
             }
-            Button(role: .destructive) {
-                withAnimation {
-                    viewModel.cancelGeneration()
-                }
-            } label: {
-                Label("Cancel", systemImage: "stop.circle.fill")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(ActionButtonStyle(style: .destructive))
-            DynamicGridProgress(
-                title: "Overall Progress",
-                progress: viewModel.progressG,
-                icon: "chart.bar.fill",
-                color: viewModel.currentTheme.colors.primary,
-                fileCount: viewModel.inputPaths.count
-            ).transition(.scale.combined(with: .opacity))
-            
-            StatusMessagesView(messages: [
-                .init(icon: "doc.text", text: viewModel.statusMessage1, type: .info),
-                .init(icon: "chart.bar.fill", text: viewModel.statusMessage2, type: .info),
-                .init(icon: "clock", text: viewModel.statusMessage3, type: .info),
-                .init(icon: "timer", text: viewModel.statusMessage4, type: .info)
-            ].filter { !$0.text.isEmpty })
-            
-            // Tabs
-            Picker("View", selection: $selectedTab) {
-                Text("Active Queue").tag(0)
-                Text("Completed").tag(1)
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            
-            if selectedTab == 0 {
-                QueueProgressView(viewModel: viewModel)
-                    .padding(20)
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-            } else {
-                CompletedFilesView(viewModel: viewModel)
-                    .padding(20)
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+          }.pickerStyle(.segmented)
+            .onChange(of: viewModel.concurrentOps) {
+              viewModel.updateMaxConcurrentTasks()
             }
         }
-        .background(.ultraThinMaterial)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-
+        Button(role: .destructive) {
+          withAnimation {
+            viewModel.cancelGeneration()
+          }
+        } label: {
+          Label("Cancel", systemImage: "stop.circle.fill")
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(ActionButtonStyle(style: .destructive))
+        DynamicGridProgress(
+          title: "Overall Progress",
+          progress: viewModel.progressG,
+          icon: "chart.bar.fill",
+          color: viewModel.currentTheme.colors.primary,
+          fileCount: viewModel.inputPaths.count
+        ).transition(.scale.combined(with: .opacity))
+          Button(action: { viewModel.showMosaicBrowser() }) {
+              Label("Browse Mosaics", systemImage: "photo.on.rectangle")
+                  .frame(maxWidth: .infinity)
+          }
+          .buttonStyle(.borderedProminent)
+          .padding()
+        StatusMessagesView(
+          messages: [
+            .init(icon: "doc.text", text: viewModel.statusMessage1, type: .info),
+            .init(icon: "chart.bar.fill", text: viewModel.statusMessage2, type: .info),
+            .init(icon: "clock", text: viewModel.statusMessage3, type: .info),
+            .init(icon: "timer", text: viewModel.statusMessage4, type: .info),
+          ]//.filter { !$0.text.isEmpty })
+        )
+        /*// Tabs
+        Picker("View", selection: $selectedTab) {
+          Text("Active Queue").tag(0)
+          Text("Completed").tag(1)
+        }
+        .pickerStyle(.segmented)
+        .padding(.horizontal) */
+        ProcessingQueueView(viewModel: viewModel)    
+          /*  if selectedTab == 0 {
+          QueueProgressView(viewModel: viewModel)
+            .padding(20)
+            // .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        } else {
+          CompletedFilesView(viewModel: viewModel)
+            .padding(20)
+            //.background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }*/
+      }
     }
-
+  }
 }
+
 
 struct CompletedFilesView: View {
     @ObservedObject var viewModel: MosaicViewModel
@@ -1664,6 +1743,7 @@ struct CompletedFilesView: View {
                 Button(action: { withAnimation { isExpanded.toggle() } }) {
                     Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
                         .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
             }
@@ -1711,6 +1791,7 @@ struct QueueProgressView: View {
                 Button(action: { withAnimation { isExpanded.toggle() } }) {
                     Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
                         .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
             }
@@ -1793,8 +1874,7 @@ private struct GridProgressView: View {
     private func gridContent(size: CGSize) -> some View {
         let itemSize = min(
             (size.width * 0.8 - CGFloat(columns - 1) * 4) / CGFloat(columns),
-            (size.height * 0.8 - CGFloat(rows - 1) * 4) / CGFloat(rows)
-        )
+            (size.height * 0.8 - CGFloat(rows - 1) * 4) / CGFloat(rows))
         return GridContent(itemSize: itemSize, progress: progress, color: color, columns: columns, rows: rows)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -2317,21 +2397,23 @@ struct PreviewPopupView: View {
     }
 }
 
-/*
+
 // Example usage and previews
-#Preview("density") {
-    EnhancedPreviewSettings(viewModel: MosaicViewModel())
+#Preview("SidebarView") {
+    let view = MosaicViewModel.init()
+    ContentView(viewModel: view)
 }
-*/
 
 
-/*
 
-#Preview("Preview"){
-    let view = MosaicViewModel.shared
+
+
+#Preview("Preview") {
+    let view = MosaicViewModel.init()
+   // view.selectedMode = TabSelection.mosaic
     EnhancedPreviewSettings(viewModel: view)
 }
-*/
+
 
 /*
 #Preview("Msaic") {
@@ -2356,3 +2438,75 @@ struct PreviewPopupView: View {
     ContentView(viewModel: view)
 }
 */
+
+// MARK: - Mosaic Browser
+struct MosaicBrowserView: View {
+    @ObservedObject var viewModel: MosaicViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedFileId: ResultFiles.ID?
+    
+    // Add onDisappear to handle cleanup
+    var body: some View {
+        NavigationSplitView {
+            List(viewModel.doneFiles, id: \.id, selection: $selectedFileId) { file in
+                VStack(alignment: .leading) {
+                    Text(file.video.lastPathComponent)
+                        .font(.headline)
+                    Text(file.video.description)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Source Files")
+        } detail: {
+            MosaicDetailView(file: selectedFile)
+        }
+        .onDisappear {
+            // Ensure cleanup when view disappears
+            selectedFileId = nil
+        }
+    }
+    
+    var selectedFile: ResultFiles? {
+        viewModel.doneFiles.first { $0.id == selectedFileId }
+    }
+}
+
+struct MosaicDetailView: View {
+    let file: ResultFiles?
+    @State private var isShowingIINA = false
+    
+    var body: some View {
+        VStack {
+            if let file = file {
+                if let image = NSImage(contentsOf: file.output) {
+                    Image(nsImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    
+                    Button(action: {
+                        openInIINA(sourceFile: file.video.path())
+                    }) {
+                        Label("Play in IINA", systemImage: "play.circle.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding()
+                }
+            } else {
+                Text("Select a file to view its mosaic")
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .navigationTitle("Mosaic Preview")
+    }
+    
+    private func openInIINA(sourceFile: String) {
+        let url = URL(fileURLWithPath: sourceFile)
+        let iinaURL = URL(string: "iina://open?url=\(url.path)")!
+        NSWorkspace.shared.open(iinaURL)
+    }
+}
+

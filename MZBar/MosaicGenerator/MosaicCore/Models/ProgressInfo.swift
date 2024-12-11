@@ -34,6 +34,27 @@ public struct FileProgress: Identifiable, Hashable {
        }
 }
 
+public struct ResultFiles: Identifiable, Hashable {
+    public let id: UUID
+    var video: URL
+    var output: URL
+    
+    init(video: URL, output: URL) {
+        self.id = UUID()
+        self.video = video
+        self.output = output
+    }
+    
+    public static func == (lhs: ResultFiles, rhs: ResultFiles) -> Bool {
+           lhs.id == rhs.id
+       }
+       
+       public func hash(into hasher: inout Hasher) {
+           hasher.combine(id)
+       }
+    
+}
+
 
 /// Information about processing progress
 public struct ProgressInfo {
@@ -73,6 +94,8 @@ public struct ProgressInfo {
     
     public let fps: Double?
     
+    public let doneFile: ResultFiles
+    
     /// Initialize progress information
     public init(
         progressType: ProgressType,
@@ -86,7 +109,8 @@ public struct ProgressInfo {
         skippedFiles: Int,
         errorFiles: Int,
         isRunning: Bool, 
-        fileProgress: Double?
+        fileProgress: Double?,
+        doneFile: ResultFiles? = nil
     ) {
         self.progressType = progressType
         self.progress = progress
@@ -101,6 +125,7 @@ public struct ProgressInfo {
         self.isRunning = isRunning
         self.fileProgress = fileProgress
         self.fps = Double(processedFiles) / elapsedTime
+        self.doneFile = doneFile ?? ResultFiles(video: URL(fileURLWithPath: currentFile), output: URL(fileURLWithPath: currentFile))
     }
 }
 

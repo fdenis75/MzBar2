@@ -3,10 +3,11 @@ import SwiftUI
 import UniformTypeIdentifiers
 import UserNotifications
 
-class MosaicViewModel: ObservableObject {
+class MosaicViewModel: NSObject, ObservableObject {
     // MARK: - Published Properties
     
     // Mode Selection
+    @Published var selectedFile: FileProgress?
    
 
     // Input Management
@@ -38,6 +39,8 @@ class MosaicViewModel: ObservableObject {
     // State
     @Published var isProcessing = false
     @Published var progressG: Double = 0
+    @Published var finalResult : [ResultFiles]
+
     
     // Status Messages
     @Published var statusMessage1: String = ""
@@ -64,6 +67,8 @@ class MosaicViewModel: ObservableObject {
     @Published private(set) var currentlyProcessingFile: URL?
     @Published private(set) var failedFiles: Set<URL> = []
     @Published private(set) var completedFiles: [FileProgress] = []
+    @Published private(set) var doneFiles: [ResultFiles] = []
+    
 @Published var compressionQuality: Float = 0.6 {
     didSet {
         config.compressionQuality = compressionQuality
@@ -90,7 +95,7 @@ class MosaicViewModel: ObservableObject {
         @Published var currentTheme: AppTheme = .mosaic
 
     // MARK: - Initialization
-    init() {
+    override init() {
         self.config = .default
      //   self.compressionQuality = self.config.compressionQuality
         
@@ -109,10 +114,33 @@ class MosaicViewModel: ObservableObject {
             addFullPath: false,
             generatorConfig: .default
         )
-        
+        self.finalResult = []
+
         self.pipeline = ProcessingPipeline(config: Pconfig)
+        super.init()
         setupPipeline()
         loadSavedOutputFolder()
+    }
+    
+    // Add a property to retain the window
+    private var browserWindow: NSWindow?
+    
+    func showMosaicBrowser() {
+    browserWindow = NSWindow(
+        contentRect: NSRect(x: 0, y: 0, width: 2000, height: 1000),
+        styleMask: [.titled, .closable, .miniaturizable, .resizable],
+        backing: .buffered,
+        defer: false
+    )
+    browserWindow?.title = "Mosaic Browser"
+    browserWindow?.contentView = NSHostingView(rootView: MosaicBrowserView(viewModel: self))
+    browserWindow?.center()
+    browserWindow?.makeKeyAndOrderFront(nil)
+    browserWindow?.isReleasedWhenClosed = false
+    
+    if let window = browserWindow {
+        WindowManager.shared.addWindow(window)
+    }
     }
     
     // MARK: - Public Methods
@@ -136,16 +164,19 @@ class MosaicViewModel: ObservableObject {
                 }
                 
                 
-                try await pipeline.generateMosaics(
+                self.finalResult = try await pipeline.generateMosaics(
                     for: files,
                     config: config
-                ) { result in
+                )
+                { result in
                     if case let .success((input, outputURL)) = result {
                         Task { @MainActor in
                             self.completeFileProgress(input.path, outputURL: outputURL)
+                            self.doneFiles.append(ResultFiles(video: input, output: outputURL))
                         }
                     }
                 }
+                
                 
                 
                 await MainActor.run {
@@ -392,6 +423,7 @@ class MosaicViewModel: ObservableObject {
                 self.updateFileProgress(info.currentFile, progress: info.fileProgress ?? 0.0, stage: info.currentStage)
                 if info.fileProgress == 1.0 {
                     self.completeFileProgress(info.currentFile)
+                    self.doneFiles.append(info.doneFile)
                 }
             }
             
@@ -430,20 +462,21 @@ class MosaicViewModel: ObservableObject {
     }*/
     
     private func completeFileProgress(_ filename: String, outputURL: URL? = nil) {
-        if let index = queuedFiles.firstIndex(where: { $0.filename == filename }) {
-            queuedFiles[index].progress = 1.0
-            queuedFiles[index].stage = "Complete"
-            queuedFiles[index].isComplete = true
-            queuedFiles[index].outputURL = outputURL
-            
-            // Move to completed files
-            let completedFile = queuedFiles[index]
-            DispatchQueue.main.async {
-                self.completedFiles.append(completedFile)
-                if !self.queuedFiles.isEmpty {
-                    self.queuedFiles.remove(at: index)
-                }
-               
+        Task { @MainActor in
+            // Safely find and update the file
+            if let index = queuedFiles.firstIndex(where: { $0.filename == filename }) {
+                // Update the file status
+                queuedFiles[index].progress = 1.0
+                queuedFiles[index].stage = "Complete"
+                queuedFiles[index].isComplete = true
+                queuedFiles[index].outputURL = outputURL
+                
+                // Create a copy of the completed file
+                let completedFile = queuedFiles[index]
+                
+                // Safely remove from queued and add to completed
+                completedFiles.append(completedFile)
+                queuedFiles.remove(at: index)
             }
         }
     }
@@ -700,3 +733,11 @@ extension MosaicViewModel {
 }
 
 // MARK: - Theme Support
+
+// Add NSWindowDelegate conformance
+extension MosaicViewModel: NSWindowDelegate {
+    func windowWillClose(_ notification: Notification) {
+        // Clean up the reference when window closes
+        browserWindow = nil
+    }
+}

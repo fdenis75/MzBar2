@@ -7,7 +7,7 @@ public final class ProcessingPipeline {
     
     private let generationCoordinator: GenerationCoordinator
     private let logger = Logger(subsystem: "com.mosaic.pipeline", category: "ProcessingPipeline")
-
+    private var finalResult : [ResultFiles]
     /// Progress handler for pipeline operations
     public var progressHandler: ((ProgressInfo) -> Void)?
     
@@ -17,6 +17,8 @@ public final class ProcessingPipeline {
     /// - Parameter config: Configuration for the pipeline
     public init(config: ProcessingConfiguration) {
         self.generationCoordinator = GenerationCoordinator(config: config.generatorConfig)
+        self.finalResult = []
+
         setupCoordinator()
     }
     
@@ -104,9 +106,9 @@ public final class ProcessingPipeline {
         for files: [(URL, URL)],
         config: ProcessingConfiguration,
         completion: ((Result<(URL, URL), Error>) -> Void)? = nil
-    ) async throws {
+    ) async throws ->[ResultFiles] {
         logger.debug("Generating mosaics for \(files.count) files")
-        try await generationCoordinator.generateMosaics(
+        self.finalResult =  try await generationCoordinator.generateMosaics(
             for: files,
             width: config.width,
             density: config.density.rawValue,
@@ -123,6 +125,7 @@ public final class ProcessingPipeline {
                 borderWidth: config.borderWidth
             )
         )
+        return finalResult
     }
     
     /// Generates previews for video files
