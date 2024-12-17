@@ -87,7 +87,7 @@ private struct FileCard: View {
             Spacer()
             
             // Progress Indicator
-            if !file.isComplete && !file.isCancelled {
+            if !file.isComplete && !file.isCancelled && !file.isSkipped && !file.isError {
                 ProgressView()
                     .scaleEffect(0.5)
             }
@@ -97,6 +97,12 @@ private struct FileCard: View {
                 if file.isCancelled {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(.red)
+                } else if file.isSkipped {
+                    Image(systemName: "arrow.right.circle.fill")
+                        .foregroundStyle(.yellow)
+                } else if file.isError {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
                 } else if file.isComplete {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(.green)
@@ -111,6 +117,7 @@ private struct FileCard: View {
                 .opacity(isHovered ? 0.8 : 0.5)
         )
         .onHover { isHovered = $0 }
+        .help(file.isError ? (file.errorMessage ?? "Error processing file") : "")
     }
 }
 

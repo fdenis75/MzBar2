@@ -38,18 +38,21 @@ public final class VideoProcessor: VideoProcessing {
         
         async let durationFuture = asset.load(.duration)
         async let sizeFuture = track.load(.naturalSize)
+        async let creationDateFuture = asset.load(.creationDate)    
         
         let duration = try await durationFuture.seconds
         let size = try await sizeFuture
         let codec = try await track.mediaFormat
         let type = VideoMetadata.classifyType(duration: duration)
+        let creationDate: AVMetadataItem? = try await creationDateFuture
         
         logger.info("""
             Video processed: \
             duration=\(String(describing: duration)), \
             size=\(String(describing: size)), \
             codec=\(String(describing: codec)), \
-            type=\(String(describing: type))
+            type=\(String(describing: type)),
+            creationDate=\(String(describing: creationDate))
             """)
 
         
@@ -58,7 +61,8 @@ public final class VideoProcessor: VideoProcessing {
             duration: duration,
             resolution: size,
             codec: codec,
-            type: type
+            type: type,
+            creationDate: creationDate?.stringValue
         )
     }
     

@@ -22,7 +22,16 @@ struct MZBarApp: App {
                         backing: .buffered,
                         defer: false
                     )
+
                     let contentView = ContentView()
+                    window.styleMask.insert(.titled)
+                    window.titlebarAppearsTransparent = true
+                    window.titleVisibility = .hidden
+
+                    window.standardWindowButton(.miniaturizeButton)?.isHidden = false
+                    window.standardWindowButton(.closeButton)?.isHidden = false
+                    window.standardWindowButton(.zoomButton)?.isHidden = false
+
                     window.contentView = NSHostingView(rootView: contentView)
                     window.makeKeyAndOrderFront(nil)
                     window.center()

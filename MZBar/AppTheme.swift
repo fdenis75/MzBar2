@@ -48,6 +48,16 @@ struct AppTheme {
         text: .white,
         secondaryText: .accentColor
     ))
+
+    static let navigator = AppTheme(colors: ThemeColors(
+        primary: Color(hex: "F28EAF"),     // Blue-purple from icon
+        accent: Color(hex: "F8B6B3"),      // Pink-purple accent
+        background: Color(.darkGray).opacity(0.3),
+        cardBackground: Color(hex: "FEE2B5").opacity(0.3),
+        surfaceBackground: Color(hex: "FEE2B5").opacity(0.2),
+        text: .white,
+        secondaryText: .accentColor
+    ))
     
     init(colors: ThemeColors) {
         self.colors = colors
@@ -63,6 +73,8 @@ struct AppTheme {
             self = .playlist
         case .settings:
             self = .mosaic
+        case .navigator:
+            self = .navigator
         }
     }
 }

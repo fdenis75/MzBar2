@@ -95,6 +95,7 @@ public enum MosaicError: LocalizedError {
     case exportTimeout
     case unableToExtractParams
     case ffmpegProcessFailed
+    case existingHash
 
     
 
@@ -137,6 +138,8 @@ public enum MosaicError: LocalizedError {
             return "Unable to extract parameters"
         case .ffmpegProcessFailed:
             return "FFmpeg process failed"  
+        case .existingHash:
+            return "Mosaic already exists"
         }
     }
 }

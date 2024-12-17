@@ -40,6 +40,7 @@ class MosaicViewModel: NSObject, ObservableObject {
     @Published var isProcessing = false
     @Published var progressG: Double = 0
     @Published var finalResult : [ResultFiles]
+    @Published var DisplayCloseButton = false
 
     
     // Status Messages
@@ -69,12 +70,53 @@ class MosaicViewModel: NSObject, ObservableObject {
     @Published private(set) var completedFiles: [FileProgress] = []
     @Published private(set) var doneFiles: [ResultFiles] = []
     
-@Published var compressionQuality: Float = 0.6 {
-    didSet {
-        config.compressionQuality = compressionQuality
-        updateConfig()
+    @Published var allMosaics: [MosaicEntry] = []
+    @Published var availableFolders: [String] = []
+    @Published var availableResolutions: [String] = []
+    @Published var availableWidths: [String] = []
+    @Published var availableDensities: [String] = []
+    @Published var isLoading: Bool = false
+    
+    func fetchMosaics() async {
+        isLoading = true
+        let start = CFAbsoluteTimeGetCurrent()
+        print("🔄 Loading mosaics from database...")
+        
+        // Fetch data in background
+        let mosaics = DatabaseManager.shared.fetchMosaicEntries()
+        
+        // Update UI on main thread
+        await MainActor.run {
+            self.allMosaics = mosaics
+            
+            // Update available options
+            self.availableFolders = Array(Set(mosaics.map { $0.folderPath })).sorted()
+            print("avail folder done")
+            self.availableResolutions = Array(Set(mosaics.map { $0.realResolution })).sorted()
+            print("avail folder done")
+
+            self.availableWidths = Array(Set(mosaics.map { $0.size })).sorted()
+            print("avail folder done")
+
+            self.availableDensities = Array(Set(mosaics.map { $0.density })).sorted()
+            
+            let duration = CFAbsoluteTimeGetCurrent() - start
+            print("🕒 Mosaic loading completed in \(String(format: "%.3f", duration))s")
+            print("📊 Loaded \(mosaics.count) mosaics")
+            self.isLoading = false
+        }
     }
-}
+    
+    func refreshMosaics() async {
+        await fetchMosaics()
+    }
+    
+    @Published var compressionQuality: Float = 0.6 {
+        didSet {
+            config.compressionQuality = compressionQuality
+            updateConfig()
+        }
+    }
     // MARK: - Constants
     let sizes = [2000, 4000, 5120, 8000, 10000]
     let densities = ["XXS", "XS", "S", "M", "L", "XL", "XXL"]
@@ -97,7 +139,6 @@ class MosaicViewModel: NSObject, ObservableObject {
     // MARK: - Initialization
     override init() {
         self.config = .default
-     //   self.compressionQuality = self.config.compressionQuality
         
         var Pconfig = ProcessingConfiguration(
             width: 5120,
@@ -115,11 +156,12 @@ class MosaicViewModel: NSObject, ObservableObject {
             generatorConfig: .default
         )
         self.finalResult = []
-
         self.pipeline = ProcessingPipeline(config: Pconfig)
         super.init()
         setupPipeline()
         loadSavedOutputFolder()
+         print("🔄 MosaicViewModel initialized")
+
     }
     
     // Add a property to retain the window
@@ -142,14 +184,62 @@ class MosaicViewModel: NSObject, ObservableObject {
         WindowManager.shared.addWindow(window)
     }
     }
+
+    private var navigatorWindow: NSWindow?
+    func showMosaicNavigator() {
+    
+    navigatorWindow = NSWindow(
+        contentRect: NSRect(x: 0, y: 0, width: 2000, height: 1000),
+        styleMask: [.closable, .miniaturizable, .resizable],
+        backing: .buffered,
+        defer: false
+    )
+    self.currentTheme = .navigator
+   let visualEffect = NSVisualEffectView()
+visualEffect.blendingMode = .behindWindow
+visualEffect.state = .active
+visualEffect.material = .windowBackground
+navigatorWindow?.contentView = visualEffect
+
+navigatorWindow?.styleMask.insert(.titled)
+
+navigatorWindow?.titlebarAppearsTransparent = true
+navigatorWindow?.titleVisibility = .hidden
+
+navigatorWindow?.standardWindowButton(.miniaturizeButton)?.isHidden = false
+navigatorWindow?.standardWindowButton(.closeButton)?.isHidden = false
+navigatorWindow?.standardWindowButton(.zoomButton)?.isHidden = false
+
+navigatorWindow?.isMovableByWindowBackground = true
+   
+        // navigatorWindow?.title = "Mosaic Navigator"
+        //navigatorWindow?.titlebarAppearsTransparent = true
+       
+        //navigatorWindow?.backgroundColor = .
+    navigatorWindow?.contentView = NSHostingView(rootView: MosaicNavigatorView(viewModel: self))
+    navigatorWindow?.center()
+    navigatorWindow?.makeKeyAndOrderFront(nil)
+    navigatorWindow?.isReleasedWhenClosed = false
+    
+    if let window = navigatorWindow {
+        WindowManager.shared.addWindow(window)
+    }
+    Task{
+    do{
+        await fetchMosaics()
+    }
+    }
+    }
+    
     
     // MARK: - Public Methods
+    @MainActor
     func processMosaics() {
         guard !inputPaths.isEmpty else {
             statusMessage1 = "Please select input first."
             return
         }
-        
+        DisplayCloseButton = true
         isProcessing = true
         statusMessage1 = "Starting processing..."
         
@@ -162,13 +252,11 @@ class MosaicViewModel: NSObject, ObservableObject {
                         FileProgress(filename: file.0.path)
                     }
                 }
-                
-                
+
                 self.finalResult = try await pipeline.generateMosaics(
                     for: files,
                     config: config
-                )
-                { result in
+                ) { result in
                     if case let .success((input, outputURL)) = result {
                         Task { @MainActor in
                             self.completeFileProgress(input.path, outputURL: outputURL)
@@ -180,7 +268,9 @@ class MosaicViewModel: NSObject, ObservableObject {
                 
                 
                 await MainActor.run {
+                       print("we are here")
                     completeProcessing(success: true)
+
                 }
             } catch {
                 await MainActor.run {
@@ -189,12 +279,13 @@ class MosaicViewModel: NSObject, ObservableObject {
             }
         }
     }
+    @MainActor
     func processPreviews() {
         guard !inputPaths.isEmpty else {
             statusMessage1 = "Please select input first."
             return
         }
-        
+        DisplayCloseButton = true
         isProcessing = true
         statusMessage1 = "Starting processing..."
         
@@ -225,17 +316,20 @@ class MosaicViewModel: NSObject, ObservableObject {
             }
         }
     }
+    @MainActor
     func updateMaxConcurrentTasks() {
         pipeline.updateMaxConcurrentTasks(concurrentOps)
     }
+    @MainActor
     func updateCodec() {
         pipeline.updateCodec(codec)
     }
-    
+    @MainActor
     func generateMosaictoday() {
         isProcessing = true
         statusMessage1 = "Starting today's mosaic generation..."
-        
+        DisplayCloseButton = true
+
         Task {
             do {
                 
@@ -268,11 +362,12 @@ class MosaicViewModel: NSObject, ObservableObject {
             }
         }
     }
-    
+    @MainActor
     func generatePlaylist(_ path: String) {
         isProcessing = true
         statusMessage1 = "Starting playlist generation..."
-        
+        DisplayCloseButton = true
+
         Task {
             do {
                 let playlistURL = try await pipeline.createPlaylist(
@@ -297,7 +392,8 @@ class MosaicViewModel: NSObject, ObservableObject {
     func generateDateRangePlaylist() {
         isProcessing = true
         statusMessage1 = "Starting date range playlist generation..."
-        
+        DisplayCloseButton = true
+
         Task {
             do {
                 let playlistURL = try await pipeline.createDateRangePlaylist(
@@ -321,7 +417,8 @@ class MosaicViewModel: NSObject, ObservableObject {
     func generatePlaylisttoday() {
         isProcessing = true
         statusMessage1 = "Starting playlist today generation..."
-        
+        DisplayCloseButton = true
+
         Task {
             do {
                 let playlistURL = try await pipeline.createPlaylisttoday(
@@ -353,12 +450,11 @@ class MosaicViewModel: NSObject, ObservableObject {
         
         isProcessing = false
         
-        // Reset messages
+        // Clear status messages for cancellation
         statusMessage2 = ""
         statusMessage3 = ""
         statusMessage4 = ""
         
-        // Show notification
         showCancellationNotification()
     }
     
@@ -402,7 +498,7 @@ class MosaicViewModel: NSObject, ObservableObject {
             generatorConfig: config
         )
     }
-    
+    @MainActor
     private func updateProgress(with info: ProgressInfo) {
         // Since this might be called from a background thread, ensure we're on main thread
         DispatchQueue.main.async { [weak self] in
@@ -430,14 +526,42 @@ class MosaicViewModel: NSObject, ObservableObject {
             self.isProcessing = info.isRunning
         }
     }
-    
+   /*  @MainActor
+    private func updateProgress(with info: ProgressInfo) {
+        // Since this might be called from a background thread, ensure we're on main thread
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            if (info.progressType == .global) {
+                self.progressG = info.progress.isNaN ? 0.0 : info.progress
+                self.processedFiles = info.processedFiles
+                self.totalFiles = info.totalFiles
+                self.skippedFiles = info.skippedFiles
+                self.errorFiles = info.errorFiles
+                self.elapsedTime = info.elapsedTime
+                self.estimatedTimeRemaining = info.estimatedTimeRemaining
+                self.updateStatusMessages(stage: info.currentStage)
+                self.fps = info.fps ?? 0.0
+            } else {
+                self.currentFile = info.currentFile
+                self.updateFileProgress(info.currentFile, progress: info.fileProgress ?? 0.0, stage: info.currentStage)
+                if info.fileProgress == 1.0 {
+                    self.completeFileProgress(info.currentFile)
+                    self.doneFiles.append(info.doneFile)
+                }
+            }
+            
+            self.isProcessing = info.isRunning
+        }
+    }
+    @MainActor
     private func updateStatusMessages(stage: String) {
         statusMessage1 = "Processing: \(currentFile.substringWithRange(0,end: 30))..."
         statusMessage2 = "Progress: \(processedFiles)/\(totalFiles) files (skipped: \(skippedFiles), Error: \(errorFiles))"
         statusMessage3 = "Stage: \(stage)"
         statusMessage4 = "Estimated Time Remaining: \(estimatedTimeRemaining.format(2))s (current speed : \(fps.format(2)) files/s)"
     }
-    
+    @MainActor
     private func updateFileProgress(_ filename: String, progress: Double, stage: String) {
         // Since we're already on the main thread from updateProgress, we don't need another dispatch
         if let index = queuedFiles.firstIndex(where: { $0.filename == filename }) {
@@ -460,7 +584,7 @@ class MosaicViewModel: NSObject, ObservableObject {
             activeFiles.append(FileProgress(filename: filename))
         }
     }*/
-    
+    @MainActor
     private func completeFileProgress(_ filename: String, outputURL: URL? = nil) {
         Task { @MainActor in
             // Safely find and update the file
@@ -501,23 +625,25 @@ class MosaicViewModel: NSObject, ObservableObject {
             return allFiles
         }
     }
-    
+    @MainActor
     private func completeProcessing(success: Bool, message: String? = nil) {
+        // Update status messages
         statusMessage1 = message ?? (success ? "Processing completed successfully!" : "Processing completed with errors")
-        if !isProcessing {
-            statusMessage2 = ""
-            statusMessage3 = ""
-            statusMessage4 = ""
-        }
         
+        // Show notification
         let content = UNMutableNotificationContent()
         content.title = success ? "Processing Complete" : "Processing Failed"
+        content.body = message ?? (success ? "All files processed successfully" : "Processing completed with some errors")
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)
         
+        // Reset processing state
+        resetProcessingState()
+        
+        // Set processing flag
         isProcessing = false
     }
-    
+    @MainActor
     func cancelFile(_ fileId: UUID) {
         if let index = queuedFiles.firstIndex(where: { $0.id == fileId }) {
             let filename = queuedFiles[index].filename
@@ -535,13 +661,17 @@ class MosaicViewModel: NSObject, ObservableObject {
             }
         }
     }
-    
+    @MainActor
     private func handleError(_ error: Error) {
-        isProcessing = false
         if error is CancellationError {
             statusMessage1 = "Processing was cancelled"
+            isProcessing = false
         } else {
             statusMessage1 = "Error: \(error.localizedDescription)"
+            // Mark current file as error if there is one
+            if let currentFile = currentlyProcessingFile {
+                markFileAsError(currentFile, error: error)
+            }
         }
     }
     
@@ -626,7 +756,13 @@ class MosaicViewModel: NSObject, ObservableObject {
         }
     }*/
     
-   
+   // Add method to manually close progress view
+func closeProgressView() {
+    isProcessing = false
+    // Optionally reset progress state here if needed
+    progressG = 0
+}
+
     
     func updateCurrentFile(_ file: URL?) {
         DispatchQueue.main.async {
@@ -707,6 +843,57 @@ class MosaicViewModel: NSObject, ObservableObject {
     @Published var borderColor = Color.white
     @Published var borderWidth: Double = 2
     
+    @Published var isShowingMosaicNavigator: Bool = false
+
+private func resetProcessingState() {
+    // Reset counters
+    progressG = 0
+    processedFiles = 0
+    totalFiles = 0
+    skippedFiles = 0 
+    errorFiles = 0
+    elapsedTime = 0
+    estimatedTimeRemaining = 0
+    fps = 0
+    
+    // Clear arrays
+    queuedFiles.removeAll()
+    completedFiles.removeAll()
+    activeFiles.removeAll()
+    
+    // Reset status messages
+    statusMessage1 = ""
+    statusMessage2 = ""
+    statusMessage3 = ""
+    statusMessage4 = ""
+    
+    // Reset file tracking
+    currentlyProcessingFile = nil
+    failedFiles.removeAll()
+}
+
+@MainActor
+func markFileAsSkipped(_ file: URL) {
+    if let index = queuedFiles.firstIndex(where: { $0.filename == file.path }) {
+        var updatedFile = queuedFiles[index]
+        updatedFile.isSkipped = true
+        queuedFiles[index] = updatedFile
+        skippedFiles += 1
+    }
+}
+
+@MainActor
+func markFileAsError(_ file: URL, error: Error) {
+    if let index = queuedFiles.firstIndex(where: { $0.filename == file.path }) {
+        var updatedFile = queuedFiles[index]
+        updatedFile.isError = true
+        updatedFile.errorMessage = error.localizedDescription
+        updatedFile.stage = "Error: \(error.localizedDescription)"
+        queuedFiles[index] = updatedFile
+        errorFiles += 1
+    }
+}
+
 }
 
 // MARK: - Type Definitions
@@ -741,3 +928,52 @@ extension MosaicViewModel: NSWindowDelegate {
         browserWindow = nil
     }
 }
+
+// Add these methods to MosaicViewModel
+extension MosaicViewModel {
+    @MainActor
+    func generateVariant(for moviePath: String) async {
+        isProcessing = true
+        statusMessage1 = "Generating new variant..."
+        
+        Task {
+            do {
+                let config = getCurrentConfig()
+                let files = try await pipeline.getSingleFile(from: moviePath, width: selectedSize)
+                
+                await MainActor.run {
+                    queuedFiles = files.map { file in
+                        FileProgress(filename: file.0.path)
+                    }
+                }
+                
+                self.finalResult = try await pipeline.generateMosaics(
+                    for: files,
+                    config: config
+                ) { result in
+                    if case let .success((input, outputURL)) = result {
+                        Task { @MainActor in
+                            self.completeFileProgress(input.path, outputURL: outputURL)
+                            self.doneFiles.append(ResultFiles(video: input, output: outputURL))
+                        }
+                    }
+                }
+                
+                await MainActor.run {
+                    completeProcessing(success: true)
+                    // Refresh the mosaic list to show the new variant
+                    Task {
+                        await self.refreshMosaics()
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    handleError(error)
+                }
+            }
+        }
+    }
+}
+
+// Add this method to MosaicViewModel
+

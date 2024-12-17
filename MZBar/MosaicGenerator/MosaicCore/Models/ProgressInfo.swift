@@ -16,6 +16,11 @@ public struct FileProgress: Identifiable, Hashable {
     var isCancelled: Bool
     var outputURL: URL?
     
+    var isSkipped: Bool = false
+    var isError: Bool = false
+    var errorMessage: String?
+   
+    
     init(filename: String) {
         self.id = UUID()
         self.filename = filename
@@ -24,6 +29,9 @@ public struct FileProgress: Identifiable, Hashable {
         self.isComplete = false
         self.isCancelled = false
         self.outputURL = nil
+        self.isSkipped = false
+        self.isError = false
+        self.errorMessage = nil
     }
     public static func == (lhs: FileProgress, rhs: FileProgress) -> Bool {
            lhs.id == rhs.id

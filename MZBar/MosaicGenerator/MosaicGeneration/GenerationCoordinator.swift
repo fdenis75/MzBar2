@@ -111,6 +111,9 @@ public final class GenerationCoordinator {
            format: String,
            options: GenerationOptions
        ) async throws -> [ResultFiles] {
+           defer {
+               cleanup()
+           }
            let activemozLock = DispatchQueue(label: "com.mosaic.activemozLock")
 
            func incrementActiveTasks() {
@@ -124,7 +127,8 @@ public final class GenerationCoordinator {
            isCancelled = false
            var results: [ResultFiles] = []
            var activemozTasks = 0
-           
+           self.mosaicGenerators.removeAll()
+
            let totalFiles = files.count
            var processedFiles = 0
            var skippedFiles = 0
@@ -171,7 +175,9 @@ public final class GenerationCoordinator {
                                }
                                let mosaicGenerator = MosaicGenerator(config: self.config, layoutProcessor: self.layoutProcessor)
                                self.setupmosaicGenerator(mosaicGenerator)
-                               self.mosaicGenerators.append(mosaicGens(generator: mosaicGenerator, filename: video.path))
+                               await MainActor.run {
+                                   self.mosaicGenerators.append(mosaicGens(generator: mosaicGenerator, filename: video.path))
+                               }
                                let config = ProcessingConfiguration(width: width, density: density, format: format, previewDuration: options.minimumDuration,separateFolders: options.useSeparateFolder,addFullPath: options.addFullPath,addBorder: options.addBorder,addShadow: options.addShadow,borderWidth: options.borderWidth)
                                let result = try await mosaicGenerator.processSingleFile(video: video, output: outputDirectory, config: config)
                                
@@ -180,22 +186,56 @@ public final class GenerationCoordinator {
                                decrementActiveTasks()
                            } catch {
                                switch error {
-
-                           case  MosaicError.existingVid:
-                               self.logger.error("video alredy exists: \(error.localizedDescription)")
-                               skippedFiles += 1
-                               processedFiles += 1
-                                   decrementActiveTasks()
+                            case  MosaicError.existingVid:
+                                self.logger.error("video alredy exists: \(error.localizedDescription)")
+                                skippedFiles += 1
+                                processedFiles += 1
+                                decrementActiveTasks()
+                                self.updateProgress(
+                                    currentFile: "skipped",
+                                    processedFiles: processedFiles,
+                                    totalFiles: totalFiles,
+                                    startTime: startTime,
+                                    skippedFiles: skippedFiles,
+                                    errorFiles: errorFiles
+                                )
+                                   /*
+               await MainActor.run {
+                                   viewModel.markFileAsSkipped(video)
+                               }*/
+                               
                            case MosaicError.tooShort:
                                self.logger.error("skipped because too short to process video: \(error.localizedDescription)")
                                skippedFiles += 1
                                processedFiles += 1
                                    decrementActiveTasks()
-                               default:
+                               self.updateProgress(
+                   currentFile: "skipped",
+                   processedFiles: processedFiles,
+                   totalFiles: totalFiles,
+                   startTime: startTime,
+                   skippedFiles: skippedFiles,
+                   errorFiles: errorFiles
+               )
+                              /* await MainActor.run {
+                                   viewModel.markFileAsSkipped(video)
+                               }*/
+                           default:
                                self.logger.error("Failed to process video: \(error.localizedDescription)")
                                errorFiles += 1
                                processedFiles += 1
                                    decrementActiveTasks()
+                            self.updateProgress(
+                   currentFile: "error",
+                   processedFiles: processedFiles,
+                   totalFiles: totalFiles,
+                   startTime: startTime,
+                   skippedFiles: skippedFiles,
+                   errorFiles: errorFiles
+               )
+                              /* await MainActor.run {
+                                   viewModel.markFileAsError(video, error: error)
+                               }*/
                                    
                            }
                        }
@@ -265,6 +305,9 @@ public final class GenerationCoordinator {
         density: String,
         duration: Int
     ) async throws -> [(video: URL, output: URL)] {
+        defer {
+            cleanup()
+        }
         // Store results and initialize state variables
         isRunning = true
         isCancelled = false
@@ -518,6 +561,10 @@ public final class GenerationCoordinator {
     
     
     
+    
+    
+    
+    
     /*  deinit {
      // Clean up any remaining background activities
      let activities = backgroundActivities.values
@@ -620,59 +667,36 @@ public final class GenerationCoordinator {
         currentFile: String,
         processedFiles: Int,
         totalFiles: Int,
+        stage: String,
         startTime: CFAbsoluteTime,
-        skippedFiles: Int?,
-        errorFiles: Int?,
-        fileProgress: Double? = nil
+        skippedFiles: Int? = nil,
+        errorFiles: Int? = nil,
+        fileProgress: Double = 0.0,
+        error: Error? = nil
     ) {
         let elapsedTime = CFAbsoluteTimeGetCurrent() - startTime
-        let progress = Double(processedFiles) / Double(totalFiles)
         var estimatedTimeRemaining = TimeInterval(0.0)
         
         if processedFiles > 0 {
-            estimatedTimeRemaining = elapsedTime / progress - elapsedTime
+            estimatedTimeRemaining = elapsedTime / Double(processedFiles) / Double(totalFiles) - elapsedTime
         }
-        let progressInfo: ProgressInfo
-        if (!isCancelled) {
-             progressInfo = ProgressInfo(
-                progressType: .global,
-                progress: progress,
-                currentFile: currentFile,
-                processedFiles: processedFiles,
-                totalFiles: totalFiles,
-                currentStage: "Processing Files",
-                elapsedTime: elapsedTime,
-                estimatedTimeRemaining: estimatedTimeRemaining,
-                skippedFiles: skippedFiles ?? 0,
-                errorFiles: errorFiles ?? 0,
-                isRunning: isRunning,
-                fileProgress: fileProgress
-            )
-        }
-         else
-        {
-              progressInfo = ProgressInfo(
-                progressType: .global,
-                progress: progress,
-                currentFile: "",
-                processedFiles: processedFiles,
-                totalFiles: totalFiles,
-                currentStage: "Cancelled",
-                elapsedTime: elapsedTime,
-                estimatedTimeRemaining: estimatedTimeRemaining,
-                skippedFiles: skippedFiles ?? 0,
-                errorFiles: errorFiles ?? 0,
-                isRunning: isRunning,
-                fileProgress: fileProgress
-             )
-         }
         
-        // Throttle updates to maximum 4 times per second
-        let now = CFAbsoluteTimeGetCurrent()
-        if now - lastUpdateTime < 0.25 { return }
-        lastUpdateTime = now
+        let progressInfo = ProgressInfo(
+            progressType: .file,
+            progress: Double(processedFiles) / Double(totalFiles),
+            currentFile: currentFile,
+            processedFiles: processedFiles,
+            totalFiles: totalFiles,
+            currentStage: stage,
+            elapsedTime: elapsedTime,
+            estimatedTimeRemaining: estimatedTimeRemaining,
+            skippedFiles: skippedFiles ?? 0,
+            errorFiles: errorFiles ?? 0,
+            isRunning: true,
+            fileProgress: fileProgress,
+            error: error
+        )
         
-        // Ensure we're on the main thread when calling the progress handler
         DispatchQueue.main.async { [weak self] in
             self?.progressHandler?(progressInfo)
         }
@@ -690,17 +714,20 @@ public final class GenerationCoordinator {
         
         async let durationFuture = asset.load(.duration)
         async let sizeFuture = track.load(.naturalSize)
+        async let creationDateFuture = asset.load(.creationDate)
         let duration = try await durationFuture.seconds
         let size = try await sizeFuture
         let codec = try await track.mediaFormat
         let type = VideoMetadata.classifyType(duration: duration)
+        let creationDate: AVMetadataItem? = try await creationDateFuture
         
         return VideoMetadata(
             file: video,
             duration: duration,
             resolution: size,
             codec: codec,
-            type: type
+            type: type,
+            creationDate: creationDate?.stringValue
         )
     }
     
@@ -809,6 +836,26 @@ public final class GenerationCoordinator {
     
     public func updateAspectRatio(_ ratio: CGFloat) {
         layoutProcessor.updateAspectRatio(ratio)
+    }
+    
+    private func cleanup() {
+        // Clear generators
+        mosaicGenerators.removeAll()
+        previewGenerators.removeAll()
+        
+        // Reset flags
+        isRunning = false
+        isCancelled = false
+        
+        // Clear file tracking
+        cancelledFiles.removeAll()
+        activeFiles.removeAll()
+        
+        // End background activities
+        for activity in backgroundActivities.values {
+            ProcessInfo.processInfo.endActivity(activity)
+        }
+        backgroundActivities.removeAll()
     }
 }
     public extension GenerationCoordinator {

@@ -9,6 +9,7 @@ import AVFoundation
 import CoreGraphics
 import os.log
 import SwiftUI
+import CryptoKit
 
 struct TimeStamp {
     let ts: String
@@ -102,6 +103,14 @@ public final class MosaicGenerator {
             fileProgress: 0.2
         )
         
+        // Generate a unique hash for the mosaic
+        let hash = generateHash(filePath: video.path, size: String(config.width), density: String(config.density.rawValue), creationDate: metadata.creationDate ?? "2024-01-11")
+        
+        // Check for duplicates
+        if DatabaseManager.shared.isDuplicateMosaic(hash: hash) {
+            logger.info("Mosaic already exists. Skipping generation for: \(video.lastPathComponent)")
+            throw MosaicError.existingVid
+        }
         do {
            
           //  metadata = try await videoProcessor.processVideo(file: video, asset: asset)
@@ -120,6 +129,21 @@ public final class MosaicGenerator {
                 addPath: config.addFullPath
             ) && !config.overwrite {
                 logger.debug("Existing file: \(video.lastPathComponent)")
+                let outputURL = getOutputFileName(for: video,
+                                      in: output,
+                                      format: config.format,
+                                      type: metadata.type,
+                                      density: config.density.rawValue,
+                                      addPath: config.addFullPath)
+                DatabaseManager.shared.insertMosaicMetadata(
+                movieFilePath: video.path,
+                mosaicFilePath: outputURL.path,
+                size: String(config.width),
+                density: String(config.density.rawValue),
+                folderHierarchy: output.path,
+                hash: hash,
+                metadata: metadata
+            )
                 throw MosaicError.existingVid
             }
             
@@ -208,6 +232,18 @@ public final class MosaicGenerator {
                 doneFile: ResultFiles(video: result.0, output: result.1)
             )
             let resultat = ResultFiles(video: result.0, output: result.1)
+            
+            // Store metadata after successful generation
+            DatabaseManager.shared.insertMosaicMetadata(
+                movieFilePath: video.path,
+                mosaicFilePath: result.1.path,
+                size: String(config.width),
+                density: String(config.density.rawValue),
+                folderHierarchy: output.path,
+                hash: hash,
+                metadata: metadata
+            )
+            
             return resultat
             
         } catch {
@@ -222,6 +258,15 @@ public final class MosaicGenerator {
                                       type: metadata.type,
                                       density: config.density.rawValue,
                                       addPath: config.addFullPath)
+                                      updateProgress(
+                                        currentFile: video.path,
+                                        processedFiles: 1,
+                                        totalFiles: 1,
+                                        stage: "File already exists",
+                                        startTime: startTime,
+                                        fileProgress: 1.0,
+                                        error: error
+                                    )
                     return ("File already exists", error)
                     
                 default:
@@ -238,9 +283,6 @@ public final class MosaicGenerator {
                 fileProgress: 1.0,
                 doneFile: ResultFiles(video: video, output: outputURL)
             )
-            
-            
-            
             
             throw errorToThrow
         }
@@ -609,6 +651,20 @@ extension MosaicGenerator {
         let exportManager = ExportManager(config: self.generatorConfig)
         return   exportManager.getFileName(for: videoFile, in: outputDirectory, format: format, type: type, density: density, addPath: addPath)
     }
+}
+
+func generateHash(filePath: String, size: String, density: String, creationDate: String) -> String {
+    // Concatenate the attributes into a single string
+    let combinedString = "\(filePath)\(size)\(density)\(creationDate)"
+    
+    // Convert the string to data
+    let data = Data(combinedString.utf8)
+    
+    // Generate the SHA256 hash
+    let hash = SHA256.hash(data: data)
+    
+    // Convert the hash to a hex string
+    return hash.compactMap { String(format: "%02x", $0) }.joined()
 }
 
 

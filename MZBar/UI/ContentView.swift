@@ -28,7 +28,7 @@ extension EnvironmentValues {
     }
 }
  enum TabSelection {
-        case mosaic, preview, playlist, settings
+        case mosaic, preview, playlist, settings, navigator
     }
 /// Main
 struct ContentView: View {
@@ -67,6 +67,7 @@ struct ContentView: View {
                 
                 SidebarView(viewModel: viewModel)
                     .frame(alignment: .center)
+                    .frame(width: 40)
                     //.opacity(0.2)
             }
             detail: {
@@ -126,21 +127,24 @@ private struct SidebarView: View {
                         }
                     }
                     .listStyle(.sidebar)
-                }
-            
-            
-    
-            
+                
             Spacer()
-            
+            MosaicNavigatorButton(viewModel: viewModel)
+        }
+            Spacer()
             SettingsButton()
         }.frame(minWidth: 80, maxWidth: 80, alignment: .center)
             .padding(.horizontal, 16)
-            .opacity(0.7)
+            .opacity(1)
     }
     }
 }
+#Preview("Sidepbar")
+{
+    let viewmodel = MosaicViewModel()
 
+    SidebarView(viewModel: viewmodel)
+}
 
 private struct TabItemView: View {
     let tab: TabSelection
@@ -223,7 +227,7 @@ private struct DetailView: View {
             EnhancedMosaicSettings(viewModel: viewModel)
             .opacity(viewModel.isProcessing ? 0.05 : 1)
         }
-    if viewModel.isProcessing {
+        if  viewModel.DisplayCloseButton{
                 EnhancedProgressView(viewModel: viewModel)
                     .transition(.asymmetric(
                         insertion: .move(edge: .trailing).combined(with: .opacity),
@@ -254,6 +258,25 @@ private struct SettingsButton: View {
         .buttonStyle(.plain)
     }
 }
+private struct MosaicNavigatorButton: View {
+    @ObservedObject var viewModel: MosaicViewModel
+    var body: some View {
+        Button(action: { viewModel.showMosaicNavigator() }) {
+            VStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 24))
+                    .symbolRenderingMode(.hierarchical)
+                Text("Mosaic Navigator")
+                    .font(.caption)
+            }
+            .foregroundStyle(Color.secondary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 
 // MARK: - Tabs
 struct EnhancedMosaicSettings: View {
@@ -1471,6 +1494,11 @@ struct EnhancedActionButtons: View {
                         primaryButton("Save Settings", icon: "checkmark.circle.fill") {
                             viewModel.updateConfig()
                         } .disabled(mode != .settings && viewModel.inputPaths.isEmpty)
+                    
+                    case .navigator:
+                        primaryButton("Generate Mosaic", icon: "square.grid.3x3.fill") {
+                            viewModel.processMosaics()
+                        } .disabled(mode != .settings && viewModel.inputPaths.isEmpty)
                     }
                 }
                 
@@ -1653,75 +1681,79 @@ struct OptionToggle: View {
 }
 
 struct EnhancedProgressView: View {
-  @ObservedObject var viewModel: MosaicViewModel
-  @State private var selectedTab = 0
-
-  var body: some View {
-    ScrollView {
-      VStack(spacing: 20) {
-        // Overall Progress
-        SettingsCard(title: "Concurrency", icon: "dial.high.fill", viewModel: viewModel) {
-          Picker("Concurrent Ops", selection: $viewModel.concurrentOps) {
-            ForEach(viewModel.concurrent, id: \.self) { concurrent in
-              Text(String(concurrent)).tag(concurrent)
+    @ObservedObject var viewModel: MosaicViewModel
+    @State private var selectedTab = 0
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                // Overall Progress
+                SettingsCard(title: "Concurrency", icon: "dial.high.fill", viewModel: viewModel) {
+                    Picker("Concurrent Ops", selection: $viewModel.concurrentOps) {
+                        ForEach(viewModel.concurrent, id: \.self) { concurrent in
+                            Text(String(concurrent)).tag(concurrent)
+                        }
+                    }.pickerStyle(.segmented)
+                        .onChange(of: viewModel.concurrentOps) {
+                            viewModel.updateMaxConcurrentTasks()
+                        }
+                }
+                
+                // Show Cancel button during processing, Close button when complete
+                if viewModel.isProcessing {
+                    Button(role: .destructive) {
+                        withAnimation {
+                            viewModel.cancelGeneration()
+                        }
+                    } label: {
+                        Label("Cancel", systemImage: "stop.circle.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(ActionButtonStyle(style: .destructive))
+                } else {
+                    Button {
+                        withAnimation {
+                            viewModel.isProcessing = false
+                            viewModel.DisplayCloseButton = false
+                        }
+                    } label: {
+                        Label("Close", systemImage: "xmark.circle.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(ActionButtonStyle(style: .secondary))
+                }
+                
+                DynamicGridProgress(
+                    title: "Overall Progress",
+                    progress: viewModel.progressG,
+                    icon: "chart.bar.fill",
+                    color: viewModel.currentTheme.colors.primary,
+                    fileCount: viewModel.inputPaths.count
+                ).transition(.scale.combined(with: .opacity))
+                
+                // Only show Browse Mosaics button when processing is complete
+                if !viewModel.isProcessing && !viewModel.completedFiles.isEmpty {
+                    Button(action: { viewModel.showMosaicBrowser() }) {
+                        Label("Browse Mosaics", systemImage: "photo.on.rectangle")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding()
+                }
+                
+                StatusMessagesView(
+                    messages: [
+                        .init(icon: "doc.text", text: viewModel.statusMessage1, type: .info),
+                        .init(icon: "chart.bar.fill", text: viewModel.statusMessage2, type: .info),
+                        .init(icon: "clock", text: viewModel.statusMessage3, type: .info),
+                        .init(icon: "timer", text: viewModel.statusMessage4, type: .info),
+                    ]
+                )
+                
+                ProcessingQueueView(viewModel: viewModel)
             }
-          }.pickerStyle(.segmented)
-            .onChange(of: viewModel.concurrentOps) {
-              viewModel.updateMaxConcurrentTasks()
-            }
         }
-        Button(role: .destructive) {
-          withAnimation {
-            viewModel.cancelGeneration()
-          }
-        } label: {
-          Label("Cancel", systemImage: "stop.circle.fill")
-            .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(ActionButtonStyle(style: .destructive))
-        DynamicGridProgress(
-          title: "Overall Progress",
-          progress: viewModel.progressG,
-          icon: "chart.bar.fill",
-          color: viewModel.currentTheme.colors.primary,
-          fileCount: viewModel.inputPaths.count
-        ).transition(.scale.combined(with: .opacity))
-          Button(action: { viewModel.showMosaicBrowser() }) {
-              Label("Browse Mosaics", systemImage: "photo.on.rectangle")
-                  .frame(maxWidth: .infinity)
-          }
-          .buttonStyle(.borderedProminent)
-          .padding()
-        StatusMessagesView(
-          messages: [
-            .init(icon: "doc.text", text: viewModel.statusMessage1, type: .info),
-            .init(icon: "chart.bar.fill", text: viewModel.statusMessage2, type: .info),
-            .init(icon: "clock", text: viewModel.statusMessage3, type: .info),
-            .init(icon: "timer", text: viewModel.statusMessage4, type: .info),
-          ]//.filter { !$0.text.isEmpty })
-        )
-        /*// Tabs
-        Picker("View", selection: $selectedTab) {
-          Text("Active Queue").tag(0)
-          Text("Completed").tag(1)
-        }
-        .pickerStyle(.segmented)
-        .padding(.horizontal) */
-        ProcessingQueueView(viewModel: viewModel)    
-          /*  if selectedTab == 0 {
-          QueueProgressView(viewModel: viewModel)
-            .padding(20)
-            // .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-        } else {
-          CompletedFilesView(viewModel: viewModel)
-            .padding(20)
-            //.background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-        }*/
-      }
     }
-  }
 }
 
 

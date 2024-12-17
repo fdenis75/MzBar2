@@ -12,8 +12,8 @@
 	"argv": [
 		"/opt/homebrew/bin/xcode-build-server"
 	],
-	"workspace": "/Users/francois/Documents/Dev/Apps/MZBar copie/MZBar.xcodeproj/project.xcworkspace",
-	"build_root": "/Users/francois/Library/Developer/Xcode/DerivedData/MZBar-efjbqubaqkbroiaqjabbqwevxtom",
+	"workspace": "/Users/francois/Documents/MZBardesignCursorcopie2/MZBar.xcodeproj/project.xcworkspace",
+	"build_root": "/Users/francois/Library/Developer/Xcode/DerivedData/MZBar-efrlcwabaxahfacvepszhunvghfq",
 	"scheme": "MZBar",
 	"kind": "xcode"
 }

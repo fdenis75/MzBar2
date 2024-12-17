@@ -105,6 +105,10 @@ public final class PreviewGenerator {
         density: DensityConfig,
         previewDuration: Double
     ) async throws -> URL {
+        defer {
+            cleanup()
+        }
+        
         let startTime = CFAbsoluteTimeGetCurrent()
         
         // Initial check
@@ -503,6 +507,21 @@ public final class PreviewGenerator {
     
     public func resetExport() {
         currentExportSession?.cancelExport()
+        isCancelled = false
+    }
+    
+    private func cleanup() {
+        // Reset export tracking
+        exportStartTime = nil
+        lastexportpct = 0
+        countsame = 0
+        
+        // Clear current session
+        currentExportSession?.cancelExport()
+        currentExportSession = nil
+        currentVideoFile = nil
+        
+        // Reset flags
         isCancelled = false
     }
 }

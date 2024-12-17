@@ -30,8 +30,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "204"
-            endingLineNumber = "204"
+            startingLineNumber = "203"
+            endingLineNumber = "203"
             landmarkName = "processSingleFile(video:output:config:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -46,8 +46,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "363"
-            endingLineNumber = "363"
+            startingLineNumber = "370"
+            endingLineNumber = "370"
             landmarkName = "generatePreviews(for:density:duration:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -206,9 +206,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "420"
-            endingLineNumber = "420"
-            landmarkName = "startBackgroundActivity(reason:)"
+            startingLineNumber = "427"
+            endingLineNumber = "427"
+            landmarkName = "generatePreviews(for:density:duration:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -234,9 +234,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "272"
-            endingLineNumber = "272"
-            landmarkName = "generatePreviews(for:density:duration:)"
+            startingLineNumber = "279"
+            endingLineNumber = "279"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -250,9 +250,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "275"
-            endingLineNumber = "275"
-            landmarkName = "generatePreviews(for:density:duration:)"
+            startingLineNumber = "282"
+            endingLineNumber = "282"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -266,9 +266,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "276"
-            endingLineNumber = "276"
-            landmarkName = "generatePreviews(for:density:duration:)"
+            startingLineNumber = "283"
+            endingLineNumber = "283"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -298,8 +298,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "896"
-            endingLineNumber = "896"
+            startingLineNumber = "906"
+            endingLineNumber = "906"
             landmarkName = "GenerationCoordinator"
             landmarkType = "21">
          </BreakpointContent>
@@ -328,9 +328,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "646"
-            endingLineNumber = "646"
-            landmarkName = "updateProgress(currentFile:processedFiles:totalFiles:startTime:skippedFiles:errorFiles:fileProgress:)"
+            startingLineNumber = "653"
+            endingLineNumber = "653"
+            landmarkName = "generatePlaylists(for:outputDirectory:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -344,10 +344,10 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "680"
-            endingLineNumber = "680"
-            landmarkName = "GenerationCoordinator"
-            landmarkType = "3">
+            startingLineNumber = "687"
+            endingLineNumber = "687"
+            landmarkName = "updateProgress(currentFile:processedFiles:totalFiles:startTime:skippedFiles:errorFiles:fileProgress:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -360,9 +360,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "687"
-            endingLineNumber = "687"
-            landmarkName = "processMetadata(for:)"
+            startingLineNumber = "694"
+            endingLineNumber = "694"
+            landmarkName = "updateProgress(currentFile:processedFiles:totalFiles:startTime:skippedFiles:errorFiles:fileProgress:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -376,8 +376,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "676"
-            endingLineNumber = "676"
+            startingLineNumber = "683"
+            endingLineNumber = "683"
             landmarkName = "updateProgress(currentFile:processedFiles:totalFiles:startTime:skippedFiles:errorFiles:fileProgress:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -392,10 +392,10 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "681"
-            endingLineNumber = "681"
-            landmarkName = "GenerationCoordinator"
-            landmarkType = "3">
+            startingLineNumber = "688"
+            endingLineNumber = "688"
+            landmarkName = "updateProgress(currentFile:processedFiles:totalFiles:startTime:skippedFiles:errorFiles:fileProgress:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -468,10 +468,10 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "736"
-            endingLineNumber = "736"
-            landmarkName = "GenerationCoordinator"
-            landmarkType = "3">
+            startingLineNumber = "746"
+            endingLineNumber = "746"
+            landmarkName = "processMetadata(for:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -532,8 +532,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "670"
-            endingLineNumber = "670"
+            startingLineNumber = "677"
+            endingLineNumber = "677"
             landmarkName = "updateProgress(currentFile:processedFiles:totalFiles:startTime:skippedFiles:errorFiles:fileProgress:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -548,8 +548,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "671"
-            endingLineNumber = "671"
+            startingLineNumber = "678"
+            endingLineNumber = "678"
             landmarkName = "updateProgress(currentFile:processedFiles:totalFiles:startTime:skippedFiles:errorFiles:fileProgress:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -564,8 +564,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "666"
-            endingLineNumber = "666"
+            startingLineNumber = "673"
+            endingLineNumber = "673"
             landmarkName = "updateProgress(currentFile:processedFiles:totalFiles:startTime:skippedFiles:errorFiles:fileProgress:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -580,8 +580,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "667"
-            endingLineNumber = "667"
+            startingLineNumber = "674"
+            endingLineNumber = "674"
             landmarkName = "updateProgress(currentFile:processedFiles:totalFiles:startTime:skippedFiles:errorFiles:fileProgress:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -596,8 +596,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "316"
-            endingLineNumber = "316"
+            startingLineNumber = "323"
+            endingLineNumber = "323"
             landmarkName = "generatePreviews(for:density:duration:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -612,8 +612,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "318"
-            endingLineNumber = "318"
+            startingLineNumber = "325"
+            endingLineNumber = "325"
             landmarkName = "generatePreviews(for:density:duration:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -628,8 +628,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "360"
-            endingLineNumber = "360"
+            startingLineNumber = "367"
+            endingLineNumber = "367"
             landmarkName = "generatePreviews(for:density:duration:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -644,8 +644,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "257"
-            endingLineNumber = "257"
+            startingLineNumber = "264"
+            endingLineNumber = "264"
             landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -660,9 +660,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "279"
-            endingLineNumber = "279"
-            landmarkName = "generatePreviews(for:density:duration:)"
+            startingLineNumber = "286"
+            endingLineNumber = "286"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -676,10 +676,10 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "260"
-            endingLineNumber = "260"
-            landmarkName = "GenerationCoordinator"
-            landmarkType = "3">
+            startingLineNumber = "267"
+            endingLineNumber = "267"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -724,8 +724,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "190"
-            endingLineNumber = "190"
+            startingLineNumber = "189"
+            endingLineNumber = "189"
             landmarkName = "processSingleFile(video:output:config:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1044,9 +1044,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "515"
-            endingLineNumber = "515"
-            landmarkName = "drawMetadata(context:metadata:width:height:)"
+            startingLineNumber = "511"
+            endingLineNumber = "511"
+            landmarkName = "drawTimestamps(context:timestamps:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1060,8 +1060,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "187"
-            endingLineNumber = "187"
+            startingLineNumber = "186"
+            endingLineNumber = "186"
             landmarkName = "processSingleFile(video:output:config:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1076,8 +1076,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "194"
-            endingLineNumber = "194"
+            startingLineNumber = "193"
+            endingLineNumber = "193"
             landmarkName = "processSingleFile(video:output:config:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1092,9 +1092,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "527"
-            endingLineNumber = "527"
-            landmarkName = "drawMetadata(context:metadata:width:height:)"
+            startingLineNumber = "523"
+            endingLineNumber = "523"
+            landmarkName = "drawTimestamps(context:timestamps:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1108,9 +1108,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "518"
-            endingLineNumber = "518"
-            landmarkName = "drawMetadata(context:metadata:width:height:)"
+            startingLineNumber = "514"
+            endingLineNumber = "514"
+            landmarkName = "drawTimestamps(context:timestamps:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1124,8 +1124,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "210"
-            endingLineNumber = "210"
+            startingLineNumber = "209"
+            endingLineNumber = "209"
             landmarkName = "processSingleFile(video:output:config:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1204,25 +1204,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "338"
-            endingLineNumber = "338"
+            startingLineNumber = "345"
+            endingLineNumber = "345"
             landmarkName = "generatePreviews(for:density:duration:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "99B65369-803C-42B8-A59C-92015EFC09D9"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "113"
-            endingLineNumber = "113"
-            landmarkName = "processSingleFile(video:output:config:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1236,8 +1220,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "325"
-            endingLineNumber = "325"
+            startingLineNumber = "332"
+            endingLineNumber = "332"
             landmarkName = "generatePreviews(for:density:duration:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1300,9 +1284,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "304"
-            endingLineNumber = "304"
-            landmarkName = "generateDateRangePlaylist()"
+            startingLineNumber = "325"
+            endingLineNumber = "325"
+            landmarkName = "updateCodec()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1348,9 +1332,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "426"
-            endingLineNumber = "426"
-            landmarkName = "updateStatusMessages(stage:)"
+            startingLineNumber = "451"
+            endingLineNumber = "451"
+            landmarkName = "cancelGeneration()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1364,9 +1348,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "433"
-            endingLineNumber = "433"
-            landmarkName = "updateFileProgress(_:progress:stage:)"
+            startingLineNumber = "458"
+            endingLineNumber = "458"
+            landmarkName = "cancelGeneration()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1380,9 +1364,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "417"
-            endingLineNumber = "417"
-            landmarkName = "startBackgroundActivity(reason:)"
+            startingLineNumber = "424"
+            endingLineNumber = "424"
+            landmarkName = "generatePreviews(for:density:duration:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1396,9 +1380,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "150"
-            endingLineNumber = "150"
-            landmarkName = "processMosaics()"
+            startingLineNumber = "163"
+            endingLineNumber = "163"
+            landmarkName = "init()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1412,9 +1396,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "433"
-            endingLineNumber = "433"
-            landmarkName = "startBackgroundActivity(reason:)"
+            startingLineNumber = "440"
+            endingLineNumber = "440"
+            landmarkName = "generatePreviews(for:density:duration:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1492,9 +1476,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "461"
-            endingLineNumber = "461"
-            landmarkName = "cancelFile(_:)"
+            startingLineNumber = "468"
+            endingLineNumber = "468"
+            landmarkName = "startBackgroundActivity(reason:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1556,9 +1540,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "273"
-            endingLineNumber = "273"
-            landmarkName = "generatePreviews(for:density:duration:)"
+            startingLineNumber = "280"
+            endingLineNumber = "280"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1572,9 +1556,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "448"
-            endingLineNumber = "448"
-            landmarkName = "cancelFile(_:)"
+            startingLineNumber = "455"
+            endingLineNumber = "455"
+            landmarkName = "startBackgroundActivity(reason:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1588,9 +1572,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "449"
-            endingLineNumber = "449"
-            landmarkName = "cancelFile(_:)"
+            startingLineNumber = "456"
+            endingLineNumber = "456"
+            landmarkName = "startBackgroundActivity(reason:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1946,9 +1930,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "993"
-            endingLineNumber = "993"
-            landmarkName = "createPlaylistDiff(from:outputFolder:)"
+            startingLineNumber = "1003"
+            endingLineNumber = "1003"
+            landmarkName = "getFiles(input:width:config:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2006,10 +1990,10 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "262"
-            endingLineNumber = "262"
-            landmarkName = "GenerationCoordinator"
-            landmarkType = "3">
+            startingLineNumber = "269"
+            endingLineNumber = "269"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2022,9 +2006,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "277"
-            endingLineNumber = "277"
-            landmarkName = "generatePreviews(for:density:duration:)"
+            startingLineNumber = "284"
+            endingLineNumber = "284"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2038,8 +2022,8 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1445"
-            endingLineNumber = "1445"
+            startingLineNumber = "1451"
+            endingLineNumber = "1451"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -2176,15 +2160,15 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "16830177-9237-4D76-B022-99514590F0DA"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "469"
-            endingLineNumber = "469"
-            landmarkName = "cancelGeneration()"
+            startingLineNumber = "476"
+            endingLineNumber = "476"
+            landmarkName = "startBackgroundActivity(reason:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2198,9 +2182,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "466"
-            endingLineNumber = "466"
-            landmarkName = "cancelGeneration()"
+            startingLineNumber = "473"
+            endingLineNumber = "473"
+            landmarkName = "startBackgroundActivity(reason:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2214,10 +2198,10 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "475"
-            endingLineNumber = "475"
-            landmarkName = "MosaicViewModel"
-            landmarkType = "3">
+            startingLineNumber = "500"
+            endingLineNumber = "500"
+            landmarkName = "getCurrentConfig()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2230,8 +2214,8 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1254"
-            endingLineNumber = "1254"
+            startingLineNumber = "1260"
+            endingLineNumber = "1260"
             landmarkName = "selectFiles()"
             landmarkType = "7">
          </BreakpointContent>
@@ -2246,9 +2230,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "483"
-            endingLineNumber = "483"
-            landmarkName = "getInputFiles(Pconfig:)"
+            startingLineNumber = "508"
+            endingLineNumber = "508"
+            landmarkName = "updateProgress(with:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2256,7 +2240,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "308FBFAF-A8F6-4FDE-9146-84230E0CE205"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/MosaicGenerator/MosaicCore/MosaicPipeline/ProcessingPipeline.swift"
@@ -2272,7 +2256,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "2D0531A4-FB0F-4D0F-B149-69D18ED8BE74"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/MosaicGenerator/MosaicCore/MosaicPipeline/ProcessingPipeline.swift"
@@ -2294,9 +2278,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "470"
-            endingLineNumber = "470"
-            landmarkName = "cancelGeneration()"
+            startingLineNumber = "477"
+            endingLineNumber = "477"
+            landmarkName = "startBackgroundActivity(reason:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2438,9 +2422,9 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1088"
-            endingLineNumber = "1088"
-            landmarkName = "fileListView"
+            startingLineNumber = "1094"
+            endingLineNumber = "1094"
+            landmarkName = "emptyStateView"
             landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2454,8 +2438,8 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "88"
-            endingLineNumber = "88"
+            startingLineNumber = "89"
+            endingLineNumber = "89"
             landmarkName = "SidebarView"
             landmarkType = "14">
          </BreakpointContent>
@@ -2518,24 +2502,24 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "89"
-            endingLineNumber = "89"
-            landmarkName = "selectedMode"
-            landmarkType = "24">
+            startingLineNumber = "102"
+            endingLineNumber = "102"
+            landmarkName = "fetchMosaics()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "2474F38F-D47E-457A-B7A3-8DA7CBB3B25C"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "883"
-            endingLineNumber = "883"
+            startingLineNumber = "889"
+            endingLineNumber = "889"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -2592,14 +2576,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "57EACA56-9782-48D9-8CA3-630EBCD64910"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "887"
-            endingLineNumber = "887"
+            startingLineNumber = "893"
+            endingLineNumber = "893"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -2614,8 +2598,8 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "878"
-            endingLineNumber = "878"
+            startingLineNumber = "884"
+            endingLineNumber = "884"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -2624,14 +2608,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "FD12A485-8718-4C2C-A9D9-C1FC62FFE9C6"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "879"
-            endingLineNumber = "879"
+            startingLineNumber = "885"
+            endingLineNumber = "885"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -2640,14 +2624,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "2F44C13B-3ED1-45E2-A3FC-C5F866AE469C"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "906"
-            endingLineNumber = "906"
+            startingLineNumber = "912"
+            endingLineNumber = "912"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -2656,14 +2640,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "00F216B9-F90E-4ABF-B484-2CD3108C5E37"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "880"
-            endingLineNumber = "880"
+            startingLineNumber = "886"
+            endingLineNumber = "886"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -2678,8 +2662,8 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "773"
-            endingLineNumber = "773"
+            startingLineNumber = "779"
+            endingLineNumber = "779"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -2694,8 +2678,8 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "772"
-            endingLineNumber = "772"
+            startingLineNumber = "778"
+            endingLineNumber = "778"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -2704,14 +2688,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "C5C2AC33-B835-41F2-85B2-7F8E31433ECE"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "402"
-            endingLineNumber = "402"
+            startingLineNumber = "398"
+            endingLineNumber = "398"
             landmarkName = "generateMosaic(from:layout:metadata:config:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2726,9 +2710,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "370"
-            endingLineNumber = "370"
-            landmarkName = "generateMosaic(from:layout:metadata:config:)"
+            startingLineNumber = "366"
+            endingLineNumber = "366"
+            landmarkName = "drawImage(_:in:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2742,9 +2726,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "377"
-            endingLineNumber = "377"
-            landmarkName = "getCurrentConfig()"
+            startingLineNumber = "401"
+            endingLineNumber = "401"
+            landmarkName = "generateDateRangePlaylist()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2758,10 +2742,10 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "137"
-            endingLineNumber = "137"
-            landmarkName = "MosaicViewModel"
-            landmarkType = "3">
+            startingLineNumber = "150"
+            endingLineNumber = "150"
+            landmarkName = "init()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2790,8 +2774,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "172"
-            endingLineNumber = "172"
+            startingLineNumber = "175"
+            endingLineNumber = "175"
             landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2800,7 +2784,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "70B8E0C0-8744-4359-A893-C08B24056E75"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
@@ -2822,9 +2806,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "381"
-            endingLineNumber = "381"
-            landmarkName = "getCurrentConfig()"
+            startingLineNumber = "405"
+            endingLineNumber = "405"
+            landmarkName = "generateDateRangePlaylist()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2838,8 +2822,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "173"
-            endingLineNumber = "173"
+            startingLineNumber = "177"
+            endingLineNumber = "177"
             landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2886,9 +2870,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "149"
-            endingLineNumber = "149"
-            landmarkName = "processMosaics()"
+            startingLineNumber = "162"
+            endingLineNumber = "162"
+            landmarkName = "init()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2902,9 +2886,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "148"
-            endingLineNumber = "148"
-            landmarkName = "processMosaics()"
+            startingLineNumber = "161"
+            endingLineNumber = "161"
+            landmarkName = "init()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2918,9 +2902,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "147"
-            endingLineNumber = "147"
-            landmarkName = "processMosaics()"
+            startingLineNumber = "160"
+            endingLineNumber = "160"
+            landmarkName = "init()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2934,9 +2918,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "138"
-            endingLineNumber = "138"
-            landmarkName = "processMosaics()"
+            startingLineNumber = "151"
+            endingLineNumber = "151"
+            landmarkName = "init()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2944,7 +2928,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "F079635B-F5BA-4CB8-803E-D417A1069AC8"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/QuickLookPreview/PreviewViewController.swift"
@@ -2966,8 +2950,8 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1786"
-            endingLineNumber = "1786"
+            startingLineNumber = "1793"
+            endingLineNumber = "1793"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -2982,8 +2966,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "174"
-            endingLineNumber = "174"
+            startingLineNumber = "178"
+            endingLineNumber = "178"
             landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -2998,8 +2982,8 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "97"
-            endingLineNumber = "97"
+            startingLineNumber = "98"
+            endingLineNumber = "98"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -3014,26 +2998,26 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2471"
-            endingLineNumber = "2471"
-            landmarkName = "selectedFile"
-            landmarkType = "24">
+            startingLineNumber = "2478"
+            endingLineNumber = "2478"
+            landmarkName = "MosaicBrowserView"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "53A51C3F-83FD-4DDB-AF5D-682375A72DBC"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2478"
-            endingLineNumber = "2478"
-            landmarkName = "MosaicDetailView"
-            landmarkType = "14">
+            startingLineNumber = "2485"
+            endingLineNumber = "2485"
+            landmarkName = "body"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -3046,10 +3030,10 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2465"
-            endingLineNumber = "2465"
-            landmarkName = "body"
-            landmarkType = "24">
+            startingLineNumber = "2472"
+            endingLineNumber = "2472"
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -3062,10 +3046,10 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2452"
-            endingLineNumber = "2452"
-            landmarkName = "body"
-            landmarkType = "24">
+            startingLineNumber = "2459"
+            endingLineNumber = "2459"
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -3078,8 +3062,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "175"
-            endingLineNumber = "175"
+            startingLineNumber = "181"
+            endingLineNumber = "181"
             landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3094,25 +3078,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "176"
-            endingLineNumber = "176"
+            startingLineNumber = "182"
+            endingLineNumber = "182"
             landmarkName = "generateMosaics(for:width:density:format:options:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "D44A5624-05E1-4A51-AB26-0DDBF0204AA3"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "114"
-            endingLineNumber = "114"
-            landmarkName = "processSingleFile(video:output:config:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3126,9 +3094,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "456"
-            endingLineNumber = "456"
-            landmarkName = "completeFileProgress(_:outputURL:)"
+            startingLineNumber = "481"
+            endingLineNumber = "481"
+            landmarkName = "getCurrentConfig()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3142,9 +3110,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "414"
-            endingLineNumber = "414"
-            landmarkName = "updateProgress(with:)"
+            startingLineNumber = "439"
+            endingLineNumber = "439"
+            landmarkName = "cancelGeneration()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3158,8 +3126,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "255"
-            endingLineNumber = "255"
+            startingLineNumber = "262"
+            endingLineNumber = "262"
             landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3174,9 +3142,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "470"
-            endingLineNumber = "470"
-            landmarkName = "completeFileProgress(_:outputURL:)"
+            startingLineNumber = "495"
+            endingLineNumber = "495"
+            landmarkName = "getCurrentConfig()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3190,10 +3158,10 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2451"
-            endingLineNumber = "2451"
-            landmarkName = "body"
-            landmarkType = "24">
+            startingLineNumber = "2458"
+            endingLineNumber = "2458"
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -3206,10 +3174,10 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2463"
-            endingLineNumber = "2463"
-            landmarkName = "body"
-            landmarkType = "24">
+            startingLineNumber = "2470"
+            endingLineNumber = "2470"
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -3222,24 +3190,24 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2448"
-            endingLineNumber = "2448"
-            landmarkName = "MosaicBrowserView"
-            landmarkType = "14">
+            startingLineNumber = "2455"
+            endingLineNumber = "2455"
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "BF45A2D2-1B55-46B8-AD63-E7F41294BC88"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "343"
-            endingLineNumber = "343"
+            startingLineNumber = "350"
+            endingLineNumber = "350"
             landmarkName = "generatePreviews(for:density:duration:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3248,14 +3216,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "F5EDBE1F-E866-4797-88ED-695EF060DBD9"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "344"
-            endingLineNumber = "344"
+            startingLineNumber = "351"
+            endingLineNumber = "351"
             landmarkName = "generatePreviews(for:density:duration:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3264,7 +3232,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.ExceptionBreakpoint">
          <BreakpointContent
             uuid = "010E25C5-6500-4810-9F2E-42D5C50B5313"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             nameForDebugger = "whyN"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -3283,8 +3251,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "191"
-            endingLineNumber = "191"
+            startingLineNumber = "190"
+            endingLineNumber = "190"
             landmarkName = "processSingleFile(video:output:config:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3299,8 +3267,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "115"
-            endingLineNumber = "115"
+            startingLineNumber = "114"
+            endingLineNumber = "114"
             landmarkName = "processSingleFile(video:output:config:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3315,9 +3283,9 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "579"
-            endingLineNumber = "579"
-            landmarkName = "saveMosaic(_:for:in:format:type:density:addPath:)"
+            startingLineNumber = "575"
+            endingLineNumber = "575"
+            landmarkName = "drawMetadata(context:metadata:width:height:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3331,8 +3299,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/MosaicGenerator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "211"
-            endingLineNumber = "211"
+            startingLineNumber = "210"
+            endingLineNumber = "210"
             landmarkName = "processSingleFile(video:output:config:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3347,8 +3315,8 @@
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "178"
-            endingLineNumber = "178"
+            startingLineNumber = "184"
+            endingLineNumber = "184"
             landmarkName = "generateMosaics(for:width:density:format:options:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -3357,31 +3325,15 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "BD285239-123F-479C-920A-5064793701DE"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "258"
-            endingLineNumber = "258"
+            startingLineNumber = "265"
+            endingLineNumber = "265"
             landmarkName = "generateMosaics(for:width:density:format:options:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "A2359DA3-7768-455D-8712-6454FD1BF68D"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MZBar/UI/MosaicViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "241"
-            endingLineNumber = "241"
-            landmarkName = "generateMosaictoday()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3395,9 +3347,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "166"
-            endingLineNumber = "166"
-            landmarkName = "processMosaics()"
+            startingLineNumber = "179"
+            endingLineNumber = "179"
+            landmarkName = "showMosaicBrowser()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3411,9 +3363,9 @@
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "162"
-            endingLineNumber = "162"
-            landmarkName = "processMosaics()"
+            startingLineNumber = "175"
+            endingLineNumber = "175"
+            landmarkName = "showMosaicBrowser()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3421,14 +3373,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "F377B88D-B45B-49E1-B047-1EB557535718"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2504"
-            endingLineNumber = "2504"
+            startingLineNumber = "2511"
+            endingLineNumber = "2511"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -3443,8 +3395,104 @@
             filePath = "MZBar/UI/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2462"
-            endingLineNumber = "2462"
+            startingLineNumber = "2469"
+            endingLineNumber = "2469"
+            landmarkName = "unknown"
+            landmarkType = "0">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DFB89F98-1BEE-4EB0-B561-0BF60557C292"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "137"
+            endingLineNumber = "137"
+            landmarkName = "MosaicViewModel"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AA8F065E-6ED3-400E-9A68-4FEBE77F1754"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "455"
+            endingLineNumber = "455"
+            landmarkName = "MovieRow"
+            landmarkType = "14">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "72DD16F0-0F81-46D9-BCEE-7E1CBD7E6AC3"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/Services/DatabaseManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "131"
+            endingLineNumber = "131"
+            landmarkName = "fetchMosaicEntries()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8FBED3CC-5881-4F0E-BE12-6106BB5429BC"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/Services/DatabaseManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "173"
+            endingLineNumber = "173"
+            landmarkName = "fetchAlternativeVersions(for:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "25517B05-502F-49F1-BCC1-7F0BDA07ED13"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/Services/DatabaseManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "170"
+            endingLineNumber = "170"
+            landmarkName = "fetchMosaicEntries()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EBECBD69-2FCD-465A-979C-4BF9C66EA6E1"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "474"
+            endingLineNumber = "474"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -3452,16 +3500,1154 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "DFB89F98-1BEE-4EB0-B561-0BF60557C292"
+            uuid = "B399DDFF-0F37-4C12-BEB6-3FF480D38883"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/Services/DatabaseManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "207"
+            endingLineNumber = "207"
+            landmarkName = "fetchAlternativeVersions(for:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "46E6F8FF-DF6D-4841-8AF5-B5B915299F9F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "76"
+            endingLineNumber = "76"
+            landmarkName = "MosaicViewModel"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D9808719-5C2A-4FAA-961D-EE3F27169F99"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "141"
+            endingLineNumber = "141"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "264E3BA7-E118-45A2-B157-01DDC850510B"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "77"
+            endingLineNumber = "77"
+            landmarkName = "MosaicViewModel"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FAEB9322-DC50-4AEB-B6BA-D126EB5143C7"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "288"
+            endingLineNumber = "288"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BAA676BE-6AE2-41FC-AB73-B5B2981B737B"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "160"
+            endingLineNumber = "160"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "84BBFAEC-4DFB-4E30-BC77-8A5591DB14B9"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "202"
+            endingLineNumber = "202"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A92BD93E-F7A7-495B-BBEB-A9B39A447D64"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "203"
+            endingLineNumber = "203"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "83802F86-771F-4731-8DDB-1BF9A6B21EC7"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "289"
+            endingLineNumber = "289"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C43E3F63-A9EA-4A9C-9526-EA40B85BD3E5"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "301"
+            endingLineNumber = "301"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0CD890D5-F63C-4364-8762-598A8DA1CF7E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "298"
+            endingLineNumber = "298"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B7733E28-EC6C-4D66-A45E-EE07AADD4B65"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "261"
+            endingLineNumber = "261"
+            landmarkName = "ListModeView"
+            landmarkType = "14">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5A15A5AB-2045-4DD4-A5CC-F9F08F7D1E19"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "311"
+            endingLineNumber = "311"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F8AEFB6C-64C9-414D-8B76-35720DDFC9C5"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "263"
+            endingLineNumber = "263"
+            landmarkName = "ListModeView"
+            landmarkType = "14">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C9066743-2D5E-4124-9262-49270E05B19F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "356"
+            endingLineNumber = "356"
+            landmarkName = "loadMore()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CEFE7AEF-09FD-453A-9B24-BBC279366CE6"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "367"
+            endingLineNumber = "367"
+            landmarkName = "updateCache()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C0526CB1-CA1E-4BD1-944E-9AB0CA406C88"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/Services/DatabaseManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "130"
+            endingLineNumber = "130"
+            landmarkName = "DatabaseManager"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7C60B116-AC81-4B57-8839-3A36DC08ED63"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "436"
+            endingLineNumber = "436"
+            landmarkName = "fileRow(mosaic:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "764A9D06-3BF1-4049-A16B-521FC104A7A3"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "892"
+            endingLineNumber = "892"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "457FA3F2-46A7-4776-A212-7C39EF2B9BC4"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "139"
+            endingLineNumber = "139"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "00099022-3701-47E5-9DA1-F36B101BE807"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "293"
+            endingLineNumber = "293"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D998EF4C-ABC5-4D9A-A7FA-E655072A88B5"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "176"
+            endingLineNumber = "176"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0CEF30EA-CAA3-4158-B6AA-AC4CCF3EFFA6"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "164"
+            endingLineNumber = "164"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "228410B6-6812-49F4-AE9D-9F9C9AB546F2"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "165"
+            endingLineNumber = "165"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "76920603-3ADC-4F2E-B5F9-26F89A79BA7E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "183"
+            endingLineNumber = "183"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EAE126CA-A83E-45D2-B79D-26FC7FDD8845"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "558"
+            endingLineNumber = "558"
+            landmarkName = "MosaicViewModel"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0B7F6FCC-04C6-4003-83D1-F443731E900A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "569"
+            endingLineNumber = "569"
+            landmarkName = "completeFileProgress(_:outputURL:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "79BC0681-0A5D-42FA-8799-3281BA1F81C9"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MZBar/UI/MosaicViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "124"
-            endingLineNumber = "124"
-            landmarkName = "showMosaicBrowser()"
+            startingLineNumber = "601"
+            endingLineNumber = "601"
+            landmarkName = "completeProcessing(success:message:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9FCBF8A8-8DBD-40DF-966F-682CD4AA95B3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "350"
+            endingLineNumber = "350"
+            landmarkName = "generateMosaictoday()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "9FCBF8A8-8DBD-40DF-966F-682CD4AA95B3 - 42ac59dd35008c4a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 (Swift.Result&lt;(Foundation.URL, Foundation.URL), Swift.Error&gt;) -&gt; () in closure #1 () async -&gt; () in MZBar.MosaicViewModel.generateMosaictoday() -&gt; ()"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/MosaicViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "350"
+                  endingLineNumber = "350">
+               </Location>
+               <Location
+                  uuid = "9FCBF8A8-8DBD-40DF-966F-682CD4AA95B3 - 4396f6c5c9d7d60"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Swift.MainActor () async -&gt; () in closure #2 (Swift.Result&lt;(Foundation.URL, Foundation.URL), Swift.Error&gt;) -&gt; () in closure #1 () async -&gt; () in MZBar.MosaicViewModel.generateMosaictoday() -&gt; ()"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/MosaicViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "350"
+                  endingLineNumber = "350">
+               </Location>
+               <Location
+                  uuid = "9FCBF8A8-8DBD-40DF-966F-682CD4AA95B3 - 4a3f75b07db5f0ab"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #1 @Swift.MainActor () async -&gt; () in closure #2 (Swift.Result&lt;(Foundation.URL, Foundation.URL), Swift.Error&gt;) -&gt; () in closure #1 () async -&gt; () in MZBar.MosaicViewModel.generateMosaictoday() -&gt; ()"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/MosaicViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "350"
+                  endingLineNumber = "350">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0C46B7BB-6FA7-44B0-8470-DD87A800ABFB"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "233"
+            endingLineNumber = "233"
+            landmarkName = "MosaicViewModel"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AE1E9944-531A-41A9-BBFF-89780FA8B470"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "266"
+            endingLineNumber = "266"
+            landmarkName = "processMosaics()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "27245380-3F89-4FF3-B326-7F929CA1E4F2"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MosaicGenerator/MosaicCore/MosaicPipeline/ProcessingPipeline.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "128"
+            endingLineNumber = "128"
+            landmarkName = "generateMosaics(for:config:completion:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "00406D68-2E1C-47E8-A95A-C48564C93B4F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "230"
+            endingLineNumber = "230"
+            landmarkName = "mainContent"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CF792CE0-9009-4A4B-949E-0F253D9D95AF"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "232"
+            endingLineNumber = "232"
+            landmarkName = "mainContent"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0E93A430-499D-4708-BD50-B808F409BE8A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "140"
+            endingLineNumber = "140"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CA84F988-B146-4344-B708-42C1F2E9AE1C"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MosaicGenerator/MosaicGeneration/PreviewGenerator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "198"
+            endingLineNumber = "198"
+            landmarkName = "generatePreview(for:outputDirectory:density:previewDuration:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F4BADCA2-B992-4A82-A226-FEE804B70CAB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/Services/DatabaseManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "115"
+            endingLineNumber = "115"
+            landmarkName = "cleanDatabase()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "63C68197-6598-4137-AADA-09B337F2B1AA"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "159"
+            endingLineNumber = "159"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "113FE9D4-4EA7-410C-8DFF-8725957198E5"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/MosaicGenerator/MosaicGeneration/GenerationCoordinator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "162"
+            endingLineNumber = "162"
+            landmarkName = "generateMosaics(for:width:density:format:options:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3D6B558B-27F0-4AB1-BCB1-3F2EE3459D58"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "617"
+            endingLineNumber = "617"
+            landmarkName = "completeProcessing(success:message:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7752BEF5-FD52-4FA8-B8FC-C25F1FBBDD2F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1703"
+            endingLineNumber = "1703"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EEDB4946-759D-4458-BA46-5737AE23DAE1"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1714"
+            endingLineNumber = "1714"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "EEDB4946-759D-4458-BA46-5737AE23DAE1 - 900fc9fdb9e6d333"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; SwiftUI.TupleView&lt;(MZBar.SettingsCard&lt;&lt;&lt;opaque return type of SwiftUI.View.onChange&lt;&#x3c4;_0_0 where &#x3c4;_1_0: Swift.Equatable&gt;(of: &#x3c4;_1_0, initial: Swift.Bool, _: () -&gt; ()) -&gt; some&gt;&gt;.0&gt;, SwiftUI._ConditionalContent&lt;&lt;&lt;opaque return type of SwiftUI.View.buttonStyle&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ButtonStyle&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.buttonStyle&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ButtonStyle&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0&gt;, &lt;&lt;opaque return type of SwiftUI.View.transition&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.Transition&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0, Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.padding(SwiftUI.Edge.Set, Swift.Optional&lt;CoreGraphics.CGFloat&gt;) -&gt; some&gt;&gt;.0&gt;, MZBar.StatusMessagesView, MZBar.ProcessingQueueView)&gt; in closure #1 () -&gt; SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(MZBar.SettingsCard&lt;&lt;&lt;opaque return type of SwiftUI.View.onChange&lt;&#x3c4;_0_0 where &#x3c4;_1_0: Swift.Equatable&gt;(of: &#x3c4;_1_0, initial: Swift.Bool, _: () -&gt; ()) -&gt; some&gt;&gt;.0&gt;, SwiftUI._ConditionalContent&lt;&lt;&lt;opaque return type of SwiftUI.View.buttonStyle&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ButtonStyle&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.buttonStyle&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ButtonStyle&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0&gt;, &lt;&lt;opaque return type of SwiftUI.View.transition&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.Transition&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0, Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.padding(SwiftUI.Edge.Set, Swift.Optional&lt;CoreGraphics.CGFloat&gt;) -&gt; some&gt;&gt;.0&gt;, MZBar.StatusMessagesView, MZBar.ProcessingQueueView)&gt;&gt; in MZBar.EnhancedProgressView.body.getter : some"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/ContentView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1714"
+                  endingLineNumber = "1714">
+               </Location>
+               <Location
+                  uuid = "EEDB4946-759D-4458-BA46-5737AE23DAE1 - 1872e544ec884f39"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #4 @Swift.MainActor () -&gt; () in closure #1 () -&gt; SwiftUI.TupleView&lt;(MZBar.SettingsCard&lt;&lt;&lt;opaque return type of SwiftUI.View.onChange&lt;&#x3c4;_0_0 where &#x3c4;_1_0: Swift.Equatable&gt;(of: &#x3c4;_1_0, initial: Swift.Bool, _: () -&gt; ()) -&gt; some&gt;&gt;.0&gt;, SwiftUI._ConditionalContent&lt;&lt;&lt;opaque return type of SwiftUI.View.buttonStyle&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ButtonStyle&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.buttonStyle&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ButtonStyle&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0&gt;, &lt;&lt;opaque return type of SwiftUI.View.transition&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.Transition&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0, Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.padding(SwiftUI.Edge.Set, Swift.Optional&lt;CoreGraphics.CGFloat&gt;) -&gt; some&gt;&gt;.0&gt;, MZBar.StatusMessagesView, MZBar.ProcessingQueueView)&gt; in closure #1 () -&gt; SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(MZBar.SettingsCard&lt;&lt;&lt;opaque return type of SwiftUI.View.onChange&lt;&#x3c4;_0_0 where &#x3c4;_1_0: Swift.Equatable&gt;(of: &#x3c4;_1_0, initial: Swift.Bool, _: () -&gt; ()) -&gt; some&gt;&gt;.0&gt;, SwiftUI._ConditionalContent&lt;&lt;&lt;opaque return type of SwiftUI.View.buttonStyle&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ButtonStyle&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0, &lt;&lt;opaque return type of SwiftUI.View.buttonStyle&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ButtonStyle&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0&gt;, &lt;&lt;opaque return type of SwiftUI.View.transition&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.Transition&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0, Swift.Optional&lt;&lt;&lt;opaque return type of SwiftUI.View.padding(SwiftUI.Edge.Set, Swift.Optional&lt;CoreGraphics.CGFloat&gt;) -&gt; some&gt;&gt;.0&gt;, MZBar.StatusMessagesView, MZBar.ProcessingQueueView)&gt;&gt; in MZBar.EnhancedProgressView.body.getter : some"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/ContentView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1715"
+                  endingLineNumber = "1715">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "976DF253-D42A-4ED8-9531-7D801E5B5424"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "392"
+            endingLineNumber = "392"
+            landmarkName = "updateCache()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CE662F6F-6C1D-4ADB-AEE5-E81B65D79B55"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "406"
+            endingLineNumber = "406"
+            landmarkName = "moveSelectionUp()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "88840B39-DEBE-4036-B068-016EC6CC21EF"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "715"
+            endingLineNumber = "715"
+            landmarkName = "handleKeyPress(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "88840B39-DEBE-4036-B068-016EC6CC21EF - 520d84483cda1e69"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MZBar.FolderModeView.handleKeyPress(SwiftUI.KeyEquivalent) -&gt; ()"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/MosaicNavigatorView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "715"
+                  endingLineNumber = "715">
+               </Location>
+               <Location
+                  uuid = "88840B39-DEBE-4036-B068-016EC6CC21EF - f4a16f8ccbbe18b2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (MZBar.MosaicEntry) -&gt; Swift.Bool in MZBar.FolderModeView.handleKeyPress(SwiftUI.KeyEquivalent) -&gt; ()"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/MosaicNavigatorView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "715"
+                  endingLineNumber = "715">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "795B5809-7D2C-4E56-9A31-3783FDFCD2C4"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "397"
+            endingLineNumber = "397"
+            landmarkName = "moveSelectionUp()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "795B5809-7D2C-4E56-9A31-3783FDFCD2C4 - 8798e1a8d39108a7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MZBar.ListModeView.moveSelectionUp() -&gt; SwiftUI.KeyPress.Result"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/MosaicNavigatorView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "398"
+                  endingLineNumber = "398">
+               </Location>
+               <Location
+                  uuid = "795B5809-7D2C-4E56-9A31-3783FDFCD2C4 - fd960d33a69bd127"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (MZBar.ListModeView.MovieGroup) -&gt; Swift.Bool in MZBar.ListModeView.moveSelectionUp() -&gt; SwiftUI.KeyPress.Result"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/MosaicNavigatorView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "398"
+                  endingLineNumber = "398">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "08064BDA-DF4A-475F-904B-D648FEBA6EF1"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "409"
+            endingLineNumber = "409"
+            landmarkName = "moveSelectionDown()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6CF8F8EE-D3E2-4EAB-A923-F04DD912447A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "906"
+            endingLineNumber = "906"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "05D01933-0A98-4B00-B907-11587402A857"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "907"
+            endingLineNumber = "907"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "375E7DA0-A2ED-426B-B505-8352968C1B05"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "979"
+            endingLineNumber = "979"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "78B7AFAE-E688-4BCB-9A2F-AE5FB33DD721"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "588"
+            endingLineNumber = "588"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7A3295C0-63CD-4694-887D-73ADB5209401"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "719"
+            endingLineNumber = "719"
+            landmarkName = "handleKeyPress(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3C57E1FB-B5D7-49C7-A7E1-5C4890761EDD"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "876"
+            endingLineNumber = "876"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "51693096-C30F-4F65-A995-004759946C46"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "873"
+            endingLineNumber = "873"
+            landmarkName = "MosaicNavigationButtons"
+            landmarkType = "14">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EDCF295B-4415-4A14-B971-3C6A370CE7E5"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "844"
+            endingLineNumber = "844"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B8B22531-6302-463E-BD9F-5BA90CD8F100"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "393"
+            endingLineNumber = "393"
+            landmarkName = "updateCache()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "15D53D1D-CF93-4FEE-898D-C971AB3393F2"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "978"
+            endingLineNumber = "978"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D2EE916B-143A-4495-9427-66FB3F52B14F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "845"
+            endingLineNumber = "845"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "D2EE916B-143A-4495-9427-66FB3F52B14F - 59b087e82b169890"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MZBar.MosaicVersionPicker.body.getter : some"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/MosaicNavigatorView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "845"
+                  endingLineNumber = "845">
+               </Location>
+               <Location
+                  uuid = "D2EE916B-143A-4495-9427-66FB3F52B14F - 258778c47aa2fe85"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (MZBar.MosaicEntry) -&gt; Swift.Bool in MZBar.MosaicVersionPicker.body.getter : some"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/MosaicNavigatorView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "845"
+                  endingLineNumber = "845">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B5D99C35-06BB-4941-A305-42D94215359F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicNavigatorView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "846"
+            endingLineNumber = "846"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "B5D99C35-06BB-4941-A305-42D94215359F - 59b087e82b1698f3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MZBar.MosaicVersionPicker.body.getter : some"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/MosaicNavigatorView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "846"
+                  endingLineNumber = "846">
+               </Location>
+               <Location
+                  uuid = "B5D99C35-06BB-4941-A305-42D94215359F - b61b40f90258845"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 (MZBar.MosaicEntry, MZBar.MosaicEntry) -&gt; Swift.Bool in MZBar.MosaicVersionPicker.body.getter : some"
+                  moduleName = "MZBar.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/francois/Documents/MZBardesignCursorcopie2%20copie%203/MZBar/UI/MosaicNavigatorView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "846"
+                  endingLineNumber = "846">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "ABDFF3CC-8878-4585-A482-E3BA869AEE9D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MZBar/UI/MosaicViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "602"
+            endingLineNumber = "602"
+            landmarkName = "completeProcessing(success:message:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

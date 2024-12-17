@@ -24,6 +24,9 @@ public struct VideoMetadata {
     
     /// Type classification of the video (XS, S, M, L, XL)
     public let type: String
+
+    /// Creation date of the video
+    public let creationDate: String?
     
     /// Initialize new video metadata
     /// - Parameters:
@@ -37,13 +40,15 @@ public struct VideoMetadata {
         duration: Double,
         resolution: CGSize,
         codec: String,
-        type: String
+        type: String,
+        creationDate: String?
     ) {
         self.file = file
         self.duration = duration
         self.resolution = resolution
         self.codec = codec
         self.type = type
+        self.creationDate = creationDate
     }
 }
 
@@ -109,6 +114,7 @@ extension VideoMetadata: CustomStringConvertible {
         Resolution: \(Int(resolution.width))x\(Int(resolution.height))
         Codec: \(codec)
         Type: \(type)
+        Creation Date: \(creationDate)
         """
     }
 }
@@ -129,7 +135,7 @@ extension VideoMetadata {
         let size = try await track.load(.naturalSize)
         let codec = try await track.mediaFormat
         let type = VideoMetadata.classifyType(duration: duration)
-        
+        let creationDate: AVMetadataItem? = try await asset.load(.creationDate)
         // Handle URL based on asset type
         let fileURL: URL
         if let urlAsset = asset as? AVURLAsset {
@@ -143,7 +149,8 @@ extension VideoMetadata {
             duration: duration,
             resolution: size,
             codec: codec,
-            type: type
+                type: type,
+            creationDate: creationDate?.stringValue
         )
     }
 }
